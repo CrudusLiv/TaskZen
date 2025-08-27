@@ -1,0 +1,29 @@
+<div class="k-column card">
+  <div class="k-col-header">
+    @if (!editing) {
+      <h3 (dblclick)="beginEdit()">{{ column.title }}</h3>
+    } @else {
+      <input [(ngModel)]="titleDraft" (keyup.enter)="commitTitle()" (blur)="commitTitle()" />
+    }
+    <div class="k-col-actions">
+  <button (click)="addCard()" title="Add card">＋</button>
+      <button (click)="sort.emit('due')" [class.active]="column.sort==='due'" title="Sort by due">🕒</button>
+      <button (click)="sort.emit('priority')" [class.active]="column.sort==='priority'" title="Sort by priority">⚑</button>
+      <button (click)="sort.emit('created')" [class.active]="column.sort==='created'" title="Sort by created">ⓘ</button>
+  <button (click)="deleteColumn()" title="Delete column">✕</button>
+    </div>
+  </div>
+  <div cdkDropList [id]="column.id" [cdkDropListData]="cards" [cdkDropListConnectedTo]="connectedTo" (cdkDropListDropped)="drop($event)" class="k-card-list">
+    @if (cards.length) {
+      <div *ngFor="let card of cards" cdkDrag>
+        <app-kanban-card [card]="card" [highlight]="highlight"
+          (open)="open.emit($event)"
+          (delete)="removeCard.emit($event)"
+          (update)="updateCard.emit({ id: card.id, changes: $event })"
+          (toggle)="toggleCard.emit(card.id)"></app-kanban-card>
+      </div>
+    } @else {
+      <div class="k-empty">No cards</div>
+    }
+  </div>
+</div>

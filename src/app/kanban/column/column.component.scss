@@ -1,0 +1,14 @@
+.k-column{display:flex;flex-direction:column;gap:.6rem;min-width:15rem;max-width:18rem;}
+.k-col-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.35rem .4rem .25rem;}
+.k-col-header h3{margin:0;font-size:.72rem;cursor:pointer;letter-spacing:.5px;font-weight:600;color:var(--color-text-dim);text-transform:uppercase;}
+.k-col-actions{display:flex;gap:.3rem;}
+.k-col-actions button{background:#1f242b;border:1px solid var(--color-border);border-radius:.4rem;padding:.18rem .45rem;font-size:.55rem;cursor:pointer;color:var(--color-text-dim);transition:background .2s,color .2s,border-color .2s;}
+.k-col-actions button:hover{background:#242a32;color:var(--color-text);} 
+.k-col-actions button.active{background:var(--color-brand);color:#fff;border-color:var(--color-brand);}
+.k-card-list{display:flex;flex-direction:column;gap:.55rem;min-height:2rem;}
+.k-empty{font-size:.58rem;opacity:.55;text-align:center;padding:.55rem 0;color:var(--color-text-dim);}
+input{font-size:.65rem;padding:.25rem .45rem;}
+/* Drag animations */
+.cdk-drag-animating{transition:transform .15s ease;}
+.k-card-list.cdk-drop-list-dragging .k-card:not(.cdk-drag-placeholder){transition:transform .15s ease;}
+.cdk-drag-placeholder{opacity:.3;}

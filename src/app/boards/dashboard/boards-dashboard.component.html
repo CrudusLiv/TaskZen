@@ -1,0 +1,54 @@
+<div class="boards-wrapper">
+  <header class="boards-header">
+    <h1>Boards</h1>
+    <button (click)="openCreate()">Create Board</button>
+    <button class="undo" *ngIf="(lastDeleted$ | async) as ld" (click)="undo()">Undo delete "{{ ld.board.title }}"</button>
+  </header>
+  <div class="create-modal" *ngIf="creating">
+    <form (submit)="create()" (click)="$event.stopPropagation()">
+      <input [(ngModel)]="title" name="title" placeholder="Title" required />
+      <textarea [(ngModel)]="description" name="desc" rows="3" placeholder="Description (optional)"></textarea>
+      <label>Color <input type="color" [(ngModel)]="color" name="color" /></label>
+      <div class="actions">
+        <button type="submit">Create</button>
+        <button type="button" (click)="cancel()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <section *ngIf="(fav$ | async) as fav" class="fav-section" [class.empty]="!fav.length">
+    <h2 *ngIf="fav.length">Favorites</h2>
+    <div class="board-grid">
+      <div class="board-card fav" *ngFor="let b of fav" [style.borderColor]="b.color" (click)="setActive(b.id)">
+        <div class="title-row">
+          <span class="dot" [style.background]="b.color"></span>
+          <span class="title">{{ b.title }}</span>
+          <button class="icon" (click)="toggleFavorite(b.id); $event.stopPropagation()" title="Unfavorite">★</button>
+        </div>
+        <div class="desc" *ngIf="b.description">{{ b.description }}</div>
+        <div class="meta">
+          <button (click)="rename(b); $event.stopPropagation()">Rename</button>
+          <button (click)="delete(b.id); $event.stopPropagation()" class="danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="(others$ | async) as others">
+    <h2>All Boards</h2>
+    <div class="board-grid">
+      <div class="board-card" *ngFor="let b of others" [style.borderColor]="b.color" (click)="setActive(b.id)">
+        <div class="title-row">
+          <span class="dot" [style.background]="b.color"></span>
+          <span class="title">{{ b.title }}</span>
+          <button class="icon" (click)="toggleFavorite(b.id); $event.stopPropagation()" [title]="b.favorite ? 'Unfavorite' : 'Favorite'">{{ b.favorite ? '★' : '☆' }}</button>
+        </div>
+        <div class="desc" *ngIf="b.description">{{ b.description }}</div>
+        <div class="meta">
+          <button (click)="rename(b); $event.stopPropagation()">Rename</button>
+          <button (click)="delete(b.id); $event.stopPropagation()" class="danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

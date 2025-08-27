@@ -1,0 +1,35 @@
+<div class="app-shell" [class.sidebar-open]="sidebarOpen()">
+  <header class="topbar">
+    <button class="icon-btn menu" (click)="toggleSidebar()" aria-label="Toggle navigation">☰</button>
+    <div class="brand">TaskZen</div>
+    <div class="top-actions">
+      <app-notification-bell></app-notification-bell>
+    </div>
+  </header>
+  <aside class="sidebar" (click)="$event.stopPropagation()">
+    <div class="sidebar-inner">
+      <div class="logo-row">
+        <span class="logo heading-gradient">TaskZen</span>
+        <button class="icon-btn close" (click)="closeSidebar()" aria-label="Close navigation">✕</button>
+      </div>
+      <nav class="nav-group">
+        <a routerLink="/boards" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Boards</a>
+        <a routerLink="/kanban" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Active Board</a>
+        <a routerLink="/activity" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Activity</a>
+        <a routerLink="/focus" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Focus</a>
+        <a routerLink="/analytics" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Analytics</a>
+        <div class="nav-section">
+          <div class="section-label">Account</div>
+          <a routerLink="/auth" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Auth</a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <small class="muted">v0.1.0</small>
+      </div>
+    </div>
+  </aside>
+  <div class="overlay" (click)="closeSidebar()" *ngIf="sidebarOpen()"></div>
+  <main class="main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

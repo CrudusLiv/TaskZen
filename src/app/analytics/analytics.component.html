@@ -1,0 +1,15 @@
+<div class="analytics">
+  <h1>Analytics</h1>
+  <div class="analytics-grid">
+    <div class="card streak">
+      <div class="label">Current Streak</div>
+      <div class="value" *ngIf="streak$ | async as s">{{ s }}🔥</div>
+    </div>
+    <div class="card stats">
+      <div class="label">Last 7 Days Completed</div>
+      <ul class="list" *ngIf="stats$ | async as stats">
+        <li *ngFor="let d of stats">{{ d.date }} – {{ d.completed }} tasks ({{ d.minutes }}m)</li>
+      </ul>
+    </div>
+  </div>
+</div>

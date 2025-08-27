@@ -1,0 +1,37 @@
+<ng-container *ngIf="(board$ | async) as board">
+  <ng-container *ngIf="(filter$ | async) as f">
+    <div class="kanban-wrapper">
+      <header class="kb-header">
+        <h1>{{ board.title }}</h1>
+        <div class="filters">
+          <input #search placeholder="Search" [value]="f.text" (input)="setText(search.value)" />
+          <select #prio [value]="f.priority || 'any'" (change)="setPriority(prio.value)">
+            <option value="any">Any Priority</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <input #date type="date" [value]="f.due || ''" (change)="setDue(date.value)" />
+          <button (click)="addColumn()">+ Column</button>
+          <button class="undo" *ngIf="(lastDeleted$ | async) as ld" (click)="undo()">Undo delete "{{ ld.card.title }}"</button>
+        </div>
+      </header>
+      <div class="kb-columns" *ngIf="(columns$ | async) as columns">
+        <app-kanban-column *ngFor="let col of columns; trackBy: trackCol"
+          [column]="col"
+          [connectedTo]="connectedTo(columns, col.id)"
+          [highlight]="f.text"
+          [cards]="(cards(col.id) | async) || []"
+          (add)="addCard(col.id)"
+          (rename)="renameColumn(col.id)"
+          (delete)="deleteColumn(col.id)"
+          (updateCard)="updateCard($event.id, $event.changes)"
+          (toggleCard)="toggleCard($event)"
+          (open)="open($event)"
+          (dropCard)="drop($event, col.id, col.id)"
+          (sort)="setSort(col.id, $event)"></app-kanban-column>
+      </div>
+      <app-card-detail></app-card-detail>
+    </div>
+  </ng-container>
+</ng-container>

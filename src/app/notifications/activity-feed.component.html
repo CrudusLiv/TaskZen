@@ -1,0 +1,25 @@
+<div class="activity-wrapper">
+  <header class="af-header">
+    <h1>Activity Feed</h1>
+    <div class="actions">
+      <button (click)="markAll()">Mark All Read</button>
+      <button class="danger" (click)="clearAll()">Clear All</button>
+    </div>
+  </header>
+  <nav class="filters">
+    <button *ngFor="let f of filters" (click)="setFilter(f.key)" [class.active]="(filter$ | async)===f.key">{{ f.label }}</button>
+  </nav>
+  <div class="feed" *ngIf="(notifications$ | async) as items">
+    <div class="empty" *ngIf="!items.length">No activity</div>
+    <div class="entry" *ngFor="let n of items" [class.unread]="!n.read" (click)="toggle(n)">
+      <span class="icon">{{ icon(n.kind) }}</span>
+      <div class="body">
+        <div class="row">
+          <span class="title">{{ n.title }}</span>
+          <span class="time">{{ n.createdAt | date:'short' }}</span>
+        </div>
+        <div class="desc" *ngIf="n.description">{{ n.description }}</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<div class="k-card" [class.completed]="card.completed" (click)="openDetails()" (dblclick)="edit($event)">
+  <div *ngIf="!editing">
+    <div class="k-row">
+      <span class="k-title" [innerHTML]="mark(card.title)"></span>
+      <span class="k-priority" [class.p-high]="card.priority==='high'" [class.p-medium]="card.priority==='medium'" [class.p-low]="card.priority==='low'"></span>
+    </div>
+    <div class="k-desc" *ngIf="card.description">{{ card.description | slice:0:60 }}<span *ngIf="card.description.length>60">…</span></div>
+    <div class="k-tags" *ngIf="card.tags?.length">
+      <span class="k-tag" *ngFor="let t of card.tags">{{ t }}</span>
+    </div>
+    <div class="k-meta-line">
+      <span class="k-meta" *ngIf="card.dueDate">📅 {{ card.dueDate }} <span *ngIf="dueSoon">⚠️</span></span>
+      <span class="k-meta" *ngIf="card.subtasks.length">✔ {{ completedSubtasks }}/{{ card.subtasks.length }}</span>
+    </div>
+    <div class="k-actions">
+      <button class="k-small" (click)="toggleCompleted($event)" [title]="card.completed? 'Mark incomplete':'Mark complete'">{{ card.completed? '↺' : '✓' }}</button>
+      <button class="k-small" (click)="edit($event)">Edit</button>
+      <button class="k-small danger" (click)="deleteCard($event)">Del</button>
+    </div>
+  </div>
+  <form *ngIf="editing" (submit)="save()" class="k-edit" (click)="$event.stopPropagation()">
+    <input [(ngModel)]="editTitle" name="title" required placeholder="Title" />
+    <textarea [(ngModel)]="editDescription" name="desc" rows="3" placeholder="Description"></textarea>
+    <div class="k-edit-row">
+      <select [(ngModel)]="editPriority" name="priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <input type="date" [(ngModel)]="editDueDate" name="due" />
+    </div>
+    <input [(ngModel)]="editTags" name="tags" placeholder="tags comma separated" />
+    <div class="k-edit-actions">
+      <button type="submit">Save</button>
+      <button type="button" (click)="cancel($event)">Cancel</button>
+    </div>
+  </form>
+  <button class="k-del" (click)="deleteCard($event)">×</button>
+</div>

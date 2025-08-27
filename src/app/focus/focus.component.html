@@ -1,0 +1,8 @@
+<div class="focus-wrapper card">
+  <h1>Focus Mode</h1>
+  <div class="focus-timer" *ngIf="remaining$ | async as r">{{ r | number:'1.0-0' }}s</div>
+  <div class="focus-actions">
+    <button class="btn" (click)="start(25)" *ngIf="!(active$ | async)">Start 25m</button>
+    <button class="btn btn-cancel" (click)="cancel()" *ngIf="active$ | async">Cancel</button>
+  </div>
+</div>
