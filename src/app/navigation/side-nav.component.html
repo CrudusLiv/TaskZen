@@ -1,0 +1,26 @@
+<aside class="sidebar" role="navigation" aria-label="Main navigation" [class.collapsed]="collapsed" [class.open]="open">
+  <div class="sidebar-scroll" tabindex="-1">
+    <div class="sidebar-inner">
+      <div class="logo-row" [attr.data-state]="collapsed ? 'collapsed':'expanded'">
+        <span class="logo heading-gradient">TaskZen</span>
+        <div class="logo-actions">
+          <button type="button" class="icon-btn close" (click)="close.emit()" aria-label="Close navigation" *ngIf="open && isMobile()">✕</button>
+        </div>
+      </div>
+      <nav class="nav-group" (keydown)="onNavKey($event)" aria-label="Primary" tabindex="0">
+        <ng-container *ngFor="let link of navLinks; let i = index">
+          <div *ngIf="link.section && (i===0 || navLinks[i-1].section !== link.section)" class="nav-section" aria-label="{{ link.section }} section">
+            <div class="section-label">{{ link.section }}</div>
+          </div>
+          <a #navItem class="nav-link" [routerLink]="link.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="handleClick()" [attr.aria-label]="collapsed ? link.label : null" [title]="collapsed ? link.label : null" [attr.aria-current]="isActive(link.path) ? 'page': null">
+            <span class="icon" aria-hidden="true">{{ link.icon }}</span>
+            <span class="label">{{ link.label }}</span>
+          </a>
+        </ng-container>
+      </nav>
+      <div class="sidebar-footer">
+        <small class="muted">v0.1.0</small>
+      </div>
+    </div>
+  </div>
+</aside>

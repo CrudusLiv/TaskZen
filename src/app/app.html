@@ -1,35 +1,36 @@
-<div class="app-shell" [class.sidebar-open]="sidebarOpen()">
-  <header class="topbar">
-    <button class="icon-btn menu" (click)="toggleSidebar()" aria-label="Toggle navigation">☰</button>
-    <div class="brand">TaskZen</div>
+<a class="skip-link" href="#main" aria-label="Skip to main content">Skip to content</a>
+<div class="app-shell" [class.sidebar-open]="sidebarOpen()" [class.nav-collapsed]="sidebarCollapsed()">
+  <header class="topbar" role="banner">
+    <div class="left-group">
+  <button type="button" class="icon-btn menu" (click)="toggleSidebar()" aria-label="Toggle navigation" [attr.aria-expanded]="sidebarOpen()">☰</button>
+      <div class="brand" aria-label="Application name">TaskZen</div>
+    </div>
+    <div class="center-group">
+      <nav class="breadcrumbs" aria-label="Breadcrumb" *ngIf="breadcrumbs().length">
+        <ng-container *ngFor="let c of breadcrumbs(); let last = last">
+          <a *ngIf="c.url && !last" [routerLink]="c.url">{{ c.label }}</a>
+          <span *ngIf="!c.url || last" class="current" aria-current="page">{{ c.label }}</span>
+          <span class="sep" *ngIf="!last">/</span>
+        </ng-container>
+      </nav>
+      <div class="search" role="search">
+        <input type="search" placeholder="Search…" aria-label="Search" />
+      </div>
+    </div>
     <div class="top-actions">
+      <div class="accent-swatches" aria-label="Select accent color">
+        <button class="swatch" style="--sw:#7c3aed" (click)="setAccent('#7c3aed')" aria-label="Purple accent"></button>
+        <button class="swatch" style="--sw:#6366f1" (click)="setAccent('#6366f1')" aria-label="Indigo accent"></button>
+        <button class="swatch" style="--sw:#3b82f6" (click)="setAccent('#3b82f6')" aria-label="Blue accent"></button>
+        <button class="swatch" style="--sw:#10b981" (click)="setAccent('#10b981')" aria-label="Green accent"></button>
+      </div>
+      <button class="icon-btn theme-toggle" (click)="toggleTheme()" [attr.aria-pressed]="mode()==='dark'" aria-label="Toggle dark / light mode">{{ mode()==='dark' ? '🌙' : '☀️' }}</button>
       <app-notification-bell></app-notification-bell>
     </div>
   </header>
-  <aside class="sidebar" (click)="$event.stopPropagation()">
-    <div class="sidebar-inner">
-      <div class="logo-row">
-        <span class="logo heading-gradient">TaskZen</span>
-        <button class="icon-btn close" (click)="closeSidebar()" aria-label="Close navigation">✕</button>
-      </div>
-      <nav class="nav-group">
-        <a routerLink="/boards" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Boards</a>
-        <a routerLink="/kanban" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Active Board</a>
-        <a routerLink="/activity" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Activity</a>
-        <a routerLink="/focus" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Focus</a>
-        <a routerLink="/analytics" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Analytics</a>
-        <div class="nav-section">
-          <div class="section-label">Account</div>
-          <a routerLink="/auth" routerLinkActive="active" (click)="closeSidebar()" class="nav-link">Auth</a>
-        </div>
-      </nav>
-      <div class="sidebar-footer">
-        <small class="muted">v0.1.0</small>
-      </div>
-    </div>
-  </aside>
+  <app-side-nav [open]="sidebarOpen()" [collapsed]="sidebarCollapsed()" (close)="closeSidebar()" (toggleCollapse)="toggleCollapse()" (navigate)="closeSidebarOnMobile()"></app-side-nav>
   <div class="overlay" (click)="closeSidebar()" *ngIf="sidebarOpen()"></div>
-  <main class="main">
+  <main id="main" class="main" role="main">
     <router-outlet></router-outlet>
   </main>
 </div>

@@ -1,22 +1,36 @@
 <ng-container *ngIf="(board$ | async) as board">
   <ng-container *ngIf="(filter$ | async) as f">
     <div class="kanban-wrapper">
-      <header class="kb-header">
-        <h1>{{ board.title }}</h1>
-        <div class="filters">
-          <input #search placeholder="Search" [value]="f.text" (input)="setText(search.value)" />
-          <select #prio [value]="f.priority || 'any'" (change)="setPriority(prio.value)">
-            <option value="any">Any Priority</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-          <input #date type="date" [value]="f.due || ''" (change)="setDue(date.value)" />
-          <button (click)="addColumn()">+ Column</button>
-          <button class="undo" *ngIf="(lastDeleted$ | async) as ld" (click)="undo()">Undo delete "{{ ld.card.title }}"</button>
+      <header class="kb-header" role="banner">
+        <div class="kb-title-group">
+          <h1>{{ board.title }}</h1>
+          <div class="quick-add" role="form" aria-label="Quick add card">
+            <input #quickAdd placeholder="Quick add task" (keyup.enter)="quickAdd.value.trim() && addQuick(quickAdd.value); quickAdd.value=''" />
+            <button type="button" (click)="quickAdd.value.trim() && addQuick(quickAdd.value); quickAdd.value=''" title="Add task">Add</button>
+          </div>
+        </div>
+        <div class="filters" role="toolbar" aria-label="Board filters">
+          <div class="search-field">
+            <input #search placeholder="Search tasks" [value]="f.text" (input)="setText(search.value)" aria-label="Search tasks" />
+            <button type="button" *ngIf="f.text" class="clear" (click)="setText(''); search.value=''" aria-label="Clear search">✕</button>
+          </div>
+          <div class="priority-pills" aria-label="Priority filter">
+            <button type="button" class="pill" [class.active]="(f.priority||'any')==='any'" (click)="setPriority('any')">All</button>
+            <button type="button" class="pill" [class.active]="f.priority==='high'" (click)="setPriority('high')"><span class="dot" style="background:var(--color-danger)"></span>High</button>
+            <button type="button" class="pill" [class.active]="f.priority==='medium'" (click)="setPriority('medium')"><span class="dot" style="background:var(--color-warn)"></span>Med</button>
+            <button type="button" class="pill" [class.active]="f.priority==='low'" (click)="setPriority('low')"><span class="dot" style="background:var(--color-success)"></span>Low</button>
+          </div>
+          <div class="due-filter">
+            <input #date type="date" [value]="f.due || ''" (change)="setDue(date.value)" aria-label="Due date filter" />
+            <button type="button" *ngIf="f.due" class="clear" (click)="setDue(''); date.value=''" aria-label="Clear due date">✕</button>
+          </div>
+          <div class="actions">
+            <button type="button" (click)="addColumn()" title="Add column" class="pill add-col">+ Column</button>
+            <button type="button" class="pill warn" *ngIf="(lastDeleted$ | async) as ld" (click)="undo()" title="Undo deletion">Undo “{{ ld.card.title }}”</button>
+          </div>
         </div>
       </header>
-      <div class="kb-columns" *ngIf="(columns$ | async) as columns">
+  <div class="kb-columns" *ngIf="(columns$ | async) as columns" role="list" aria-label="Board columns">
         <app-kanban-column *ngFor="let col of columns; trackBy: trackCol"
           [column]="col"
           [connectedTo]="connectedTo(columns, col.id)"
@@ -31,7 +45,7 @@
           (dropCard)="drop($event, col.id, col.id)"
           (sort)="setSort(col.id, $event)"></app-kanban-column>
       </div>
+  </div>
       <app-card-detail></app-card-detail>
-    </div>
   </ng-container>
 </ng-container>

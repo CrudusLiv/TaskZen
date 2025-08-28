@@ -9,13 +9,18 @@
       <span class="k-tag" *ngFor="let t of card.tags">{{ t }}</span>
     </div>
     <div class="k-meta-line">
-      <span class="k-meta" *ngIf="card.dueDate">📅 {{ card.dueDate }} <span *ngIf="dueSoon">⚠️</span></span>
-      <span class="k-meta" *ngIf="card.subtasks.length">✔ {{ completedSubtasks }}/{{ card.subtasks.length }}</span>
+      <span class="k-meta" *ngIf="card.dueDate" title="Due date">📅 {{ card.dueDate }} <span *ngIf="dueSoon" title="Due soon">⚠️</span></span>
+      <span class="k-meta" *ngIf="card.subtasks.length" title="Subtasks progress">✔ {{ completedSubtasks }}/{{ card.subtasks.length }}</span>
+    </div>
+    <div class="k-progress-wrapper" *ngIf="card.subtasks.length">
+      <div class="progress" aria-label="Progress" [attr.aria-valuenow]="progressPct" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+        <span [style.--value]="progressPct + '%'" ></span>
+      </div>
     </div>
     <div class="k-actions">
-      <button class="k-small" (click)="toggleCompleted($event)" [title]="card.completed? 'Mark incomplete':'Mark complete'">{{ card.completed? '↺' : '✓' }}</button>
-      <button class="k-small" (click)="edit($event)">Edit</button>
-      <button class="k-small danger" (click)="deleteCard($event)">Del</button>
+  <button type="button" class="k-small" (click)="toggleCompleted($event)" [title]="card.completed? 'Mark incomplete':'Mark complete'">{{ card.completed? '↺' : '✓' }}</button>
+  <button type="button" class="k-small" (click)="edit($event); $event.stopPropagation()">Edit</button>
+  <button type="button" class="k-small danger" (click)="deleteCard($event); $event.stopPropagation()">Del</button>
     </div>
   </div>
   <form *ngIf="editing" (submit)="save()" class="k-edit" (click)="$event.stopPropagation()">
@@ -35,5 +40,5 @@
       <button type="button" (click)="cancel($event)">Cancel</button>
     </div>
   </form>
-  <button class="k-del" (click)="deleteCard($event)">×</button>
+  <button type="button" class="k-del" (click)="deleteCard($event)">×</button>
 </div>

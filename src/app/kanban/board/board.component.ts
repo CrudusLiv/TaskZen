@@ -34,6 +34,12 @@ export class KanbanBoardComponent {
   renameColumn(id: string){ const title = prompt('New title?'); if(title) this.store.dispatch(BoardActions.renameColumn({ columnId: id, title })); }
   deleteColumn(id: string){ if(confirm('Delete column?')) this.store.dispatch(BoardActions.deleteColumn({ columnId: id })); }
   addCard(columnId: string){ const title = prompt('Card title?') || 'New Card'; this.store.dispatch(BoardActions.addCard({ columnId, title })); }
+  addQuick(title: string){
+    const sub = this.columns$.subscribe(cols=>{
+      if(cols && cols[0]){ this.store.dispatch(BoardActions.addCard({ columnId: cols[0].id, title })); }
+    });
+    setTimeout(()=>sub.unsubscribe(),0);
+  }
   updateCard(cardId: string, changes: any){ this.store.dispatch(BoardActions.updateCard({ cardId, changes })); }
   toggleCard(cardId: string){ this.store.dispatch(BoardActions.toggleCardCompleted({ cardId })); }
   @HostListener('document:keydown',['$event']) key(e: KeyboardEvent){

@@ -34,6 +34,9 @@ export class CardComponent {
   get completedSubtasks(){
     return this.card.subtasks?.reduce((acc,st)=> acc + (st.completed?1:0), 0) ?? 0;
   }
+  get progressPct(){
+    const total = this.card.subtasks?.length || 0; if(!total) return 0; return Math.round((this.completedSubtasks/total)*100);
+  }
   editing = false;
   edit(e: Event){ e.stopPropagation(); this.editing = true; }
   save(){

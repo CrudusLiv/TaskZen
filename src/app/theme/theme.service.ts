@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 
 /** Manages runtime theme tokens (board accent, density, mode, contrast). */
 @Injectable({ providedIn: 'root' })
@@ -9,7 +9,33 @@ export class ThemeService {
   readonly density = signal<'comfortable'|'compact'>('comfortable');
   readonly highContrast = signal(false);
 
-  setAccent(color?: string){ if(color) { this.accent.set(color); this.applyVar('--board-accent', color); } }
+  constructor(){
+    // Initial load: attempt restore from localStorage, else system preference
+    try {
+      const stored = localStorage.getItem('tz.theme');
+      let initial: 'dark'|'light'|undefined = stored==='dark' || stored==='light' ? stored as any : undefined;
+      if(!initial){
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        initial = prefersDark ? 'dark' : 'light';
+      }
+      this.setMode(initial);
+      const acc = localStorage.getItem('tz.accent');
+      if(acc) this.setAccent(acc);
+    } catch {}
+
+    // Persist changes reactively
+    effect(()=>{
+      const m = this.mode();
+      try { localStorage.setItem('tz.theme', m); } catch {}
+    });
+    effect(()=>{
+      const a = this.accent();
+      this.applyVar('--board-accent', a);
+      try { localStorage.setItem('tz.accent', a); } catch {}
+    });
+  }
+
+  setAccent(color?: string){ if(color) { this.accent.set(color); } }
   setMode(m: 'dark'|'light'){ this.mode.set(m); document.documentElement.dataset['theme'] = m; }
   toggleMode(){ this.setMode(this.mode()==='dark'?'light':'dark'); }
   setDensity(d: 'comfortable'|'compact'){ this.density.set(d); document.documentElement.dataset['density'] = d; }
