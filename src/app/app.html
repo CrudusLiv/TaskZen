@@ -24,7 +24,6 @@
         <button class="swatch" style="--sw:#3b82f6" (click)="setAccent('#3b82f6')" aria-label="Blue accent"></button>
         <button class="swatch" style="--sw:#10b981" (click)="setAccent('#10b981')" aria-label="Green accent"></button>
       </div>
-      <button class="icon-btn theme-toggle" (click)="toggleTheme()" [attr.aria-pressed]="mode()==='dark'" aria-label="Toggle dark / light mode">{{ mode()==='dark' ? '🌙' : '☀️' }}</button>
       <app-notification-bell></app-notification-bell>
     </div>
   </header>

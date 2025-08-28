@@ -19,7 +19,7 @@ export class App {
   protected readonly title = signal('TaskZen');
   sidebarOpen = signal(false);
   sidebarCollapsed = signal(false); // desktop collapse (mini) state
-  mode = computed(()=> this.theme.mode());
+  // mode removed (dark only)
   private currentUrl = signal<string>(this.router.url || '/');
   breadcrumbs = computed(()=> this.buildCrumbs(this.currentUrl()));
 
@@ -42,7 +42,7 @@ export class App {
   }
   closeSidebar(){ this.sidebarOpen.set(false); }
   toggleCollapse(){ this.sidebarCollapsed.update(v=>!v); }
-  toggleTheme(){ this.theme.toggleMode(); }
+  // toggleTheme removed (dark only)
   setAccent(c: string){ this.theme.setAccent(c); }
   closeSidebarOnMobile(){ if(window.matchMedia('(max-width: 1024px)').matches) this.closeSidebar(); }
 

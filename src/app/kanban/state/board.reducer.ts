@@ -40,7 +40,7 @@ function applySort(col: Column, cards: Record<string, Card>) {
 
 export const boardReducer = createReducer(
   initialState,
-  on(BoardActions.loadSuccess, (_, { state }) => state ? { ...state, loaded: true } : seedState()),
+  on(BoardActions.loadSuccess, (_, { state }) => state ? { ...state, loaded: true, activeCardId: undefined } : seedState()),
   on(BoardActions.addColumn, (s, { title }) => {
     const id = crypto.randomUUID();
     return {

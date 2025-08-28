@@ -1,21 +1,24 @@
-<div class="k-column card" role="listitem" aria-label="Column {{ column.title }}">
+<div class="k-column card" [class.is-collapsed]="collapsed" role="listitem" [attr.aria-label]="'Column '+ column.title" [attr.aria-expanded]="!collapsed">
   <div class="k-col-header" role="heading" aria-level="2">
+    <button type="button" class="collapse-btn" (click)="toggleCollapse()" [attr.aria-label]="(collapsed? 'Expand' : 'Collapse') + ' column '+column.title" [attr.aria-pressed]="collapsed">
+      <span class="chevron" aria-hidden="true"></span>
+    </button>
     @if (!editing) {
-  <h3 (dblclick)="beginEdit()" (keydown.enter)="beginEdit()" tabindex="0">{{ column.title }} <span class="count" aria-label="Cards in column">{{ cards.length }}</span></h3>
+      <h3 (dblclick)="beginEdit()" (keydown.enter)="beginEdit()" tabindex="0">{{ column.title }} <span class="count" aria-label="Cards in column">{{ cards.length }}</span></h3>
     } @else {
       <input [(ngModel)]="titleDraft" (keyup.enter)="commitTitle()" (blur)="commitTitle()" />
     }
-    <div class="k-col-actions">
-  <button type="button" (click)="addCard()" title="Add card">＋</button>
-      <button type="button" (click)="sort.emit('due')" [class.active]="column.sort==='due'" title="Sort by due">🕒</button>
-      <button type="button" (click)="sort.emit('priority')" [class.active]="column.sort==='priority'" title="Sort by priority">⚑</button>
-      <button type="button" (click)="sort.emit('created')" [class.active]="column.sort==='created'" title="Sort by created">ⓘ</button>
-  <button type="button" (click)="deleteColumn()" title="Delete column">✕</button>
+    <div class="k-col-actions" role="group" aria-label="Column actions">
+      <button type="button" class="icon-btn" (click)="addCard()" title="Add card">＋</button>
+      <button type="button" class="icon-btn" (click)="sort.emit('due')" [class.active]="column.sort==='due'" title="Sort by due">🕒</button>
+      <button type="button" class="icon-btn" (click)="sort.emit('priority')" [class.active]="column.sort==='priority'" title="Sort by priority">⚑</button>
+      <button type="button" class="icon-btn" (click)="sort.emit('created')" [class.active]="column.sort==='created'" title="Sort by created">ⓘ</button>
+      <button type="button" class="icon-btn danger" (click)="deleteColumn()" title="Delete column">✕</button>
     </div>
   </div>
-  <div cdkDropList [id]="column.id" [cdkDropListData]="cards" [cdkDropListConnectedTo]="connectedTo" (cdkDropListDropped)="drop($event)" class="k-card-list" role="list" aria-label="Cards in {{ column.title }}">
+  <div *ngIf="!collapsed" cdkDropList [id]="column.id" [cdkDropListData]="cards" [cdkDropListConnectedTo]="connectedTo" (cdkDropListDropped)="drop($event)" class="k-card-list" role="list" [attr.aria-label]="'Cards in '+ column.title">
     @if (cards.length) {
-    <div *ngFor="let card of cards" cdkDrag class="k-card-wrapper">
+      <div *ngFor="let card of cards" cdkDrag class="k-card-wrapper">
         <app-kanban-card [card]="card" [highlight]="highlight"
           (open)="open.emit($event)"
           (delete)="removeCard.emit($event)"

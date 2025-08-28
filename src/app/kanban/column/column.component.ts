@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardComponent } from '../card/card.component';
@@ -17,6 +17,7 @@ export class ColumnComponent {
   @Input() cards: Card[] = [];
   @Input() highlight = '';
   @Input() connectedTo: string[] = [];
+  @Input() collapsed = false;
   @Output() add = new EventEmitter<void>();
   @Output() rename = new EventEmitter<string>();
   @Output() delete = new EventEmitter<void>();
@@ -26,6 +27,7 @@ export class ColumnComponent {
   @Output() dropCard = new EventEmitter<CdkDragDrop<any>>();
   @Output() updateCard = new EventEmitter<{ id: string; changes: any }>();
   @Output() toggleCard = new EventEmitter<string>();
+  @Output() collapse = new EventEmitter<void>();
 
   editing = false;
   titleDraft = '';
@@ -38,4 +40,5 @@ export class ColumnComponent {
   drop(ev: CdkDragDrop<any>){ this.dropCard.emit(ev); }
   addCard(){ this.add.emit(); }
   deleteColumn(){ this.delete.emit(); }
+  toggleCollapse(){ this.collapse.emit(); }
 }

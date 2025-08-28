@@ -1,10 +1,11 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { BoardsActions } from '../boards.actions';
 import { DialogService } from '../../ui/dialog.service';
 import { FormsModule } from '@angular/forms';
 import { selectFavoriteBoards, selectNonFavoriteBoards, selectActiveBoardMeta, selectLastDeletedBoard } from '../boards.selectors';
+import { BoardMeta } from '../boards.models';
 import { ThemeService } from '../../theme/theme.service';
 
 @Component({
@@ -24,14 +25,46 @@ export class BoardsDashboardComponent {
   lastDeleted$ = this.store.select(selectLastDeletedBoard);
   creating = false;
   title = ''; description = ''; color = '#6366f1';
+  filter = '';
+  sort: 'updated'|'created'|'title' = 'updated';
   openCreate(){ this.creating = true; this.title=''; this.description=''; this.color='#6366f1'; }
   create(){ if(this.title.trim()){ this.store.dispatch(BoardsActions.createBoard({ title: this.title, description: this.description || undefined, color: this.color })); this.creating=false; } }
   cancel(){ this.creating=false; }
+  setFilter(v: string){ this.filter = (v||'').toLowerCase(); }
+  setSort(mode: 'updated'|'created'|'title'){ this.sort = mode; }
   setActive(id: string){ this.store.dispatch(BoardsActions.setActiveBoard({ boardId: id })); }
   rename(b: any){ const t = prompt('New board title', b.title); if(t) this.store.dispatch(BoardsActions.renameBoard({ boardId: b.id, title: t })); /* TODO: replace with dialog */ }
   toggleFavorite(id: string){ this.store.dispatch(BoardsActions.toggleFavorite({ boardId: id })); }
   delete(id: string){ if(confirm('Delete board?')) this.store.dispatch(BoardsActions.deleteBoard({ boardId: id })); /* TODO: replace with confirmation dialog */ }
   undo(){ this.store.dispatch(BoardsActions.undoDeleteBoard()); }
+  boardsView(list: BoardMeta[]){
+    if(!Array.isArray(list)) return [] as BoardMeta[];
+    let res = list;
+    if(this.filter){
+      res = res.filter(b => (b.title + ' ' + (b.description||'')).toLowerCase().includes(this.filter));
+    }
+    const time = (d:string)=> new Date(d).getTime();
+    switch(this.sort){
+      case 'updated': res = [...res].sort((a,b)=> time(b.updatedAt)-time(a.updatedAt)); break;
+      case 'created': res = [...res].sort((a,b)=> time(b.createdAt)-time(a.createdAt)); break;
+      case 'title': res = [...res].sort((a,b)=> a.title.localeCompare(b.title)); break;
+    }
+    return res;
+  }
+  private relative(ts: string){
+    const d = new Date(ts).getTime();
+    const diff = Date.now() - d;
+    const sec = Math.max(0, Math.floor(diff/1000));
+    if(sec<60) return sec+'s ago';
+    const min = Math.floor(sec/60); if(min<60) return min+'m ago';
+    const hr = Math.floor(min/60); if(hr<24) return hr+'h ago';
+    const day = Math.floor(hr/24); if(day<7) return day+'d ago';
+    const wk = Math.floor(day/7); if(wk<5) return wk+'w ago';
+    const mo = Math.floor(day/30); if(mo<12) return mo+'mo ago';
+    const yr = Math.floor(day/365); return yr+'y ago';
+  }
+  relativeUpdated(ts: string){ return 'Updated ' + this.relative(ts); }
+  relativeCreated(ts: string){ return this.relative(ts); }
   ngOnInit(){
     this.store.dispatch(BoardsActions.init());
     // reactively update accent when active board meta changes

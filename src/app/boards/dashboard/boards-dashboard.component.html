@@ -1,8 +1,21 @@
 <div class="boards-wrapper">
-  <header class="boards-header">
-    <h1>Boards</h1>
-    <button (click)="openCreate()">Create Board</button>
-    <button class="undo" *ngIf="(lastDeleted$ | async) as ld" (click)="undo()">Undo delete "{{ ld.board.title }}"</button>
+  <header class="boards-header" role="banner">
+    <div class="head-main">
+      <h1>Boards</h1>
+      <div class="search-bar" role="search">
+        <input placeholder="Search boards" (input)="setFilter($any($event.target).value)" />
+        <button *ngIf="filter" class="clear" (click)="setFilter('')" aria-label="Clear search">✕</button>
+      </div>
+      <div class="sort-group" role="group" aria-label="Sort boards">
+        <button type="button" [class.active]="sort==='updated'" (click)="setSort('updated')">Recent</button>
+        <button type="button" [class.active]="sort==='created'" (click)="setSort('created')">Created</button>
+        <button type="button" [class.active]="sort==='title'" (click)="setSort('title')">A→Z</button>
+      </div>
+    </div>
+    <div class="head-actions">
+      <button (click)="openCreate()" class="primary">New Board</button>
+      <button class="undo" *ngIf="(lastDeleted$ | async) as ld" (click)="undo()">Undo “{{ ld.board.title }}”</button>
+    </div>
   </header>
   <div class="create-modal" *ngIf="creating">
     <form (submit)="create()" (click)="$event.stopPropagation()">
@@ -16,16 +29,20 @@
     </form>
   </div>
 
-  <section *ngIf="(fav$ | async) as fav" class="fav-section" [class.empty]="!fav.length">
-    <h2 *ngIf="fav.length">Favorites</h2>
-    <div class="board-grid">
-      <div class="board-card fav" *ngFor="let b of fav" [style.borderColor]="b.color" (click)="setActive(b.id)">
+  <section *ngIf="(fav$ | async) as favRaw" class="fav-section" [class.empty]="!favRaw.length">
+    <h2 *ngIf="favRaw.length">Favorites</h2>
+    <div class="board-grid" *ngIf="favRaw.length; else noFavs">
+      <div class="board-card fav" *ngFor="let b of boardsView(favRaw)" [style.--board-color]="b.color" (click)="setActive(b.id)" [attr.aria-label]="b.title + ' board'">
         <div class="title-row">
           <span class="dot" [style.background]="b.color"></span>
           <span class="title">{{ b.title }}</span>
-          <button class="icon" (click)="toggleFavorite(b.id); $event.stopPropagation()" title="Unfavorite">★</button>
+          <button class="icon" (click)="toggleFavorite(b.id); $event.stopPropagation()" title="Unfavorite" aria-label="Unfavorite">★</button>
         </div>
         <div class="desc" *ngIf="b.description">{{ b.description }}</div>
+        <div class="badge-row">
+          <span class="badge" [style.background]="b.color">Fav</span>
+          <span class="meta-time" [title]="b.updatedAt">{{ relativeUpdated(b.updatedAt) }}</span>
+        </div>
         <div class="meta">
           <button (click)="rename(b); $event.stopPropagation()">Rename</button>
           <button (click)="delete(b.id); $event.stopPropagation()" class="danger">Delete</button>
@@ -33,17 +50,24 @@
       </div>
     </div>
   </section>
+  <ng-template #noFavs>
+    <div class="empty-hint">No favorites yet. Mark boards with ☆ to pin them here.</div>
+  </ng-template>
 
-  <section *ngIf="(others$ | async) as others">
+  <section *ngIf="(others$ | async) as othersRaw">
     <h2>All Boards</h2>
-    <div class="board-grid">
-      <div class="board-card" *ngFor="let b of others" [style.borderColor]="b.color" (click)="setActive(b.id)">
+    <div class="board-grid" *ngIf="othersRaw.length; else noBoards">
+      <div class="board-card" *ngFor="let b of boardsView(othersRaw)" [style.--board-color]="b.color" (click)="setActive(b.id)" [attr.aria-label]="b.title + ' board'" [class.active]="(active$ | async)?.id===b.id">
         <div class="title-row">
           <span class="dot" [style.background]="b.color"></span>
           <span class="title">{{ b.title }}</span>
-          <button class="icon" (click)="toggleFavorite(b.id); $event.stopPropagation()" [title]="b.favorite ? 'Unfavorite' : 'Favorite'">{{ b.favorite ? '★' : '☆' }}</button>
+          <button class="icon" (click)="toggleFavorite(b.id); $event.stopPropagation()" [title]="b.favorite ? 'Unfavorite' : 'Favorite'" [attr.aria-label]="b.favorite ? 'Unfavorite' : 'Favorite'">{{ b.favorite ? '★' : '☆' }}</button>
         </div>
         <div class="desc" *ngIf="b.description">{{ b.description }}</div>
+        <div class="badge-row">
+          <span class="badge tone" [style.background]="b.color">{{ relativeCreated(b.createdAt) }}</span>
+          <span class="meta-time" [title]="b.updatedAt">{{ relativeUpdated(b.updatedAt) }}</span>
+        </div>
         <div class="meta">
           <button (click)="rename(b); $event.stopPropagation()">Rename</button>
           <button (click)="delete(b.id); $event.stopPropagation()" class="danger">Delete</button>
@@ -51,4 +75,7 @@
       </div>
     </div>
   </section>
+  <ng-template #noBoards>
+    <div class="empty-hint">No boards yet. Create your first one.</div>
+  </ng-template>
 </div>

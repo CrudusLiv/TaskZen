@@ -1,4 +1,4 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { BoardActions } from '../state/board.actions';
@@ -29,6 +29,15 @@ export class KanbanBoardComponent {
   connected(ids: string[], current: string){ return ids.filter(i=>i!==current); }
   cards(columnId: string){ return this.store.select(selectFilteredColumnCards(columnId)); }
   connectedTo(columns: any[], currentId: string){ return columns.filter(c=>c.id !== currentId).map(c=>c.id); }
+  cardCount(columns: any[]){ return columns.reduce((sum: number,c: any)=> sum + (c.cardIds?.length||0), 0); }
+  showCompleted = signal(true);
+  collapsedCols = signal<Set<string>>(new Set());
+  toggleShowCompleted(){ this.showCompleted.update(v=> !v); }
+  toggleColumnCollapse(id: string){
+    this.collapsedCols.update(set=>{ const next = new Set(set); if(next.has(id)) next.delete(id); else next.add(id); return next; });
+  }
+  isCollapsed(id: string){ return this.collapsedCols().has(id); }
+  filteredCards(list: any[]){ if(!Array.isArray(list)) return []; return this.showCompleted() ? list : list.filter(c=> !c.completed); }
 
   addColumn(){ const title = prompt('Column title?'); if(title) this.store.dispatch(BoardActions.addColumn({ title })); }
   renameColumn(id: string){ const title = prompt('New title?'); if(title) this.store.dispatch(BoardActions.renameColumn({ columnId: id, title })); }
