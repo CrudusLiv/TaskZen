@@ -1,59 +1,183 @@
 # TaskZen
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.0.
+Modern, signal‑driven productivity & kanban workspace built with Angular 20, Firebase, and NgRx.
 
-## Development server
+## ✨ Features
 
-To start a local development server, run:
+- Kanban board with boards / columns / cards (lazy loaded routes)
+- Focus mode & task list
+- Analytics dashboard (Chart.js via ngx-chartjs)
+- Real‑time persistence (Firestore) with offline IndexedDB cache
+- Authentication (email/password + placeholder for Google provider)
+- Notifications & activity feed
+- Toast & dialog UI services
+- Theming (accent color, dark mode baseline)
+- Server entry prepared for SSR / Express integration
+- Strict Angular 20 + Standalone Components + Signals + Zoneless change detection
+- NgRx Store + Effects + Entity (scoped feature reducers & effects)
 
-```bash
-ng serve
+## 🧱 Tech Stack
+
+| Layer | Tech |
+|-------|------|
+| Framework | Angular 20 (standalone, signals, zoneless) |
+| State | NgRx Store / Effects / Entity + Signals in components |
+| Backend (Realtime & Auth) | Firebase (Auth, Firestore) |
+| Charts | Chart.js 4 + ngx-chartjs |
+| Server Harness | Express 5 + `@angular/ssr` (server entry `src/server.ts`) |
+
+## 📁 Key Structure
+
+```
+src/
+	app/
+		auth/              # Auth UI + NgRx auth feature
+		boards/            # Boards dashboard + effects
+		kanban/            # Board / column / card domain + firestore sync effects
+		tasks/             # Task feature state & UI
+		focus/             # Focus mode feature
+		analytics/         # Analytics dashboard (Chart.js)
+		notifications/     # Activity feed & bell
+		navigation/        # Side navigation component
+		ui/                # Reusable UI primitives (toast, dialog)
+		theme/             # Theme service (accent management)
+		store/             # Root app state wiring
+		app.routes.ts      # Lazy feature route definitions
+		app.config.ts      # Global providers (router, firebase, zoneless, store)
+		app.ts             # Root component (signals, breadcrumbs)
+server.ts              # Express + Angular SSR request handler
+main.ts                # Browser bootstrap
+main.server.ts         # Exports server bootstrap (SSR build)
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🔧 Prerequisites
 
-## Code scaffolding
+- Node.js 20+
+- A Firebase project (Firestore + Authentication enabled)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🔐 Firebase Configuration
 
-```bash
-ng generate component component-name
+Local dev reads from `src/app/firebase.config.local.ts` (gitignored but currently present as an example). Replace values with your own Web App config from Firebase Console:
+
+```ts
+export const firebaseEnv = {
+	apiKey: '...'
+	, authDomain: '...'
+	, projectId: '...'
+	, storageBucket: '...'
+	, messagingSenderId: '...'
+	, appId: '...'
+	, measurementId: '...'
+} as const;
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+If you need different configs per environment, you can inject an alternate token or perform a build‑time replacement.
+
+## ▶️ Development
+
+Install deps:
 
 ```bash
-ng generate --help
+npm install
 ```
 
-## Building
-
-To build the project run:
+Run the dev server (browser only, hydration currently disabled):
 
 ```bash
-ng build
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Visit http://localhost:4200
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+The Express SSR entry (`server.ts`) exists; to experiment with a local SSR build:
 
 ```bash
-ng test
+npm run build         # Produces dist/TaskZen
+node dist/TaskZen/server/server.mjs
 ```
 
-## Running end-to-end tests
+Then open http://localhost:4000
 
-For end-to-end (e2e) testing, run:
+## 🧪 Testing
+
+Run unit tests (Karma + Jasmine):
 
 ```bash
-ng e2e
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+(No e2e framework configured yet; Cypress or Playwright can be added.)
 
-## Additional Resources
+## 🏗️ Building
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Production build (optimization, budgets, etc.):
+
+```bash
+npm run build
+```
+
+Artifacts output to `dist/TaskZen/browser` (and `dist/TaskZen/server` when SSR target is built).
+
+## 🧬 State Management Notes
+
+- Root store composed in `app.store.module.ts`
+- Feature slices (e.g., boards, tasks, auth) define actions, reducer, selectors under their folder
+- Effects handle async (Firestore sync, auth flows)
+- Components primarily bind to selectors or local signals (avoid heavy store logic in templates)
+
+## 🧠 Signals Usage
+
+- Local UI state (sidebar, breadcrumbs, theme accent) via `signal()` & `computed()`
+- Derived breadcrumb list built reactively in root component
+- Avoid `mutate`; use `set` / `update`
+
+## 🌐 SSR / Server Notes
+
+- `server.ts` sets up Express static hosting + universal request handling
+- Currently hydration is disabled in `app.config.ts` (can be re‑enabled if SSR hydration is desired)
+- `serve:ssr:TaskZen` script runs the built server bundle
+
+## 🔔 Notifications & Toasts
+
+- Activity feed & bell components backed by `notifications` feature slice
+- Toast UI rendered via `ToastContainerComponent` with imperative service triggers
+
+## 🎨 Theming
+
+- Dark baseline; accent color stored via `ThemeService`
+- Sidebar collapsed state persisted in `localStorage`
+
+## 🚀 Roadmap Ideas
+
+- Enable hydration & deploy SSR (e.g., Firebase Hosting + Functions)
+- OAuth provider integrations (Google, GitHub) in `AuthEffects`
+- Drag & drop enhancements / keyboard accessibility for kanban
+- Offline queue & conflict resolution strategies
+- E2E test suite (Playwright)
+
+## 🤝 Contributing
+
+1. Fork & clone
+2. Create a feature branch
+3. Commit using conventional messages if possible
+4. Open a PR
+
+## 📄 License
+
+Currently unpublished license (assume All Rights Reserved unless a LICENSE file is added). Add a LICENSE to clarify reuse.
+
+## 📚 Additional Angular CLI Help
+
+List available schematics:
+
+```bash
+npx ng generate --help
+```
+
+## 🙋 Support
+
+File an issue or start a discussion if you have questions or suggestions.
+
+---
+
+Built with ❤️ using Angular signals & Firebase.
