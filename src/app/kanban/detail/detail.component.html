@@ -1,69 +1,135 @@
 <ng-container *ngIf="card$ | async as card">
-<div class="detail-overlay" (click)="close()" role="dialog" aria-modal="true" aria-label="Card details">
-  <div class="detail panel" (click)="$event.stopPropagation()">
-    <header class="detail-header">
-      <h2 class="detail-title">{{ card.title }}</h2>
-      <div class="header-actions">
-        <button type="button" class="icon-btn subtle" (click)="close()" aria-label="Close details">✕</button>
-      </div>
-    </header>
-    <div class="body detail-body">
-      <p *ngIf="card.description; else noDesc">{{ card.description }}</p>
-      <ng-template #noDesc><p class="muted">No description.</p></ng-template>
-  <div class="meta"><span class="badge">Priority: {{ card.priority }}</span> <span *ngIf="card.dueDate" class="badge">Due: {{ card.dueDate }}</span></div>
-      <section class="subtasks" *ngIf="card.subtasks.length">
-        <h4>Subtasks</h4>
-        <ul>
-          <li *ngFor="let st of card.subtasks">
-            <label class="subtask-item"><input type="checkbox" [checked]="st.completed" (change)="toggle(card.id, st.id)"/> <span>{{ st.title }}</span></label>
-          </li>
-        </ul>
-      </section>
-      <section class="comments">
-        <header class="comments-header" (click)="showComments=!showComments" role="button" [attr.aria-expanded]="showComments">
-          <h4>Comments ({{ card.comments?.length || 0 }})</h4>
-          <button type="button" class="icon-btn subtle caret" aria-hidden="true">{{ showComments ? '▾':'▸' }}</button>
-        </header>
-        <div class="comments-body" *ngIf="showComments">
-          <div class="comment-list" *ngIf="card.comments?.length; else noComments">
-            <div class="comment" *ngFor="let c of card.comments">
-              <div class="avatar">{{ c.user[0] | uppercase }}</div>
-              <div class="content" [class.editing]="editing[c.id]">
-                <div class="row">
-                  <span class="user">{{ c.user }}</span>
-                  <span class="time">{{ c.createdAt | date:'short' }}</span>
-                </div>
-                <div class="message" *ngIf="!editing[c.id]; else editTpl" [innerHTML]="mentionize(c.message)"></div>
-                <ng-template #editTpl>
-                  <textarea [(ngModel)]="editing[c.id]" rows="2" class="input"></textarea>
-                  <div class="edit-actions btn-row">
-                    <button type="button" class="btn primary sm" (click)="saveEdit(card.id, c.id)">Save</button>
-                    <button type="button" class="btn ghost sm" (click)="cancelEdit(c.id)">Cancel</button>
+  <div
+    class="detail-overlay"
+    (click)="close()"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Card details"
+  >
+    <div class="detail panel" (click)="$event.stopPropagation()">
+      <header class="detail-header">
+        <h2 class="detail-title">{{ card.title }}</h2>
+        <div class="header-actions">
+          <button
+            type="button"
+            class="icon-btn subtle"
+            (click)="close()"
+            aria-label="Close details"
+          >
+            ✕
+          </button>
+        </div>
+      </header>
+      <div class="body detail-body">
+        <p *ngIf="card.description; else noDesc">{{ card.description }}</p>
+        <ng-template #noDesc><p class="muted">No description.</p></ng-template>
+        <div class="meta">
+          <span class="badge">Priority: {{ card.priority }}</span>
+          <span *ngIf="card.dueDate" class="badge">Due: {{ card.dueDate }}</span>
+        </div>
+        <section class="subtasks" *ngIf="card.subtasks.length">
+          <h4>Subtasks</h4>
+          <ul>
+            <li *ngFor="let st of card.subtasks">
+              <label class="subtask-item"
+                ><input
+                  type="checkbox"
+                  [checked]="st.completed"
+                  (change)="toggle(card.id, st.id)"
+                />
+                <span>{{ st.title }}</span></label
+              >
+            </li>
+          </ul>
+        </section>
+        <section class="comments">
+          <header
+            class="comments-header"
+            (click)="showComments = !showComments"
+            role="button"
+            [attr.aria-expanded]="showComments"
+          >
+            <h4>Comments ({{ card.comments?.length || 0 }})</h4>
+            <button type="button" class="icon-btn subtle caret" aria-hidden="true">
+              {{ showComments ? '▾' : '▸' }}
+            </button>
+          </header>
+          <div class="comments-body" *ngIf="showComments">
+            <div class="comment-list" *ngIf="card.comments?.length; else noComments">
+              <div class="comment" *ngFor="let c of card.comments">
+                <div class="avatar">{{ c.user[0] | uppercase }}</div>
+                <div class="content" [class.editing]="editing[c.id]">
+                  <div class="row">
+                    <span class="user">{{ c.user }}</span>
+                    <span class="time">{{ c.createdAt | date : 'short' }}</span>
                   </div>
-                </ng-template>
-                <div class="reactions" *ngIf="c.reactions?.length">
-                  <button class="reaction" *ngFor="let r of c.reactions" (click)="react(card.id,c.id,r.emoji)">{{ r.emoji }} {{ r.users.length }}</button>
-                </div>
-                <div class="comment-actions" *ngIf="!editing[c.id]">
-                  <button type="button" class="btn xs ghost" (click)="startEdit(c.id, c.message)">Edit</button>
-                  <button type="button" class="btn xs danger" (click)="del(card.id,c.id)">Delete</button>
-                  <div class="emoji-picker">
-                    <button type="button" *ngFor="let e of emojis" (click)="react(card.id,c.id,e)">{{ e }}</button>
+                  <div
+                    class="message"
+                    *ngIf="!editing[c.id]; else editTpl"
+                    [innerHTML]="mentionize(c.message)"
+                  ></div>
+                  <ng-template #editTpl>
+                    <textarea [(ngModel)]="editing[c.id]" rows="2" class="input"></textarea>
+                    <div class="edit-actions btn-row">
+                      <button
+                        type="button"
+                        class="btn primary sm"
+                        (click)="saveEdit(card.id, c.id)"
+                      >
+                        Save
+                      </button>
+                      <button type="button" class="btn ghost sm" (click)="cancelEdit(c.id)">
+                        Cancel
+                      </button>
+                    </div>
+                  </ng-template>
+                  <div class="reactions" *ngIf="c.reactions?.length">
+                    <button
+                      class="reaction"
+                      *ngFor="let r of c.reactions"
+                      (click)="react(card.id, c.id, r.emoji)"
+                    >
+                      {{ r.emoji }} {{ r.users.length }}
+                    </button>
+                  </div>
+                  <div class="comment-actions" *ngIf="!editing[c.id]">
+                    <button type="button" class="btn xs ghost" (click)="startEdit(c.id, c.message)">
+                      Edit
+                    </button>
+                    <button type="button" class="btn xs danger" (click)="del(card.id, c.id)">
+                      Delete
+                    </button>
+                    <div class="emoji-picker">
+                      <button
+                        type="button"
+                        *ngFor="let e of emojis"
+                        (click)="react(card.id, c.id, e)"
+                      >
+                        {{ e }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <ng-template #noComments><p class="muted small">No comments yet.</p></ng-template>
+            <form class="comment-new" (submit)="add(card.id)">
+              <textarea
+                [(ngModel)]="draft"
+                name="draft"
+                rows="2"
+                class="input"
+                placeholder="Add a comment... Use @ to mention"
+              ></textarea>
+              <div class="new-actions btn-row end">
+                <button type="submit" class="btn primary sm" [disabled]="!draft.trim()">
+                  Send
+                </button>
+              </div>
+            </form>
           </div>
-          <ng-template #noComments><p class="muted small">No comments yet.</p></ng-template>
-          <form class="comment-new" (submit)="add(card.id)">
-            <textarea [(ngModel)]="draft" name="draft" rows="2" class="input" placeholder="Add a comment... Use @ to mention"></textarea>
-            <div class="new-actions btn-row end">
-              <button type="submit" class="btn primary sm" [disabled]="!draft.trim()">Send</button>
-            </div>
-          </form>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </div>
-</div>
 </ng-container>

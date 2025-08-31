@@ -1,0 +1,109 @@
+<div class="tasks-wrapper">
+  <header class="tasks-header">
+    <h1>Tasks</h1>
+    <div class="quick-add">
+      <input
+        placeholder="Quick add"
+        [ngModel]="quick()"
+        (ngModelChange)="quick.set($event)"
+        (keyup.enter)="addQuick()"
+      />
+      <button class="btn" (click)="addQuick()" [disabled]="!quick().trim()">Add</button>
+    </div>
+  </header>
+  <ng-container *ngIf="false"></ng-container><!-- anchor to keep old syntax fallback if needed -->
+  <!-- Using classic directives due to template errors with experimental control flow in current setup -->
+  <section class="filters" *ngIf="filters$ | async as f">
+    <div class="search-group">
+      <input
+        #search
+        placeholder="Search tasks"
+        [value]="f.text"
+        (input)="filterText(search.value)"
+      />
+    </div>
+    <div class="pill-group priority">
+      <button
+        type="button"
+        class="pill"
+        [class.active]="f.priority === 'any' || !f.priority"
+        (click)="setPriority('any')"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        class="pill high"
+        [class.active]="f.priority === 'high'"
+        (click)="setPriority('high')"
+      >
+        High
+      </button>
+      <button
+        type="button"
+        class="pill med"
+        [class.active]="f.priority === 'medium'"
+        (click)="setPriority('medium')"
+      >
+        Med
+      </button>
+      <button
+        type="button"
+        class="pill low"
+        [class.active]="f.priority === 'low'"
+        (click)="setPriority('low')"
+      >
+        Low
+      </button>
+    </div>
+    <div class="date-group">
+      <input type="date" #due [value]="f.due || ''" (change)="setDue(due.value)" />
+  <button *ngIf="f.due" type="button" class="btn xs secondary" (click)="setDue('')">✕</button>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" (click)="addCategory()" title="Add category">+ Category</button>
+      <button
+        class="btn secondary"
+        (click)="toggleShowCompleted()"
+        [class.active]="showCompleted()"
+      >
+        {{ showCompleted() ? 'Hide' : 'Show' }} Done
+      </button>
+    </div>
+  </section>
+  <section class="stats" *ngIf="stats$ | async as s">
+    <div class="progress-wrap" [attr.data-empty]="s.total === 0">
+      <div class="bar-bg">
+        <div class="bar" [style.width]="s.total ? (s.completed / s.total) * 100 + '%' : '0%'"></div>
+      </div>
+      <div class="labels">
+        <span>{{ s.completed }} / {{ s.total }} done</span>
+  <span class="pct" *ngIf="s.total">{{ (s.completed / s.total) * 100 | number : '1.0-0' }}%</span>
+      </div>
+    </div>
+  </section>
+  <section class="task-list" *ngIf="tasks$ | async as tasks">
+    <div class="task-item" *ngFor="let t of tasks; trackBy: trackTask" [class.completed]="t.completed" [class.hidden-completed]="t.completed && !showCompleted()">
+      <label class="check">
+        <input type="checkbox" [checked]="t.completed" (change)="toggle(t)" />
+        <span class="title" [class.done]="t.completed">{{ t.title }}</span>
+      </label>
+      <div class="meta">
+        <button
+          type="button"
+          class="priority btn xs ghost"
+          (click)="cyclePriority(t)"
+          [attr.aria-label]="'Priority ' + t.priority"
+          [class.p-high]="t.priority === 'high'"
+          [class.p-medium]="t.priority === 'medium'"
+          [class.p-low]="t.priority === 'low'"
+        >
+          {{ t.priority }}
+        </button>
+  <span class="due" *ngIf="t.due" [class.overdue]="isOverdue(t.due)" [class.today]="isToday(t.due)" [class.upcoming]="isUpcoming(t.due)">{{ t.due | date : 'MMM d' }}</span>
+        <button class="btn xs danger" (click)="remove(t)" aria-label="Delete task">✕</button>
+      </div>
+    </div>
+    <div class="empty" *ngIf="!tasks.length">No tasks</div>
+  </section>
+</div>

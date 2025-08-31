@@ -5,9 +5,11 @@ export interface Subtask { id: string; title: string; completed: boolean; }
 export interface Card {
   id: string;
   title: string;
+  columnId: string; // owning column
   description?: string;
   dueDate?: string; // ISO date
   priority: Priority;
+  position?: number; // ordering within column (ascending)
   subtasks: Subtask[];
   tags?: string[];
   completed?: boolean;

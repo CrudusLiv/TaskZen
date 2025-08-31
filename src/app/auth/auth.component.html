@@ -1,5 +1,140 @@
-<div class="card auth-card">
-  <h1>Auth Placeholder</h1>
-  <p class="muted">Firebase auth integration coming in Phase 2.</p>
-  <button class="btn" disabled>Sign In (Disabled)</button>
+<div class="auth-shell">
+  <!-- Account Panel -->
+  <section class="panel account" *ngIf="user$ | async as user; else authForms">
+    <header class="panel-head">
+      <h1>Account</h1>
+      <button class="icon-btn" (click)="logout()" aria-label="Logout">⎋</button>
+    </header>
+    <div class="profile" *ngIf="!editingProfile(); else editProfile">
+      <dl class="info-grid">
+        <div>
+          <dt>Name</dt>
+          <dd>{{ user.name }}</dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd>{{ user.email }}</dd>
+        </div>
+        <div *ngIf="user.username">
+          <dt>Username</dt>
+          <dd>{{ user.username }}</dd>
+        </div>
+        <div *ngIf="user.bio">
+          <dt>Bio</dt>
+          <dd>{{ user.bio }}</dd>
+        </div>
+        <div>
+          <dt>Roles</dt>
+          <dd>{{ user.roles.join(', ') }}</dd>
+        </div>
+      </dl>
+      <div class="actions">
+        <button class="btn secondary" (click)="startEdit(user)">Edit Profile</button>
+        <button class="btn danger" (click)="logout()">Logout</button>
+      </div>
+    </div>
+    <ng-template #editProfile>
+      <form class="edit-form" (submit)="$event.preventDefault(); saveProfile(user)">
+        <div class="field-row">
+          <label>Name</label><input [(ngModel)]="profileDraft().name" name="name" />
+        </div>
+        <div class="field-row">
+          <label>Username</label><input [(ngModel)]="profileDraft().username" name="username" />
+        </div>
+        <div class="field-row">
+          <label>Bio</label
+          ><textarea [(ngModel)]="profileDraft().bio" name="bio" rows="3"></textarea>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn">Save</button>
+          <button type="button" class="btn secondary" (click)="cancelProfile()">Cancel</button>
+        </div>
+      </form>
+    </ng-template>
+  </section>
+  <!-- Auth Forms -->
+  <ng-template #authForms>
+    <section class="panel auth">
+      <header class="panel-head">
+        <div class="mode-toggle" role="tablist" aria-label="Auth mode">
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="mode() === 'login'"
+            [class.active]="mode() === 'login'"
+            (click)="switchMode('login')"
+          >
+            Login
+          </button>
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="mode() === 'signup'"
+            [class.active]="mode() === 'signup'"
+            (click)="switchMode('signup')"
+          >
+            Sign Up
+          </button>
+        </div>
+      </header>
+      <form class="auth-form" (submit)="$event.preventDefault(); submit()" autocomplete="on">
+        <h1 class="title">{{ mode() === 'login' ? 'Welcome Back' : 'Create Account' }}</h1>
+        <p class="subtitle" *ngIf="mode() === 'login'">Enter your credentials to continue.</p>
+        <p class="subtitle" *ngIf="mode() === 'signup'">Start organizing tasks and boards.</p>
+        <div class="error" *ngIf="error$ | async as err">{{ err }}</div>
+        <div class="field-row">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            required
+            [ngModel]="email()"
+            name="email"
+            (ngModelChange)="email.set($event)"
+            autocomplete="email"
+          />
+        </div>
+        <div class="field-row">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            required
+            minlength="6"
+            [ngModel]="password()"
+            name="password"
+            (ngModelChange)="password.set($event)"
+            autocomplete="current-password"
+          />
+        </div>
+        <div class="field-row" *ngIf="mode() === 'signup'">
+          <label for="name">Name</label>
+          <input
+            id="name"
+            [ngModel]="name()"
+            name="name"
+            (ngModelChange)="name.set($event)"
+            autocomplete="name"
+          />
+        </div>
+        <button
+          class="btn primary wide"
+          type="submit"
+          [disabled]="(loading$ | async) || !email() || !password()"
+        >
+          {{ mode() === 'login' ? 'Login' : 'Sign Up' }}
+        </button>
+        <div class="or-row"><span>OR</span></div>
+        <button
+          type="button"
+          class="btn google wide"
+          (click)="auth.loginWithGoogle()"
+          aria-label="Continue with Google"
+        >
+          <span class="g-icon" aria-hidden="true">G</span>
+          <span>Continue with Google</span>
+        </button>
+      </form>
+    </section>
+  </ng-template>
 </div>

@@ -7,4 +7,5 @@ export const selectAllBoards = createSelector(selectBoardsState, s => s.order.ma
 export const selectFavoriteBoards = createSelector(selectAllBoards, boards => boards.filter(b=>b.favorite));
 export const selectNonFavoriteBoards = createSelector(selectAllBoards, boards => boards.filter(b=>!b.favorite));
 export const selectActiveBoardMeta = createSelector(selectBoardsState, s => s.activeBoardId ? s.boards[s.activeBoardId] : undefined);
+export const selectActiveBoardId = createSelector(selectBoardsState, s => s.activeBoardId);
 export const selectLastDeletedBoard = createSelector(selectBoardsState, s => s.lastDeleted);

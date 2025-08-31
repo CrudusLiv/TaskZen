@@ -44,10 +44,12 @@ export class KanbanBoardComponent {
   deleteColumn(id: string){ if(confirm('Delete column?')) this.store.dispatch(BoardActions.deleteColumn({ columnId: id })); }
   addCard(columnId: string){ const title = prompt('Card title?') || 'New Card'; this.store.dispatch(BoardActions.addCard({ columnId, title })); }
   addQuick(title: string){
-    const sub = this.columns$.subscribe(cols=>{
-      if(cols && cols[0]){ this.store.dispatch(BoardActions.addCard({ columnId: cols[0].id, title })); }
+    // Dispatch addCard for first column; Firestore listener will populate actual card
+    const sub = this.columns$.subscribe(cols => {
+      if(cols?.length){ this.store.dispatch(BoardActions.addCard({ columnId: cols[0].id, title })); }
     });
-    setTimeout(()=>sub.unsubscribe(),0);
+    // microtask unsubscribe to keep single emission
+    queueMicrotask(()=> sub.unsubscribe());
   }
   updateCard(cardId: string, changes: any){ this.store.dispatch(BoardActions.updateCard({ cardId, changes })); }
   toggleCard(cardId: string){ this.store.dispatch(BoardActions.toggleCardCompleted({ cardId })); }
@@ -56,7 +58,7 @@ export class KanbanBoardComponent {
       const sub = this.columns$.subscribe(cols => {
         if(cols?.length){ this.store.dispatch(BoardActions.addCard({ columnId: cols[0].id, title: 'New Task' })); }
       });
-      setTimeout(()=>sub.unsubscribe(),0);
+      queueMicrotask(()=> sub.unsubscribe());
     }
   }
   deleteCard(cardId: string, columnId: string){ if(confirm('Delete card?')) this.store.dispatch(BoardActions.deleteCard({ cardId, columnId })); }

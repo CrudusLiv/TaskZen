@@ -6,6 +6,7 @@ import { notificationsFeatureKey, notificationsReducer } from '../notifications/
 import { focusFeatureKey, FocusState, focusReducer } from '../focus/state/focus.reducer';
 import { analyticsFeatureKey, AnalyticsState, analyticsReducer } from '../analytics/state/analytics.reducer';
 import { authFeatureKey, AuthState, authReducer } from '../auth/state/auth.reducer';
+import { tasksFeatureKey, tasksReducer, TasksState } from '../tasks/state/tasks.reducer';
 
 export interface AppState {
   // tasks removed
@@ -15,6 +16,7 @@ export interface AppState {
   [focusFeatureKey]: FocusState;
   [analyticsFeatureKey]: AnalyticsState;
   [authFeatureKey]: AuthState;
+  [tasksFeatureKey]: TasksState;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
@@ -25,4 +27,5 @@ export const reducers: ActionReducerMap<AppState> = {
   [focusFeatureKey]: focusReducer,
   [analyticsFeatureKey]: analyticsReducer,
   [authFeatureKey]: authReducer
+  , [tasksFeatureKey]: tasksReducer
 };

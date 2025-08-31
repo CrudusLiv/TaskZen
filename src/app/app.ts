@@ -2,13 +2,16 @@ import { Component, signal, inject, computed, DestroyRef, effect } from '@angula
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { NgIf, NgFor } from '@angular/common';
 import { SideNavComponent } from './navigation/side-nav.component';
+import { ToastContainerComponent } from './ui/toast-container.component';
+import { Store } from '@ngrx/store';
+import { AuthActions } from './auth/state/auth.actions';
 import { NotificationBellComponent } from './notifications/notification-bell.component';
 import { ThemeService } from './theme/theme.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, NgIf, NgFor, NotificationBellComponent, SideNavComponent],
+  imports: [RouterOutlet, RouterLink, NgIf, NgFor, NotificationBellComponent, SideNavComponent, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
@@ -24,6 +27,8 @@ export class App {
   breadcrumbs = computed(()=> this.buildCrumbs(this.currentUrl()));
 
   constructor(){
+    // Kick off auth restore (Firebase auth state listener in effects will respond)
+    try { inject(Store).dispatch(AuthActions.restoreSession()); } catch {}
     const sub = this.router.events.subscribe(ev=>{
       if(ev instanceof NavigationEnd){ this.currentUrl.set(ev.urlAfterRedirects || ev.url); }
     });

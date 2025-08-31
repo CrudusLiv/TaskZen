@@ -4,26 +4,6 @@ import { BoardActions } from './board.actions';
 
 export const boardFeatureKey = 'kanban';
 
-const seedState = (): BoardState => {
-  const now = () => new Date().toISOString();
-  const demoComments: CommentItem[] = [
-    { id: 'cm1', user: 'alice', message: 'Initial draft created.', createdAt: now() },
-    { id: 'cm2', user: 'bob', message: 'Looks good! @alice can you add tests?', createdAt: now() }
-  ];
-  const c1: Card = { id: 'c1', title: 'Sample Task A', priority: 'high', subtasks: [], tags: ['demo'], completed: false, createdAt: now(), updatedAt: now(), comments: demoComments };
-  const c2: Card = { id: 'c2', title: 'Sample Task B', priority: 'medium', subtasks: [], tags: ['demo','sample'], completed: false, createdAt: now(), updatedAt: now(), dueDate: now().substring(0,10), comments: [] };
-  const col1: Column = { id: 'col1', title: 'To Do', cardIds: ['c1','c2'], sort: 'created' };
-  const col2: Column = { id: 'col2', title: 'In Progress', cardIds: [], sort: 'created' };
-  const col3: Column = { id: 'col3', title: 'Done', cardIds: [], sort: 'created' };
-  return {
-    board: { id: 'b1', title: 'My Board', columnIds: ['col1','col2','col3'] },
-    columns: { col1, col2, col3 },
-    cards: { c1, c2 },
-    filter: { text: '', priority: 'any', due: undefined },
-    loaded: true,
-    activeCardId: undefined
-  };
-};
 
 const initialState: BoardState = { board: { id: '', title: '', columnIds: []}, columns: {}, cards: {}, filter: { text: '' }, loaded: false } as BoardState;
 
@@ -40,32 +20,25 @@ function applySort(col: Column, cards: Record<string, Card>) {
 
 export const boardReducer = createReducer(
   initialState,
-  on(BoardActions.loadSuccess, (_, { state }) => state ? { ...state, loaded: true, activeCardId: undefined } : seedState()),
-  on(BoardActions.addColumn, (s, { title }) => {
-    const id = crypto.randomUUID();
-    return {
-      ...s,
-      board: { ...s.board, columnIds: [...s.board.columnIds, id]},
-      columns: { ...s.columns, [id]: { id, title, cardIds: [], sort: 'created' }}
-    };
-  }),
+  on(BoardActions.loadSuccess, (s, { state }) => state ? { ...state, loaded: true, activeCardId: undefined } : { ...s, loaded: true }),
+  on(BoardActions.setActiveBoardFromMeta, (s,{ boardId, title }) => ({
+    ...s,
+    board: { id: boardId, title, columnIds: [] },
+    columns: {},
+    cards: {},
+    activeCardId: undefined,
+    loaded: true
+  })),
+  // Remove optimistic column add (Firestore authoritative to prevent duplicate ghost columns)
+  on(BoardActions.addColumn, (s,{ title }) => s),
   on(BoardActions.renameColumn, (s,{ columnId, title }) => ({ ...s, columns: { ...s.columns, [columnId]: { ...s.columns[columnId], title }}})),
   on(BoardActions.deleteColumn, (s,{ columnId }) => {
     const { [columnId]:_, ...cols } = s.columns;
     const board = { ...s.board, columnIds: s.board.columnIds.filter(id=>id!==columnId) };
     return { ...s, columns: cols, board };
   }),
-  on(BoardActions.addCard, (s,{ columnId, title, priority }) => {
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
-    const card: Card = { id, title: title || 'New Card', priority: priority || 'low', createdAt: now, updatedAt: now, subtasks: [] };
-    const col = s.columns[columnId];
-    return {
-      ...s,
-      cards: { ...s.cards, [id]: card },
-      columns: { ...s.columns, [columnId]: { ...col, cardIds: [...col.cardIds, id] } }
-    };
-  }),
+  // Remove optimistic card add (wait for Firestore snapshot to upsert)
+  on(BoardActions.addCard, (s,{ columnId, title, priority }) => s),
   on(BoardActions.updateCard, (s,{ cardId, changes }) => ({
     ...s,
     cards: { ...s.cards, [cardId]: { ...s.cards[cardId], ...changes, updatedAt: new Date().toISOString() }}
@@ -176,5 +149,56 @@ export const boardReducer = createReducer(
   }),
   on(BoardActions.openCard, (s,{ cardId }) => ({ ...s, activeCardId: cardId })),
   on(BoardActions.closeCard, (s) => ({ ...s, activeCardId: undefined })),
-  on(BoardActions.init, s => s.loaded ? s : seedState())
+  on(BoardActions.upsertColumn, (s,{ column }) => {
+    const exists = !!s.columns[column.id];
+    const board = exists ? s.board : { ...s.board, columnIds: [...s.board.columnIds, column.id] };
+    return { ...s, board, columns: { ...s.columns, [column.id]: { ...column } }};
+  }),
+  on(BoardActions.removeColumn, (s,{ columnId }) => {
+    if(!s.columns[columnId]) return s;
+    const { [columnId]: _, ...rest } = s.columns;
+    return { ...s, columns: rest, board: { ...s.board, columnIds: s.board.columnIds.filter(id=>id!==columnId) }};
+  }),
+  on(BoardActions.upsertCard, (s,{ card }) => {
+    const existing = s.cards[card.id];
+    const nextCards = { ...s.cards, [card.id]: { ...(existing||{}), ...card } };
+    // Ensure column cardIds contains card.id
+    const col = s.columns[card.columnId];
+    if(col && !col.cardIds.includes(card.id)){
+      return { ...s, cards: nextCards, columns: { ...s.columns, [card.columnId]: { ...col, cardIds: [...col.cardIds, card.id ] } }};
+    }
+    return { ...s, cards: nextCards };
+  }),
+  on(BoardActions.upsertCardsBatch, (s,{ cards }) => {
+    if(!cards.length) return s;
+    const nextCards = { ...s.cards };
+    const nextColumns = { ...s.columns };
+    for (const card of cards){
+      nextCards[card.id] = { ...(nextCards[card.id]||{}), ...card };
+      const col = nextColumns[card.columnId];
+      if(col && !col.cardIds.includes(card.id)){
+        nextColumns[card.columnId] = { ...col, cardIds: [...col.cardIds, card.id ] };
+      }
+    }
+    return { ...s, cards: nextCards, columns: nextColumns };
+  }),
+  on(BoardActions.removeCard, (s,{ cardId, columnId }) => {
+    const col = s.columns[columnId]; if(!col) return s;
+    if(!s.cards[cardId]) return s;
+    const { [cardId]:_, ...rest } = s.cards;
+    return { ...s, cards: rest, columns: { ...s.columns, [columnId]: { ...col, cardIds: col.cardIds.filter(id=>id!==cardId) } }};
+  }),
+  on(BoardActions.removeCardsBatch, (s,{ removals }) => {
+    if(!removals.length) return s;
+    const removeSet = new Set(removals.map(r=>r.cardId));
+    const nextCards: any = { ...s.cards };
+    for(const id of removeSet) delete nextCards[id];
+    const nextColumns = { ...s.columns };
+    for(const { columnId, cardId } of removals){
+      const col = nextColumns[columnId]; if(!col) continue;
+      nextColumns[columnId] = { ...col, cardIds: col.cardIds.filter(id=> !removeSet.has(id)) };
+    }
+    return { ...s, cards: nextCards, columns: nextColumns };
+  }),
+  on(BoardActions.init, s => s.loaded ? s : { ...s, loaded: true })
 );

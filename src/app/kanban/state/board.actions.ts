@@ -46,5 +46,13 @@ export const BoardActions = createActionGroup({
     'Toggle Comments Panel': props<{ cardId: string }>(),
     'Open Card': props<{ cardId: string }>(),
     'Close Card': emptyProps(),
+  // Firestore granular sync
+  'Upsert Column': props<{ column: { id: string; title: string; cardIds: string[]; sort: 'created'|'due'|'priority' } }>(),
+  'Remove Column': props<{ columnId: string }>(),
+  'Upsert Card': props<{ card: any }>(),
+  'Remove Card': props<{ cardId: string; columnId: string }>(),
+  'Upsert Cards Batch': props<{ cards: any[] }>(),
+  'Remove Cards Batch': props<{ removals: { cardId: string; columnId: string }[] }>(),
+  'Set Active Board From Meta': props<{ boardId: string; title: string }>(),
   },
 });
