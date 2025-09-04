@@ -2,6 +2,19 @@
 
 Modern, signal‑driven productivity & kanban workspace built with Angular 20, Firebase, and NgRx.
 
+## Firestore Composite Index (Cards Ordering)
+To enable ordered card streaming (by column + position) create a composite index in Firestore:
+
+Collection: cards
+Fields (in order):
+1. boardId Asc
+2. columnId Asc
+3. position Asc
+
+Without it the app will fallback to an unsorted listener and show a toast.
+
+See `docs/TROUBLESHOOTING.md` for more details.
+
 ## ✨ Features
 
 - Kanban board with boards / columns / cards (lazy loaded routes)
@@ -177,6 +190,9 @@ npx ng generate --help
 ## 🙋 Support
 
 File an issue or start a discussion if you have questions or suggestions.
+
+## 🧠 Calendar & AI Planner (Experimental)
+A calendar view (`/calendar`) groups cards by due (or proposed) date. The AI planner (Phase 1) applies a heuristic to rank tasks based on due proximity, priority, and age, suggesting target dates. Future phases will incorporate adaptive weighting, ML models, and natural language task planning. See `docs/AI_ROADMAP.md`.
 
 ---
 

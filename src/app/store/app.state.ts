@@ -1,12 +1,16 @@
 import { ActionReducerMap } from '@ngrx/store';
 // Removed legacy tasks feature
 import { boardFeatureKey, boardReducer } from '../kanban/state/board.reducer';
-import { boardsFeatureKey, boardsReducer } from '../boards/boards.reducer';
+import { boardsFeatureKey, boardsReducer } from '../boards/state/boards.reducer';
 import { notificationsFeatureKey, notificationsReducer } from '../notifications/notifications.reducer';
 import { focusFeatureKey, FocusState, focusReducer } from '../focus/state/focus.reducer';
 import { analyticsFeatureKey, AnalyticsState, analyticsReducer } from '../analytics/state/analytics.reducer';
 import { authFeatureKey, AuthState, authReducer } from '../auth/state/auth.reducer';
 import { tasksFeatureKey, tasksReducer, TasksState } from '../tasks/state/tasks.reducer';
+import { calendarFeatureKey } from '../calendar/state/calendar.models';
+import { calendarReducer } from '../calendar/state/calendar.reducer';
+import { aiFeatureKey } from '../ai/state/planner.models';
+import { aiReducer } from '../ai/state/planner.reducer';
 
 export interface AppState {
   // tasks removed
@@ -17,6 +21,8 @@ export interface AppState {
   [analyticsFeatureKey]: AnalyticsState;
   [authFeatureKey]: AuthState;
   [tasksFeatureKey]: TasksState;
+  [calendarFeatureKey]: any;
+  [aiFeatureKey]: any;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
@@ -28,4 +34,6 @@ export const reducers: ActionReducerMap<AppState> = {
   [analyticsFeatureKey]: analyticsReducer,
   [authFeatureKey]: authReducer
   , [tasksFeatureKey]: tasksReducer
+  , [calendarFeatureKey]: calendarReducer
+  , [aiFeatureKey]: aiReducer
 };

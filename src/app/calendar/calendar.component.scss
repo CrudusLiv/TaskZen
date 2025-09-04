@@ -1,0 +1,53 @@
+.cal-header {
+  margin-bottom: 1rem;
+}
+.month {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+.day-cell {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+.date-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  opacity: 0.75;
+}
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.event-list li {
+  background: var(--surface-raised);
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  line-height: 1.1;
+}
+.prio-high {
+  border-left: 3px solid var(--color-danger);
+}
+.prio-med {
+  border-left: 3px solid var(--color-warn);
+}
+.prio-low {
+  border-left: 3px solid var(--color-success);
+}
+.empty {
+  padding: 1rem;
+  background: var(--card-bg);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+}

@@ -4,7 +4,7 @@ import { BoardActions } from './board.actions';
 import { Store } from '@ngrx/store';
 import { selectBoardState } from './board.selectors';
 import { withLatestFrom, tap, map, delay, of, filter, switchMap, takeUntil } from 'rxjs';
-import { selectActiveBoardMeta } from '../../boards/boards.selectors';
+import { selectActiveBoardMeta } from '../../boards/state/boards.selectors';
 
 const STORAGE_KEY = 'taskzen_kanban';
 

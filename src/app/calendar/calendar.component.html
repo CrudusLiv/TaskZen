@@ -1,0 +1,26 @@
+<section class="calendar">
+  <header class="cal-header">
+    <h1>Calendar</h1>
+    <p class="muted">
+      Tasks with due dates appear below. Assign due dates in the board to populate.
+    </p>
+  </header>
+  <div *ngIf="eventsByDate$ | async as map">
+    <div *ngIf="!hasAny(map)" class="empty">No dated tasks yet. Set due dates on cards.</div>
+    <div class="month" *ngIf="hasAny(map)">
+      <div class="day-cell" *ngFor="let d of monthDays">
+        <div class="date-label">{{ d }}</div>
+        <ul class="event-list">
+          <li
+            *ngFor="let e of map[d]"
+            [class.prio-high]="e.priority === 'high'"
+            [class.prio-med]="e.priority === 'medium'"
+            [class.prio-low]="e.priority === 'low'"
+          >
+            {{ e.title }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

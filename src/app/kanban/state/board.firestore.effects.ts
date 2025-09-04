@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { BoardActions } from './board.actions';
 import { Store } from '@ngrx/store';
-import { selectActiveBoardId } from '../../boards/boards.selectors';
+import { selectActiveBoardId } from '../../boards/state/boards.selectors';
 import { selectBoardState } from './board.selectors';
 import { selectUser } from '../../auth/state/auth.selectors';
 import { FirebaseService } from '../../firebase.service';
@@ -38,6 +38,7 @@ import {
 } from 'firebase/firestore';
 import { ToastService } from '../../ui/toast.service';
 import { AppActions } from '../../store/app.actions';
+import { DIAG_FIRESTORE_VERBOSE } from '../../environment.flags';
 
 @Injectable()
 export class BoardFirestoreEffects {
@@ -150,6 +151,8 @@ export class BoardFirestoreEffects {
                 console.error('[BoardFirestore] Card stream error', code, err);
                 if (code === 'failed-precondition' && !isFallback && !this.cardsFallbackTried) {
                   this.cardsFallbackTried = true;
+                  // Provide user guidance for composite index
+                  this.toasts.info("Missing Firestore index for cards ordering. Using fallback (unsorted). Build composite index: cards (boardId asc, columnId asc, position asc). After it builds (~1m), reload.");
                   this.store.dispatch(
                     AppActions.info({
                       message: 'Building Firestore index or falling back (cards).',
@@ -168,6 +171,9 @@ export class BoardFirestoreEffects {
           };
           this.cardsFallbackTried = false;
           this.unsubCards = startCardsListener(orderedCardsQ);
+          if(DIAG_FIRESTORE_VERBOSE){
+            console.log('[BoardFirestore] Attached listeners for board', boardId, { ordered:true });
+          }
           // mark feature loaded without wiping existing state
           this.store.dispatch(BoardActions.loadSuccess({ state: undefined }));
         })

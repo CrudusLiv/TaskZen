@@ -4,11 +4,13 @@ import { Store } from '@ngrx/store';
 import { BoardActions } from '../state/board.actions';
 import { FormsModule } from '@angular/forms';
 import { selectBoard, selectColumns, selectFilteredColumnCards, selectFilter, selectLastDeleted } from '../state/board.selectors';
-import { selectActiveBoardMeta } from '../../boards/boards.selectors';
+import { selectActiveBoardMeta } from '../../boards/state/boards.selectors';
 import { ThemeService } from '../../theme/theme.service';
 import { ColumnComponent } from '../column/column.component';
 import { DetailComponent } from '../detail/detail.component';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { take } from 'rxjs';
+import { DIAG_FIRESTORE_VERBOSE } from '../../environment.flags';
 
 @Component({
   selector: 'app-kanban-board',
@@ -44,12 +46,12 @@ export class KanbanBoardComponent {
   deleteColumn(id: string){ if(confirm('Delete column?')) this.store.dispatch(BoardActions.deleteColumn({ columnId: id })); }
   addCard(columnId: string){ const title = prompt('Card title?') || 'New Card'; this.store.dispatch(BoardActions.addCard({ columnId, title })); }
   addQuick(title: string){
-    // Dispatch addCard for first column; Firestore listener will populate actual card
-    const sub = this.columns$.subscribe(cols => {
-      if(cols?.length){ this.store.dispatch(BoardActions.addCard({ columnId: cols[0].id, title })); }
+    this.columns$.pipe(take(1)).subscribe(cols => {
+      if(cols?.length){
+        if(DIAG_FIRESTORE_VERBOSE){ console.log('[KanbanBoard] quick add ->', title); }
+        this.store.dispatch(BoardActions.addCard({ columnId: cols[0].id, title }));
+      }
     });
-    // microtask unsubscribe to keep single emission
-    queueMicrotask(()=> sub.unsubscribe());
   }
   updateCard(cardId: string, changes: any){ this.store.dispatch(BoardActions.updateCard({ cardId, changes })); }
   toggleCard(cardId: string){ this.store.dispatch(BoardActions.toggleCardCompleted({ cardId })); }

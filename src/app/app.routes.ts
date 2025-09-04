@@ -8,5 +8,7 @@ export const routes: Routes = [
 	{ path: 'activity', loadComponent: () => import('./notifications/activity-feed.component').then(m => m.ActivityFeedComponent) },
 	{ path: 'focus', loadComponent: () => import('./focus/focus.component').then(m => m.FocusComponent) },
 	{ path: 'analytics', loadComponent: () => import('./analytics/analytics.component').then(m => m.AnalyticsComponent) },
-	{ path: 'auth', loadComponent: () => import('./auth/auth.component').then(m => m.AuthComponent) }
+	{ path: 'auth', loadComponent: () => import('./auth/auth.component').then(m => m.AuthComponent) },
+	{ path: 'calendar', loadComponent: () => import('./calendar/calendar.component').then(m => m.CalendarComponent) },
+	{ path: 'planner', loadComponent: () => import('./ai/components/ai-hub/ai-hub.component').then(m => m.AiHubComponent) }
 ];

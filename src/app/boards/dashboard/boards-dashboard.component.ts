@@ -2,7 +2,7 @@ import { Component, inject, ChangeDetectionStrategy, OnDestroy } from '@angular/
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { BoardsActions } from '../boards.actions';
+import { BoardsActions } from '../state/boards.actions';
 import { DialogService } from '../../ui/dialog.service';
 import { FormsModule } from '@angular/forms';
 import {
@@ -10,8 +10,8 @@ import {
   selectNonFavoriteBoards,
   selectActiveBoardMeta,
   selectLastDeletedBoard,
-} from '../boards.selectors';
-import { BoardMeta } from '../boards.models';
+} from '../state/boards.selectors';
+import { BoardMeta } from '../state/boards.models';
 import { ThemeService } from '../../theme/theme.service';
 
 @Component({

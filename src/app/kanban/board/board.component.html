@@ -35,24 +35,37 @@
           </div>
         </div>
       </header>
-  <div class="kb-columns" *ngIf="(columns$ | async) as columns" role="list" aria-label="Board columns">
-        <app-kanban-column *ngFor="let col of columns; trackBy: trackCol"
-          [column]="col"
-          [collapsed]="isCollapsed(col.id)"
-          [connectedTo]="connectedTo(columns, col.id)"
-          [highlight]="f.text"
-          [cards]="filteredCards((cards(col.id) | async) || [])"
-          (add)="addCard(col.id)"
-          (rename)="renameColumn(col.id)"
-          (delete)="deleteColumn(col.id)"
-          (updateCard)="updateCard($event.id, $event.changes)"
-          (toggleCard)="toggleCard($event)"
-          (open)="open($event)"
-          (dropCard)="drop($event, col.id, col.id)"
-          (sort)="setSort(col.id, $event)"
-          (collapse)="toggleColumnCollapse(col.id)"></app-kanban-column>
-      </div>
-  </div>
+      <div class="kb-status" *ngIf="!(columns$ | async); else colsLoaded" aria-live="polite">Loading board…</div>
+      <ng-template #colsLoaded>
+        <div class="kb-empty-board" *ngIf="(columns$ | async) as columns">
+          <ng-container *ngIf="columns.length; else noColumns">
+            <div class="kb-columns" role="list" aria-label="Board columns">
+              <app-kanban-column *ngFor="let col of columns; trackBy: trackCol"
+                [column]="col"
+                [collapsed]="isCollapsed(col.id)"
+                [connectedTo]="connectedTo(columns, col.id)"
+                [highlight]="f.text"
+                [cards]="filteredCards((cards(col.id) | async) || [])"
+                (add)="addCard(col.id)"
+                (rename)="renameColumn(col.id)"
+                (delete)="deleteColumn(col.id)"
+                (updateCard)="updateCard($event.id, $event.changes)"
+                (toggleCard)="toggleCard($event)"
+                (open)="open($event)"
+                (dropCard)="drop($event, col.id, col.id)"
+                (sort)="setSort(col.id, $event)"
+                (collapse)="toggleColumnCollapse(col.id)"></app-kanban-column>
+            </div>
+            <ng-container *ngIf="cardCount(columns) === 0">
+              <div class="kb-hint" aria-live="polite">No tasks yet. Add a card to get started.</div>
+            </ng-container>
+          </ng-container>
+          <ng-template #noColumns>
+            <div class="kb-hint" aria-live="polite">No columns yet. Create your first column.</div>
+          </ng-template>
+        </div>
+      </ng-template>
       <app-card-detail></app-card-detail>
+    </div>
   </ng-container>
 </ng-container>
