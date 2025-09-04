@@ -1,0 +1,116 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isUser(uid) { return signedIn() && request.auth.uid == uid; }
+    function nowTs() { return request.time; }
+  function isIsoDate(d) { return d is string && d.size() == 10 && d.matches('^\\d{4}-\\d{2}-\\d{2}$'); }
+
+    // Users
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if isUser(uid);
+      allow update: if isUser(uid);
+      allow delete: if false; // prevent account doc deletion from client
+    }
+
+    // Boards
+    match /boards/{boardId} {
+      function validBoardCreate() {
+        return request.resource.data.title is string
+          && request.resource.data.memberIds is list
+          && request.resource.data.memberIds.size() > 0
+          && request.resource.data.memberIds.size() <= 32
+          && request.auth.uid in request.resource.data.memberIds;
+      }
+      function validBoardUpdate() {
+        return !( 'memberIds' in request.resource.data && request.resource.data.memberIds.size() > 32 );
+      }
+      allow read: if signedIn() && (request.auth.uid in resource.data.memberIds);
+      allow create: if signedIn() && validBoardCreate();
+      allow update: if signedIn() && (request.auth.uid in resource.data.memberIds) && validBoardUpdate();
+      allow delete: if signedIn() && (request.auth.uid == resource.data.ownerId);
+    }
+
+    // Board Columns
+    match /boardColumns/{colId} {
+      function boardMembersFromId(bid) { return get(/databases/$(database)/documents/boards/$(bid)).data.memberIds; }
+      allow read: if signedIn() && resource.data.boardId != null && (request.auth.uid in boardMembersFromId(resource.data.boardId));
+      allow create: if signedIn() && request.resource.data.boardId is string && request.resource.data.title is string && request.resource.data.cardIds is list && (request.auth.uid in boardMembersFromId(request.resource.data.boardId));
+      allow update: if signedIn() && (request.auth.uid in boardMembersFromId(resource.data.boardId));
+      allow delete: if signedIn() && (request.auth.uid in boardMembersFromId(resource.data.boardId));
+    }
+
+    // Cards
+    match /cards/{cardId} {
+      function boardMembersFromId(bid) { return get(/databases/$(database)/documents/boards/$(bid)).data.memberIds; }
+      function validCreate() {
+        return request.resource.data.boardId is string
+          && request.resource.data.columnId is string
+          && request.resource.data.title is string
+          && request.resource.data.priority in ['low','medium','high']
+          && (request.auth.uid in boardMembersFromId(request.resource.data.boardId));
+      }
+      function validUpdate() {
+        return resource.data.boardId is string
+          && (request.auth.uid in boardMembersFromId(resource.data.boardId))
+          && (!('subtasks' in request.resource.data) || (request.resource.data.subtasks is list && request.resource.data.subtasks.size() <= 100))
+          && (!('comments' in request.resource.data) || (request.resource.data.comments is list && request.resource.data.comments.size() <= 200))
+          && (!('dueDate' in request.resource.data) || request.resource.data.dueDate == null || isIsoDate(request.resource.data.dueDate));
+      }
+      allow read: if signedIn() && (request.auth.uid in boardMembersFromId(resource.data.boardId));
+      allow create: if signedIn() && validCreate();
+      allow update: if signedIn() && validUpdate();
+      allow delete: if signedIn() && (request.auth.uid in boardMembersFromId(resource.data.boardId));
+    }
+
+    // Planner Focus (per user; stores array of focused card IDs)
+    match /plannerFocus/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid; // user can read own focus
+      allow create: if signedIn() && request.auth.uid == uid && request.resource.data.ids is list && request.resource.data.ids.size() <= 50;
+      allow update: if signedIn() && request.auth.uid == uid && (!('ids' in request.resource.data) || (request.resource.data.ids is list && request.resource.data.ids.size() <= 50));
+      allow delete: if false; // retain history unless manually purged server-side
+    }
+
+    // Optional standalone calendar events (if implemented)
+    match /calendarEvents/{eventId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.title is string && isIsoDate(request.resource.data.date);
+      allow update: if signedIn() && (!('date' in request.resource.data) || isIsoDate(request.resource.data.date));
+      allow delete: if signedIn();
+    }
+
+    // Tasks (user personal scope)
+    match /tasks/{taskId} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if signedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Notifications (per user)
+    match /notifications/{notifId} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid; // system or sender sets userId
+      allow update: if signedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if false; // archive instead of delete
+    }
+
+    // Presence
+    match /presence/{uid} {
+      allow read: if signedIn();
+      allow create, update: if isUser(uid);
+      allow delete: if false;
+    }
+
+    // Locks
+    match /locks/{lockId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if false; // recreate instead
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+  }
+}

@@ -1,26 +1,44 @@
 <section class="calendar">
-  <header class="cal-header">
-    <h1>Calendar</h1>
-    <p class="muted">
-      Tasks with due dates appear below. Assign due dates in the board to populate.
-    </p>
-  </header>
-  <div *ngIf="eventsByDate$ | async as map">
-    <div *ngIf="!hasAny(map)" class="empty">No dated tasks yet. Set due dates on cards.</div>
-    <div class="month" *ngIf="hasAny(map)">
-      <div class="day-cell" *ngFor="let d of monthDays">
-        <div class="date-label">{{ d }}</div>
-        <ul class="event-list">
-          <li
-            *ngFor="let e of map[d]"
-            [class.prio-high]="e.priority === 'high'"
-            [class.prio-med]="e.priority === 'medium'"
-            [class.prio-low]="e.priority === 'low'"
-          >
-            {{ e.title }}
+    <header class="cal-header">
+      <div class="title-row">
+        <h1>Calendar</h1>
+        <div class="month-nav">
+          <button class="mini" (click)="prevMonth()" aria-label="Previous Month">◀</button>
+          <span class="current-month">{{ currentYear() }}-{{ (currentMonth()+1) | number:'2.0' }}</span>
+    <button class="mini" (click)="nextMonth()" aria-label="Next Month">▶</button>
+        </div>
+      </div>
+      <p class="muted">Assign due dates or schedule below. Planner focus highlighted.</p>
+    </header>
+    <div class="cal-layout" *ngIf="eventsByDate$ | async as map">
+      <div class="month" *ngIf="monthDays() as days">
+        <div class="day-cell" *ngFor="let d of days">
+          <div class="date-label">{{ d }}</div>
+          <ul class="event-list">
+            <li *ngFor="let e of map[d]"
+                [class.prio-high]="e.priority === 'high'"
+                [class.prio-med]="e.priority === 'medium'"
+                [class.prio-low]="e.priority === 'low'"
+                [class.focus]="isFocus(e.cardId)"
+            >
+              <span class="evt-title" (click)="openCard(e.cardId)" title="Open card">{{ e.title }}</span>
+              <button class="mini danger" (click)="clearDue(e.cardId)" title="Remove due date">✕</button>
+            </li>
+          </ul>
+          <div class="schedule-drop-hint">Drop / schedule here</div>
+        </div>
+      </div>
+      <aside class="unscheduled">
+        <h2>Unscheduled ({{ unscheduledCards().length }})</h2>
+        <ul>
+          <li *ngFor="let c of unscheduledCards()" [class.focus]="c.inFocus">
+            <span class="title" (click)="openCard(c.id)">{{ c.title }}</span>
+            <span class="prio" [class.p-high]="c.priority==='high'" [class.p-med]="c.priority==='medium'" [class.p-low]="c.priority==='low'">{{ c.priority }}</span>
+            <div class="schedule-buttons">
+              <button class="mini" *ngFor="let d of monthDays().slice(0,7)" (click)="schedule(c.id, d)" title="Schedule for {{ d }}">{{ d.substring(8,10) }}</button>
+            </div>
           </li>
         </ul>
-      </div>
+      </aside>
     </div>
-  </div>
 </section>

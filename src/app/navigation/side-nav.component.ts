@@ -22,7 +22,7 @@ export class SideNavComponent implements OnChanges, AfterViewInit {
     { path: '/boards', label: 'Boards', icon: '📋' },
     { path: '/kanban', label: 'Active Board', icon: '🗂️' },
     { path: '/planner', label: 'Planner', icon: '🧠' },
-    { path: '/calendar', label: 'Calendar', icon: '🗓️' },
+  { path: '/calendar', label: 'Calendar', icon: '🗓️' },
     { path: '/activity', label: 'Activity', icon: '📰' },
     { path: '/focus', label: 'Focus', icon: '🎯' },
     { path: '/analytics', label: 'Analytics', icon: '📊' },

@@ -3,7 +3,7 @@
     <h2>Daily Focus <span class="badge" *ngIf="list.length">{{ list.length }}</span></h2>
     <div class="df-actions" *ngIf="list.length"><button (click)="clear()" class="clear-btn" title="Clear all">Clear</button></div>
   </header>
-  <p class="empty" *ngIf="!list.length">No focus items yet. Add from suggestions.</p>
+  <p class="empty" *ngIf="!list.length">No focus items yet. Add from board or planner actions.</p>
   <ul class="focus-list" *ngIf="list.length">
     <li *ngFor="let c of list" class="focus-item">
       <div class="title" title="{{ c.title }}">{{ c.title }}</div>

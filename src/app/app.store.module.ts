@@ -10,13 +10,13 @@ import { AuthEffects } from './auth/state/auth.effects';
 import { TasksEffects } from './tasks/state/tasks.effects';
 import { AppEffects } from './store/app.effects';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { PlannerEffects } from './planner/state/planner.effects';
 import { CalendarEffects } from './calendar/state/calendar.effects';
-import { PlannerEffects } from './ai/state/planner.effects';
 
 export function provideAppStore() {
   return [
     provideStore(reducers),
-  provideEffects([BoardEffects, BoardFirestoreEffects, BoardsEffects, AuthEffects, TasksEffects, AppEffects, CalendarEffects, PlannerEffects]),
+  provideEffects([BoardEffects, BoardFirestoreEffects, BoardsEffects, AuthEffects, TasksEffects, AppEffects, PlannerEffects, CalendarEffects]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() })
   ];
 }

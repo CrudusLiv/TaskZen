@@ -44,6 +44,3 @@ Thumbs.db
 # Firebase
 firebase.config.local.ts
 .firebaserc
-firebase.json
-firestore.indexes.json
-firestore.rules

@@ -7,10 +7,10 @@ import { focusFeatureKey, FocusState, focusReducer } from '../focus/state/focus.
 import { analyticsFeatureKey, AnalyticsState, analyticsReducer } from '../analytics/state/analytics.reducer';
 import { authFeatureKey, AuthState, authReducer } from '../auth/state/auth.reducer';
 import { tasksFeatureKey, tasksReducer, TasksState } from '../tasks/state/tasks.reducer';
+import { plannerFeatureKey } from '../planner/state/planner.models';
+import { plannerReducer } from '../planner/state/planner.reducer';
 import { calendarFeatureKey } from '../calendar/state/calendar.models';
 import { calendarReducer } from '../calendar/state/calendar.reducer';
-import { aiFeatureKey } from '../ai/state/planner.models';
-import { aiReducer } from '../ai/state/planner.reducer';
 
 export interface AppState {
   // tasks removed
@@ -21,8 +21,8 @@ export interface AppState {
   [analyticsFeatureKey]: AnalyticsState;
   [authFeatureKey]: AuthState;
   [tasksFeatureKey]: TasksState;
+  [plannerFeatureKey]: any;
   [calendarFeatureKey]: any;
-  [aiFeatureKey]: any;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
@@ -34,6 +34,6 @@ export const reducers: ActionReducerMap<AppState> = {
   [analyticsFeatureKey]: analyticsReducer,
   [authFeatureKey]: authReducer
   , [tasksFeatureKey]: tasksReducer
+  , [plannerFeatureKey]: plannerReducer
   , [calendarFeatureKey]: calendarReducer
-  , [aiFeatureKey]: aiReducer
 };

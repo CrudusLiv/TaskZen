@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { selectDailyFocusCards } from '../../state/planner.selectors.ext';
+import { selectDailyFocusCards } from '../../state/planner.selectors';
 import { PlannerActions } from '../../state/planner.actions';
 
 @Component({
@@ -16,4 +16,5 @@ export class DailyFocusComponent {
   cards$ = this.store.select(selectDailyFocusCards);
   remove(id: string){ this.store.dispatch(PlannerActions.removeDailyFocus({ cardId: id })); }
   clear(){ this.store.dispatch(PlannerActions.clearDailyFocus()); }
+  ngOnInit(){ this.store.dispatch(PlannerActions.loadDailyFocus()); }
 }

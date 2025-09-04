@@ -10,5 +10,5 @@ export const routes: Routes = [
 	{ path: 'analytics', loadComponent: () => import('./analytics/analytics.component').then(m => m.AnalyticsComponent) },
 	{ path: 'auth', loadComponent: () => import('./auth/auth.component').then(m => m.AuthComponent) },
 	{ path: 'calendar', loadComponent: () => import('./calendar/calendar.component').then(m => m.CalendarComponent) },
-	{ path: 'planner', loadComponent: () => import('./ai/components/ai-hub/ai-hub.component').then(m => m.AiHubComponent) }
+	{ path: 'planner', loadComponent: () => import('./planner/components/planner-page/planner-page.component').then(m => m.PlannerPageComponent) }
 ];

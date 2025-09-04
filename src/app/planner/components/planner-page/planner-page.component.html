@@ -1,0 +1,39 @@
+<section class="planner">
+  <header class="planner-header">
+    <div class="titles">
+      <h1>Planner</h1>
+      <p class="muted">Organize a focused list for today. Add items from the candidate pool.</p>
+    </div>
+    <div class="actions">
+      <button type="button" (click)="clear()" class="ghost" title="Clear focus list">Clear Focus</button>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="focus-col">
+      <h2 class="col-title">Daily Focus</h2>
+      <app-daily-focus></app-daily-focus>
+    </aside>
+    <main class="candidates-col">
+      <h2 class="col-title">Candidates</h2>
+      <div class="candidate-list" *ngIf="(candidates$ | async) as list">
+        <p class="empty" *ngIf="!list.length">No more candidates available.</p>
+        <ul *ngIf="list.length" class="cards">
+          <li *ngFor="let c of list">
+            <div class="row">
+              <div class="info">
+                <div class="title" [title]="c.title">{{ c.title }}</div>
+                <div class="meta">
+                  <span class="prio" [class.p-high]="c.priority==='high'" [class.p-medium]="c.priority==='medium'" [class.p-low]="c.priority==='low'">{{ c.priority }}</span>
+                  <span class="due" *ngIf="c.dueDate">📅 {{ c.dueDate }}</span>
+                </div>
+              </div>
+              <div class="ops">
+                <button (click)="add(c.id)">+ Focus</button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </main>
+  </div>
+</section>
