@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { firebaseEnv } from './firebase.config';
 import { initializeApp, FirebaseApp, getApps } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getFirestore, Firestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { Store } from '@ngrx/store';
 import { AppActions } from './store/app.actions';
 
@@ -32,8 +32,15 @@ export class FirebaseService {
         console.info('[FirebaseService] Initialized new Firebase app');
       }
       this.authInstance = getAuth(this.app);
-      this.dbInstance = getFirestore(this.app);
-      enableIndexedDbPersistence(this.dbInstance).catch(()=>{});
+      // Initialize Firestore with new cache API (FirestoreSettings.cache)
+      try {
+        this.dbInstance = initializeFirestore(this.app, {
+          localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        });
+      } catch(err){
+        console.warn('[FirebaseService] initializeFirestore with persistent cache failed, falling back to getFirestore()', err);
+        this.dbInstance = getFirestore(this.app); // volatile fallback
+      }
       this.initialized = true;
       // lightweight connectivity write (will create diagnostics doc if rules allow)
   console.info('[FirebaseService] Firebase initialized with projectId:', firebaseEnv.projectId, 'appId:', firebaseEnv.appId);

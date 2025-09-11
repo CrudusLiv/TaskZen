@@ -1,0 +1,108 @@
+<div class="k-card" [class.completed]="card.completed" (dblclick)="edit($event)">
+  @if (!editing) {
+    <div class="k-row">
+      <span class="k-title" [innerHTML]="mark(card.title)"></span>
+      <button type="button" class="k-priority-btn" (click)="cyclePriority($event)" [title]="'Priority: '+card.priority">
+        <span class="k-priority" [class.p-high]="card.priority==='high'" [class.p-medium]="card.priority==='medium'" [class.p-low]="card.priority==='low'"></span>
+      </button>
+    </div>
+    @if (card.description) {
+      <div class="k-desc">{{ card.description | slice:0:60 }} @if (card.description.length > 60) { <span>…</span> }</div>
+    }
+    <!-- Tags -->
+  @if (card.tags?.length || addingTag) {
+      <div class="k-tags">
+    @for (t of (card.tags || []); track t) {
+          <span class="k-tag" (click)="$event.stopPropagation()">
+            {{ t }} <button type="button" class="x" title="Remove" (click)="removeTag($event, t)">×</button>
+          </span>
+        }
+        @if (!addingTag) {
+          <span class="k-tag add">
+            <button type="button" class="link" (click)="addingTag=true; $event.stopPropagation()" title="Add tag">+ tag</button>
+          </span>
+        } @else {
+          <span class="k-tag add" (click)="$event.stopPropagation()">
+            <input [(ngModel)]="tagDraft" (keyup.enter)="addTagNow()" placeholder="new tag" />
+            <button type="button" class="link" (click)="addTagNow()">Add</button>
+            <button type="button" class="link" (click)="addingTag=false">Cancel</button>
+          </span>
+        }
+      </div>
+    }
+    <!-- Subtasks -->
+  @if (card.subtasks.length) {
+      <div class="k-subtasks">
+        @for (st of (card.subtasks | slice:0:4); track st.id) {
+          <div class="st" (click)="$event.stopPropagation()">
+            <label>
+              <input type="checkbox" [checked]="st.completed" (change)="toggleSt(st.id, $event)" />
+              <span [class.done]="st.completed">{{ st.title }}</span>
+            </label>
+            <button type="button" class="st-del" title="Delete subtask" (click)="delSt(st.id, $event)">×</button>
+          </div>
+        }
+        @if (remainingSubtasks) {
+          <div class="more">+{{ remainingSubtasks }} more</div>
+        }
+      </div>
+    }
+    <div class="st-add" (click)="$event.stopPropagation()">
+      <input placeholder="Add subtask" [(ngModel)]="newSubtask" (keyup.enter)="addSubtaskNow()" />
+      <button type="button" (click)="addSubtaskNow()">Add</button>
+    </div>
+    <div class="k-meta-line">
+      @if (!dueEditing && card.dueDate) {
+        <span class="k-meta" title="Due date">📅 {{ card.dueDate }} @if (dueSoon) { <span title="Due soon">⚠️</span> }
+          <button type="button" class="link small" (click)="beginDueEdit($event)">Edit</button>
+          <button type="button" class="link small" (click)="clearDue($event)">Clear</button>
+        </span>
+      }
+      @if (!dueEditing && !card.dueDate) {
+        <span class="k-meta">
+          <button type="button" class="link" (click)="beginDueEdit($event)" title="Set due date">+ due</button>
+        </span>
+      }
+      @if (dueEditing) {
+        <span class="k-meta due-edit" (click)="$event.stopPropagation()">
+          <input type="date" [(ngModel)]="dueDraft" />
+          <button type="button" class="link" (click)="saveDue($event)">Save</button>
+          <button type="button" class="link" (click)="dueEditing=false">Cancel</button>
+        </span>
+      }
+      @if (card.subtasks.length) {<span class="k-meta" title="Subtasks progress">✔ {{ completedSubtasks }}/{{ card.subtasks.length }}</span>}
+    </div>
+    @if (card.subtasks.length) {
+    <div class="k-progress-wrapper">
+      <div class="progress" aria-label="Progress" [attr.aria-valuenow]="progressPct" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+        <span [style.--value]="progressPct + '%'" ></span>
+      </div>
+    </div>
+    }
+    <div class="k-actions">
+  <button type="button" class="k-small" (click)="openDetails(); $event.stopPropagation()" title="Open details">Open</button>
+  <button type="button" class="k-small" (click)="toggleCompleted($event)" [title]="card.completed? 'Mark incomplete':'Mark complete'">{{ card.completed? '↺' : '✓' }}</button>
+  <button type="button" class="k-small" (click)="edit($event); $event.stopPropagation()">Edit</button>
+  <button type="button" class="k-small danger" (click)="deleteCard($event); $event.stopPropagation()">Del</button>
+    </div>
+  } @else {
+  <form (submit)="save()" class="k-edit" (click)="$event.stopPropagation()">
+    <input [(ngModel)]="editTitle" name="title" required placeholder="Title" />
+    <textarea [(ngModel)]="editDescription" name="desc" rows="3" placeholder="Description"></textarea>
+    <div class="k-edit-row">
+      <select [(ngModel)]="editPriority" name="priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <input type="date" [(ngModel)]="editDueDate" name="due" />
+    </div>
+    <input [(ngModel)]="editTags" name="tags" placeholder="tags comma separated" />
+    <div class="k-edit-actions">
+      <button type="submit">Save</button>
+      <button type="button" (click)="cancel($event)">Cancel</button>
+    </div>
+  </form>
+  }
+  <button type="button" class="k-del" (click)="deleteCard($event)">×</button>
+</div>

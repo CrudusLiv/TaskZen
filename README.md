@@ -3,17 +3,12 @@
 Modern, signal‑driven productivity & kanban workspace built with Angular 20, Firebase, and NgRx.
 
 ## Firestore Composite Index (Cards Ordering)
-To enable ordered card streaming (by column + position) create a composite index in Firestore:
+To enable ordered card streaming (by column + position) a composite index is defined in `firestore.indexes.json`:
 
-Collection: cards
-Fields (in order):
-1. boardId Asc
-2. columnId Asc
-3. position Asc
+- collectionGroup: `cards`
+- fields: `boardId` ASC, `columnId` ASC, `position` ASC
 
-Without it the app will fallback to an unsorted listener and show a toast.
-
-See `docs/TROUBLESHOOTING.md` for more details.
+Deploy with Firebase CLI (or let GitHub Actions deploy, if configured). Without it the app may fallback to unsorted listeners depending on your effects configuration.
 
 ## ✨ Features
 
@@ -129,7 +124,12 @@ Production build (optimization, budgets, etc.):
 npm run build
 ```
 
-Artifacts output to `dist/TaskZen/browser` (and `dist/TaskZen/server` when SSR target is built).
+Artifacts output to `dist/TaskZen`.
+
+Build budgets
+- Initial bundle warning: 800kB; error: 1.5MB (configured in `angular.json`).
+- Component style warning: 4kB; error: 8kB.
+We will optimize bundles (code-split and trim dependencies) in a follow-up.
 
 ## 🧬 State Management Notes
 
@@ -191,8 +191,27 @@ npx ng generate --help
 
 File an issue or start a discussion if you have questions or suggestions.
 
-## 🧠 Calendar & AI Planner (Experimental)
-A calendar view (`/calendar`) groups cards by due (or proposed) date. The AI planner (Phase 1) applies a heuristic to rank tasks based on due proximity, priority, and age, suggesting target dates. Future phases will incorporate adaptive weighting, ML models, and natural language task planning. See `docs/AI_ROADMAP.md`.
+## 📅 Calendar & Planner
+
+- Calendar (`/calendar`) shows:
+	- Card-based events: cards that have a `dueDate` (ISO `YYYY-MM-DD`), styled by priority, with quick clear/open actions.
+	- Standalone events: personal events stored in Firestore (`calendarEvents`) per user. Click the + button on a day to add; click ✕ to delete.
+- Unscheduled panel lists cards without a due date, sorted by priority then title; quick buttons schedule into the next 7 days.
+- Planner focus highlights focused cards in the calendar and in the unscheduled list.
+
+Data model
+- Calendar events in store include a `source` field: `'card' | 'event'`. Card events mirror the card and are not persisted separately. Standalone events are persisted.
+
+Firestore collections
+- `cards`: board-scoped; `dueDate` must be ISO `YYYY-MM-DD` or `null`.
+- `plannerFocus/{uid}`: `{ ids: string[], updatedAt: number }` limited to 25 IDs per user.
+- `calendarEvents/{eventId}`: `{ ownerId, title, date, createdAt, updatedAt }` owned by the creating user.
+
+Security rules highlights (see `firestore.rules`)
+- Auth required everywhere. Board access gated by membership.
+- `cards.dueDate` validated as ISO date; comments/subtasks size capped.
+- `plannerFocus` limited to 25 IDs and only readable/writable by its user.
+- `calendarEvents` only readable/writable by their `ownerId`; `title` length capped; `date` validated.
 
 ---
 

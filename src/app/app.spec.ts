@@ -2,13 +2,21 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
+import { provideRouter, withRouterConfig } from '@angular/router';
+import { provideLocationMocks } from '@angular/common/testing';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideZonelessChangeDetection(), provideStore({}), provideEffects([])]
+      providers: [
+        provideZonelessChangeDetection(),
+        provideStore({}),
+        provideEffects([]),
+        provideRouter([], withRouterConfig({ paramsInheritanceStrategy: 'always' })),
+        provideLocationMocks()
+      ]
     }).compileComponents();
   });
 

@@ -1,0 +1,8 @@
+<div class="toast-container" role="status" aria-live="polite">
+  @for (t of toasts(); track t.id) {
+    <div class="toast" [class.error]="t.type==='error'" [class.success]="t.type==='success'">
+      <span>{{ t.text }}</span>
+      <button type="button" class="close" (click)="dismiss(t.id)" aria-label="Dismiss">×</button>
+    </div>
+  }
+</div>
