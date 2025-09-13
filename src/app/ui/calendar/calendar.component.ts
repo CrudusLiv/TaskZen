@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectEventsByDate } from './state/calendar.selectors';
@@ -6,10 +6,16 @@ import { CalendarActions } from './state/calendar.actions';
 import { BoardActions } from '../kanban/state/board.actions';
 import { selectBoardState, selectUnscheduledCards } from '../kanban/state/board.selectors';
 import { selectDailyFocusIds } from '../planner/state/planner.selectors';
-import { computed, signal } from '@angular/core';
+// ...existing imports...
 import { DialogService } from '../dialogs/services/dialog.service';
 import { InputDialogComponent } from '../dialogs/input-dialog/input-dialog.component';
 
+interface CalendarDay {
+  iso: string | null; // null for placeholder
+  day: number | null;
+  inMonth: boolean;
+  isToday: boolean;
+}
 @Component({
   selector: 'app-calendar',
   standalone: true,
@@ -25,28 +31,47 @@ export class CalendarComponent {
   private focusIds$ = this.store.select(selectDailyFocusIds);
   unscheduledCards$ = this.store.select(selectUnscheduledCards);
 
-  // Month state
+  // Month / selection state
   private today = new Date();
   currentYear = signal(this.today.getFullYear());
   currentMonth = signal(this.today.getMonth()); // 0-based
-  monthDays = signal<string[]>([]);
+  days = signal<CalendarDay[]>([]);
+  selectedDate = signal<string>(this.toISO(this.today));
+  weekLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  drawerOpen = signal<boolean>(true);
+
+  eventsMap$ = this.eventsByDate$; // alias for template readability
+  selectedEvents = computed(()=> {
+    // NOTE: we resolve via async pipe in template; computed kept for potential signal based mapping later
+    return [] as any[];
+  });
 
   // unscheduledCards now from selector
 
-  constructor() {
-    this.buildMonth();
-  }
+  constructor() { this.buildMonth(); }
 
   private buildMonth() {
     const y = this.currentYear();
     const m = this.currentMonth();
+    const firstOfMonth = new Date(y, m, 1);
+    const startWeekday = firstOfMonth.getDay(); // 0=Sun
     const daysInMonth = new Date(y, m + 1, 0).getDate();
-    const arr: string[] = [];
-    for (let d = 1; d <= daysInMonth; d++) {
-      const iso = new Date(Date.UTC(y, m, d)).toISOString().substring(0, 10);
-      arr.push(iso);
+    const todayISO = this.toISO(this.today);
+    const arr: CalendarDay[] = [];
+    // leading blanks
+    for(let i=0;i<startWeekday;i++){ arr.push({ iso: null, day: null, inMonth:false, isToday:false }); }
+    for(let d=1; d<=daysInMonth; d++){
+      const iso = this.toISO(new Date(y,m,d));
+      arr.push({ iso, day:d, inMonth:true, isToday: iso===todayISO });
     }
-    this.monthDays.set(arr);
+    // trailing blanks to fill grid (multiple of 7)
+    while(arr.length % 7 !== 0){ arr.push({ iso:null, day:null, inMonth:false, isToday:false }); }
+    this.days.set(arr);
+    // Adjust selected date if month changed and selection outside
+    const sel = this.selectedDate();
+    if(sel.substring(0,7) !== `${y}-${(m+1).toString().padStart(2,'0')}`){
+      this.selectedDate.set(this.toISO(new Date(y,m,1)));
+    }
   }
 
   prevMonth() {
@@ -71,6 +96,22 @@ export class CalendarComponent {
     this.currentMonth.set(m);
     this.buildMonth();
   }
+
+  goToday(){
+    this.currentYear.set(this.today.getFullYear());
+    this.currentMonth.set(this.today.getMonth());
+    this.buildMonth();
+    this.selectedDate.set(this.toISO(this.today));
+  }
+
+  selectDay(day: CalendarDay){
+    if(!day.inMonth || !day.iso) return;
+    this.selectedDate.set(day.iso);
+    // auto open drawer when changing selection
+    if(!this.drawerOpen()) this.drawerOpen.set(true);
+  }
+
+  toISO(d: Date){ return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().substring(0,10); }
 
   hasAny(map: Record<string, any[]>) {
     return Object.keys(map).length > 0;
@@ -109,4 +150,7 @@ export class CalendarComponent {
       this.clearDue(id); // cardId == id for card sourced events
     }
   }
+
+  toggleDrawer(){ this.drawerOpen.set(!this.drawerOpen()); }
+  closeDrawer(){ this.drawerOpen.set(false); }
 }

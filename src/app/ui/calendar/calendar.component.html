@@ -1,76 +1,71 @@
-<section class="calendar">
-  <header class="cal-header">
-    <div class="title-row">
-      <h1>Calendar</h1>
-      <div class="month-nav">
-        <button class="mini" (click)="prevMonth()" aria-label="Previous Month">◀</button>
-        <span class="current-month"
-          >{{ currentYear() }}-{{ currentMonth() + 1 | number : '2.0' }}</span
-        >
-        <button class="mini" (click)="nextMonth()" aria-label="Next Month">▶</button>
-      </div>
+<section class="calendar-root" *ngIf="eventsByDate$ | async as map">
+  <header class="toolbar">
+    <div class="left">
+      <button class="icon-btn" (click)="prevMonth()" aria-label="Previous Month">‹</button>
+      <button class="icon-btn" (click)="nextMonth()" aria-label="Next Month">›</button>
+      <button class="text-btn" (click)="goToday()">Today</button>
+      <h1 class="month-label">{{ currentYear() }} {{ (currentMonth()+1) | date:'MMMM':'UTC' }}</h1>
     </div>
-    <p class="muted">Assign due dates or schedule below. Planner focus highlighted.</p>
+    <div class="right">
+      <button class="primary-btn" (click)="addStandalone(selectedDate())">Add Event</button>
+    </div>
   </header>
-  <div class="cal-layout" *ngIf="eventsByDate$ | async as map">
-    <div class="month" *ngIf="monthDays() as days">
-      <div class="day-cell" *ngFor="let d of days">
-        <div class="date-label">
-          {{ d }} <button class="mini" (click)="addStandalone(d)" title="Add event">＋</button>
+
+  <div class="weekdays">
+    <div *ngFor="let w of weekLabels" class="w">{{ w }}</div>
+  </div>
+
+  <div class="month-grid">
+    <div *ngFor="let day of days()" class="cell" [class.placeholder]="!day.inMonth" [class.today]="day.isToday" [class.selected]="day.iso===selectedDate()" (click)="selectDay(day)">
+      <div class="date" *ngIf="day.inMonth">
+        <span class="num" [class.today-circle]="day.isToday" [class.sel-circle]="day.iso===selectedDate()">{{ day.day }}</span>
+        <button class="add-dot" *ngIf="day.iso" (click)="addStandalone(day.iso); $event.stopPropagation();" aria-label="Add event">＋</button>
+      </div>
+      <div class="events" *ngIf="day.iso && map[day.iso] as evts">
+        <div class="pill" *ngFor="let e of evts | slice:0:5" [class.card]="e.source==='card'" [class.focus]="isFocus(e.cardId)" (click)="e.source==='card'? openCard(e.cardId): null; $event.stopPropagation();" [title]="e.title">
+          <span class="dot" [class.h]="e.priority==='high'" [class.m]="e.priority==='medium'" [class.l]="e.priority==='low'"></span>
+          <span class="t">{{ e.title }}</span>
         </div>
-        <ul class="event-list">
-          <li
-            *ngFor="let e of map[d]"
-            [class.prio-high]="e.priority === 'high'"
-            [class.prio-med]="e.priority === 'medium'"
-            [class.prio-low]="e.priority === 'low'"
-            [class.focus]="isFocus(e.cardId)"
-            [class.standalone]="e.source === 'event'"
-          >
-            <span
-              class="evt-title"
-              *ngIf="e.source === 'card'"
-              (click)="openCard(e.cardId)"
-              title="Open card"
-              >{{ e.title }}</span
-            >
-            <span class="evt-title" *ngIf="e.source === 'event'">{{ e.title }}</span>
-            <button
-              class="mini danger"
-              (click)="deleteEvent(e.id, e.source)"
-              title="Delete / Remove"
-            >
-              ✕
-            </button>
-          </li>
-        </ul>
-        <div class="schedule-drop-hint">Drop / schedule here</div>
+        <div class="more" *ngIf="evts.length>5" (click)="selectDay(day); $event.stopPropagation();">+{{ evts.length-5 }} more</div>
       </div>
     </div>
-    <aside class="unscheduled" *ngIf="unscheduledCards$ | async as unscheduled">
-      <h2>Unscheduled ({{ unscheduled.length }})</h2>
-      <ul>
-        <li *ngFor="let c of unscheduled" [class.focus]="c.inFocus">
-          <span class="title" (click)="openCard(c.id)">{{ c.title }}</span>
-          <span
-            class="prio"
-            [class.p-high]="c.priority === 'high'"
-            [class.p-med]="c.priority === 'medium'"
-            [class.p-low]="c.priority === 'low'"
-            >{{ c.priority }}</span
-          >
-          <div class="schedule-buttons">
-            <button
-              class="mini"
-              *ngFor="let d of monthDays().slice(0, 7)"
-              (click)="schedule(c.id, d)"
-              title="Schedule for {{ d }}"
-            >
-              {{ d.substring(8, 10) }}
-            </button>
+  </div>
+
+  <div class="drawer" [class.open]="drawerOpen()" *ngIf="selectedDate() as sel">
+    <div class="drawer-handle" (click)="toggleDrawer()"></div>
+    <div class="drawer-header">
+      <div class="date-stack">
+        <h2>{{ sel }}</h2>
+        <button class="mini-add" (click)="addStandalone(sel)">Add</button>
+      </div>
+      <button class="close-btn" (click)="closeDrawer()" aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-content" *ngIf="map[sel] as dayEvents">
+      <p class="empty" *ngIf="!dayEvents.length">No events</p>
+      <ul class="event-list" *ngIf="dayEvents.length">
+        <li *ngFor="let e of dayEvents" [class.focus]="isFocus(e.cardId)">
+          <div class="primary-row" (click)="e.source==='card'? openCard(e.cardId): null">
+            <span class="badge" [class.card]="e.source==='card'" [class.event]="e.source==='event'">{{ e.source==='card'? 'Card':'Event' }}</span>
+            <span class="title">{{ e.title }}</span>
+            <span class="prio" *ngIf="e.priority" [class.h]="e.priority==='high'" [class.m]="e.priority==='medium'" [class.l]="e.priority==='low'">{{ e.priority }}</span>
+            <button class="del" (click)="deleteEvent(e.id, e.source); $event.stopPropagation();" aria-label="Delete">✕</button>
           </div>
         </li>
       </ul>
-    </aside>
+    </div>
+    <div class="unscheduled" *ngIf="unscheduledCards$ | async as unscheduled">
+      <h3>Unscheduled ({{ unscheduled.length }})</h3>
+      <ul>
+        <li *ngFor="let c of unscheduled">
+          <div class="row">
+            <span class="t" (click)="openCard(c.id)" [class.focus]="c.inFocus">{{ c.title }}</span>
+            <span class="prio" [class.h]="c.priority==='high'" [class.m]="c.priority==='medium'" [class.l]="c.priority==='low'">{{ c.priority }}</span>
+          </div>
+          <div class="qs">
+            <button *ngFor="let d of days() | slice:0:7" [disabled]="!d.iso" (click)="d.iso && schedule(c.id, d.iso)">{{ d.day }}</button>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </section>
