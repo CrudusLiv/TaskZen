@@ -44,3 +44,4 @@ Thumbs.db
 # Firebase
 firebase.config.local.ts
 .firebaserc
+/.firebase/

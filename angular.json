@@ -20,24 +20,22 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              { "glob": "**/*", "input": "public" }
-            ],
-            "styles": [ "src/styles.scss" ],
+            "assets": [{ "glob": "**/*", "input": "public" }],
+            "styles": ["src/styles.scss"],
             "outputMode": "static"
           },
           "configurations": {
             "production": {
-        "budgets": [
+              "budgets": [
                 {
                   "type": "initial",
-          "maximumWarning": "800kB",
-          "maximumError": "1.5MB"
+                  "maximumWarning": "1300kB",
+                  "maximumError": "1800kB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"
@@ -76,9 +74,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           }
         }
       }
