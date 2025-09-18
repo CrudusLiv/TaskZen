@@ -1,0 +1,10 @@
+<section class="capture" aria-label="Quick capture">
+  <form (submit)="capture($event)">
+    <input type="text" placeholder="Capture a thought or task" [value]="title()" (input)="onInput($event)" required />
+    <button type="submit">Add</button>
+  </form>
+  <a routerLink="/list" class="view-link">View List →</a>
+</section>
+<section class="demo" *ngIf="showDemo()">
+  <button (click)="loadDemo()">Load Demo Items</button>
+</section>
