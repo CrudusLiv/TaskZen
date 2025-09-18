@@ -1,4 +1,37 @@
 <section class="page">
-  <h1>Focus Session</h1>
-  <p>Placeholder for starting and tracking deep focus sessions.</p>
+  <h1>Focus</h1>
+  <ng-container *ngIf="(current$ | async) as current; else pick">
+    <div class="session" [class.paused]="current.status==='paused'">
+      <div class="ring">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" class="bg" />
+          <circle cx="50" cy="50" r="46" class="fg" [attr.stroke-dasharray]="progressPct(current)+', 100'" />
+        </svg>
+        <div class="time">{{ (current.tickSeconds/60) | number:'1.0-0' }}m</div>
+      </div>
+      <div class="controls">
+        <button *ngIf="current.status==='running'" (click)="pause()">Pause</button>
+        <button *ngIf="current.status==='paused'" (click)="resume()">Resume</button>
+        <button (click)="stop()">Stop</button>
+        <button (click)="abort()" class="ghost">Abort</button>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #pick>
+    <div class="picker">
+      <h2>Choose Focus Sprint</h2>
+      <label>Duration:
+        <select #durSel (change)="onDurationChange(durSel.value)">
+          <option *ngFor="let d of durations" [selected]="d===pickedDuration()" [value]="d">{{d}} min</option>
+        </select>
+      </label>
+      <label>Item (optional):
+        <select #itemSel (change)="onItemChange(itemSel.value)">
+          <option value="" [selected]="!pickedItemId()">-- none --</option>
+          <option *ngFor="let it of (items$ | async)" [value]="it.id" [selected]="it.id===pickedItemId()">{{it.title}}</option>
+        </select>
+      </label>
+      <button (click)="startSession()">Start</button>
+    </div>
+  </ng-template>
 </section>

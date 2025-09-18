@@ -1,4 +1,4 @@
-@use "sass:color";
+@use 'sass:color';
 
 // Design Tokens (ADHD-friendly)
 :root {
@@ -16,18 +16,31 @@
   --nf-radius-sm: 4px;
   --nf-radius: 8px;
   --nf-radius-lg: 14px;
-  --nf-spacing-1: .25rem;
-  --nf-spacing-2: .5rem;
-  --nf-spacing-3: .75rem;
+  --nf-spacing-1: 0.25rem;
+  --nf-spacing-2: 0.5rem;
+  --nf-spacing-3: 0.75rem;
   --nf-spacing-4: 1rem;
   --nf-spacing-5: 1.5rem;
-  --nf-font-stack: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
+  --nf-font-stack: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
 }
 
-body { background: var(--nf-bg); color: var(--nf-text); font-family: var(--nf-font-stack); }
+body {
+  background: var(--nf-bg);
+  color: var(--nf-text);
+  font-family: var(--nf-font-stack);
+}
 
-button.primary { background: var(--nf-accent); color:#fff; border:none; padding:.625rem 1rem; border-radius: var(--nf-radius-sm); cursor:pointer; }
-button.primary:hover { filter: brightness(1.1); }
+button.primary {
+  background: var(--nf-accent);
+  color: #fff;
+  border: none;
+  padding: 0.625rem 1rem;
+  border-radius: var(--nf-radius-sm);
+  cursor: pointer;
+}
+button.primary:hover {
+  filter: brightness(1.1);
+}
 
 /* =============== DARK THEME CORE =============== */
 /* Brand palette (for gradients, states) */
@@ -93,6 +106,15 @@ $brand-950: #2e1065;
   --blur-bg: rgba(255, 255, 255, 0.04);
   --focus-ring: 0 0 0 2px rgba(124, 58, 237, 0.65), 0 0 0 4px rgba(124, 58, 237, 0.25);
   --danger-glow: 0 0 0 2px rgba(239, 68, 68, 0.5), 0 0 0 4px rgba(239, 68, 68, 0.15);
+  /* Status semantic colors */
+  --status-inbox-bg: #1e2530;
+  --status-inbox-fg: #d1d9e1;
+  --status-next-bg: #243346;
+  --status-next-fg: #c6e4ff;
+  --status-progress-bg: #3a284a;
+  --status-progress-fg: #f3d9ff;
+  --status-done-bg: #1f3a2d;
+  --status-done-fg: #c8f7df;
   /* Breakpoints */
   --bp-xs: 480px;
   --bp-sm: 640px;
@@ -113,6 +135,7 @@ body {
   background: linear-gradient(180deg, #0b0d10, #12161c 55%, #0f1115);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'tnum', 'ss01';
 }
 h1,
 h2,
@@ -173,6 +196,16 @@ p {
     var(--color-brand-accent) 95%
   );
   color: #fff;
+  /* Calm mode overrides */
+  .shell.calm,
+  .calm-root {
+    --color-brand: #64748b;
+    --color-brand-accent: #94a3b8;
+    --focus-ring: 0 0 0 2px rgba(100, 116, 139, 0.55), 0 0 0 4px rgba(100, 116, 139, 0.25);
+    --shadow-sm: 0 1px 2px -1px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+    --shadow-md: 0 4px 14px -6px rgba(0, 0, 0, 0.55), 0 4px 6px -2px rgba(0, 0, 0, 0.45);
+  }
+
   box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
 }
 
@@ -821,3 +854,15 @@ a:hover {
   gap: var(--space-4);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
 }
+
+/* ===== Accessibility & Status Utilities ===== */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+
+.status-inbox { background:var(--status-inbox-bg) !important; color:var(--status-inbox-fg) !important; }
+.status-next { background:var(--status-next-bg) !important; color:var(--status-next-fg) !important; }
+.status-progress { background:var(--status-progress-bg) !important; color:var(--status-progress-fg) !important; }
+.status-done { background:var(--status-done-bg) !important; color:var(--status-done-fg) !important; }
+.shell.calm .status-inbox { filter:saturate(.85) brightness(.95); }
+.shell.calm .status-next { filter:saturate(.75); }
+.shell.calm .status-progress { filter:saturate(.7); }
+.shell.calm .status-done { filter:saturate(.7) brightness(1.05); }

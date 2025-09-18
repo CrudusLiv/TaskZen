@@ -7,7 +7,9 @@
       }}</a>
     </nav>
     <div class="nav-footer">
-      <button class="calm-toggle" type="button">Calm Mode</button>
+      <button class="calm-toggle" type="button" (click)="toggleCalm()">
+        Calm Mode: {{ calmMode() ? 'On' : 'Off' }}
+      </button>
     </div>
   </aside>
   <div class="main">

@@ -1,9 +1,10 @@
 <section class="capture" aria-label="Quick capture">
   <form (submit)="capture($event)">
-    <input type="text" placeholder="Capture a thought or task" [value]="title()" (input)="onInput($event)" required />
+    <input #titleInput type="text" placeholder="Capture a thought or task (#tag !3 ~15)" [value]="title()" (input)="onInput($event)" autocomplete="off" required />
     <button type="submit">Add</button>
   </form>
   <a routerLink="/list" class="view-link">View List →</a>
+  <div class="sr-only" aria-live="polite">{{ liveMsg() }}</div>
 </section>
 <section class="demo" *ngIf="showDemo()">
   <button (click)="loadDemo()">Load Demo Items</button>

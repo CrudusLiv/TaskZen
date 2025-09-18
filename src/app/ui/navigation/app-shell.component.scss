@@ -49,7 +49,16 @@ nav a.active {
   background: linear-gradient(90deg, var(--color-brand) 0%, var(--color-brand-accent) 95%);
   color: #fff;
   box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  overflow:hidden;
 }
+nav a.active::after {
+  content:"";
+  position:absolute; inset:0; border-radius:inherit;
+  background:radial-gradient(circle at 25% 20%,rgba(255,255,255,.35),transparent 70%);
+  opacity:.55;
+  animation: navGlow 4s ease-in-out infinite;
+}
+@keyframes navGlow { 0%,100% { opacity:.55; filter:brightness(1); } 50% { opacity:.2; filter:brightness(1.15); } }
 .nav-footer {
   margin-top: auto;
 }
@@ -124,6 +133,7 @@ nav a.active {
 .shell.calm .brand {
   background: linear-gradient(90deg, #64748b, #94a3b8);
   -webkit-background-clip: text;
+  background-clip: text;
 }
 
 @media (max-width: 900px) {

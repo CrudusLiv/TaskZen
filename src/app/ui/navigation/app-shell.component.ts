@@ -1,15 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { selectCalmMode } from '../preferences/state/preferences.selectors';
+import { PreferencesActions } from '../preferences/state/preferences.actions';
 
-interface NavLink { label: string; path: string; }
+interface NavLink {
+  label: string;
+  path: string;
+}
 
 @Component({
   standalone: true,
   selector: 'app-shell',
   imports: [RouterOutlet, RouterLink, NgFor],
   templateUrl: './app-shell.component.html',
-  styleUrls: ['./app-shell.component.scss']
+  styleUrls: ['./app-shell.component.scss'],
 })
 export class AppShellComponent {
   nav: NavLink[] = [
@@ -20,10 +26,15 @@ export class AppShellComponent {
     { label: 'Routines', path: 'routines' },
     { label: 'Coach', path: 'coach' },
     { label: 'Insights', path: 'insights' },
-    { label: 'Settings', path: 'settings' }
+    { label: 'Settings', path: 'settings' },
   ];
+  private store = inject(Store);
   sidebarOpen = signal(false);
-  // TODO: wire to preferences store selector
-  calmMode = signal(false);
-  toggle(){ this.sidebarOpen.update(v=> !v); }
+  calmMode = this.store.selectSignal(selectCalmMode);
+  toggle() {
+    this.sidebarOpen.update((v) => !v);
+  }
+  toggleCalm() {
+    this.store.dispatch(PreferencesActions.toggleCalmMode());
+  }
 }

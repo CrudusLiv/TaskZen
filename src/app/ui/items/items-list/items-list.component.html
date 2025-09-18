@@ -6,13 +6,17 @@
   <div class="group" *ngFor="let status of statuses">
     <h2>{{ status }}</h2>
     <ul>
-      <li *ngFor="let it of byStatus(status)" [class.done]="it.status === 'done'">
-        <button class="status" (click)="cycle(it)">{{ it.status }}</button>
+      <li *ngFor="let it of byStatus(status)" [class.done]="it.status === 'done'" tabindex="0" (keydown)="onKey($event,it)">
+        <button class="status"
+                [ngClass]="'status-' + it.status"
+                (click)="cycle(it)"
+                aria-label="Change status (current: {{it.status}})">{{ it.status }}</button>
         <span class="title">{{ it.title }}</span>
         <small *ngIf="it.estimateMinutes">~{{ it.estimateMinutes }}m</small>
-        <button class="del" (click)="remove(it.id)" aria-label="Delete">×</button>
+        <button class="del" (click)="remove(it.id)" aria-label="Delete item">×<span class="sr-only"> Delete {{it.title}}</span></button>
       </li>
     </ul>
   </div>
   <p *ngIf="!order().length" class="empty">No items yet.</p>
+  <div class="sr-only" aria-live="polite">{{ liveMsg() }}</div>
 </section>
