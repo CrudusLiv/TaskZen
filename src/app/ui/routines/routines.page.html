@@ -1,4 +1,139 @@
-<section class="page">
-  <h1>Routines</h1>
-  <p>Placeholder for morning/evening and custom routines builder.</p>
+<section class="routines page panel-stack" aria-label="Routines builder">
+  <header class="panel-glass panel-section head">
+    <h1>Routines</h1>
+    <div class="add-new">
+      <input
+        class="input"
+        placeholder="New routine name"
+        [value]="newRoutineName()"
+        (input)="newRoutineName.set($any($event.target).value)"
+      />
+      <button class="btn-base btn-ghost" (click)="addRoutine()">Add</button>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="panel-glass list" aria-label="Routine list">
+      <ul>
+        <li *ngFor="let r of routinesSig()" [class.active]="isEditing(r)">
+          <button class="routine-row" (click)="select(r)">
+            <span class="name">{{ r.name }}</span>
+            <span class="steps">{{ r.steps.length }} steps</span>
+          </button>
+          <button class="del" (click)="deleteRoutine(r.id)" aria-label="Delete routine">×</button>
+        </li>
+      </ul>
+      <p *ngIf="!routinesSig().length" class="empty">No routines yet.</p>
+    </aside>
+    <div
+      class="editor panel-glass panel-section"
+      *ngIf="editingId(); else pickOne"
+      aria-label="Routine editor"
+    >
+      <ng-container *ngFor="let r of routinesSig()">
+        <ng-container *ngIf="isEditing(r)">
+          <div class="meta">
+            <label
+              >Name
+              <input
+                class="input"
+                [value]="metaName()"
+                (input)="metaName.set($any($event.target).value)"
+                (change)="saveMeta()"
+            /></label>
+            <label
+              >Energy Target
+              <input
+                type="number"
+                min="1"
+                max="5"
+                class="input small"
+                [value]="metaEnergy() || ''"
+                (change)="
+                  metaEnergy.set(
+                    $any($event.target).value || '' ? +$any($event.target).value : undefined
+                  );
+                  saveMeta()
+                "
+              />
+            </label>
+            <label
+              >Cue
+              <input
+                class="input"
+                [value]="metaCue()"
+                (input)="metaCue.set($any($event.target).value)"
+                (change)="saveMeta()"
+            /></label>
+          </div>
+          <div class="steps" aria-label="Steps list">
+            <ul>
+              <li *ngFor="let st of r.steps; let i = index">
+                <input
+                  class="input title"
+                  [value]="st.title"
+                  (change)="updateStep(r, st.id, 'title', $any($event.target).value)"
+                />
+                <input
+                  class="input mins"
+                  type="number"
+                  min="0"
+                  [value]="st.minutes || ''"
+                  (change)="updateStep(r, st.id, 'minutes', $any($event.target).value)"
+                />
+                <div class="reorder">
+                  <button
+                    class="btn-mini"
+                    (click)="reorder(r, st.id, 'up')"
+                    [disabled]="i === 0"
+                    aria-label="Move up"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    class="btn-mini"
+                    (click)="reorder(r, st.id, 'down')"
+                    [disabled]="i === r.steps.length - 1"
+                    aria-label="Move down"
+                  >
+                    ↓
+                  </button>
+                </div>
+                <button class="del" (click)="removeStep(r, st.id)" aria-label="Remove step">
+                  ×
+                </button>
+              </li>
+            </ul>
+            <div class="add-step-row">
+              <input
+                class="input"
+                placeholder="Step title"
+                [value]="stepTitle()"
+                (input)="stepTitle.set($any($event.target).value)"
+              />
+              <input
+                class="input small"
+                type="number"
+                placeholder="min"
+                [value]="stepMinutes() || ''"
+                (input)="
+                  stepMinutes.set(
+                    $any($event.target).value || '' ? +$any($event.target).value : undefined
+                  )
+                "
+              />
+              <button class="btn-base btn-ghost" (click)="addStep()">Add Step</button>
+            </div>
+          </div>
+          <div class="play-row">
+            <button class="btn-base btn-ghost" (click)="play(r)">Play Routine →</button>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+    <ng-template #pickOne>
+      <div class="panel-glass panel-section placeholder">
+        <p>Select a routine to edit.</p>
+      </div>
+    </ng-template>
+  </div>
 </section>

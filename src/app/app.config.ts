@@ -1,4 +1,8 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 // Hydration removed (SSR disabled)
@@ -12,6 +16,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     // Firebase removed for Phase 0 (in-memory only)
     provideAnimations(),
-    ...provideAppStore()
-  ]
+    ...provideAppStore(),
+  ],
 };

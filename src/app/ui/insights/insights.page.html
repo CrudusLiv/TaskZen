@@ -1,4 +1,39 @@
-<section class="page">
-  <h1>Insights</h1>
-  <p>Placeholder for progress metrics and trends.</p>
+<section class="page-insights panel-stack">
+  <header class="heading panel-glass panel-section">
+    <h1>Insights</h1>
+    <p class="intro">High-level patterns. Static visual shell only – data wiring later.</p>
+  </header>
+  <div class="dash-grid">
+    <div class="panel-glass panel-section tile focus-summary">
+      <h2>Today Summary</h2>
+      <ul class="stat-list">
+        <li><span class="label">Items Captured</span><span class="value">12</span></li>
+        <li><span class="label">Completed</span><span class="value">5</span></li>
+        <li><span class="label">Focus Sessions</span><span class="value">2</span></li>
+      </ul>
+    </div>
+    <div class="panel-glass panel-section tile focus-time">
+      <h2>Focus Time</h2>
+      <div class="spark skeleton" aria-hidden="true"></div>
+      <p class="hint">Upcoming: distribution of deep vs micro-focus.</p>
+    </div>
+    <div class="panel-glass panel-section tile energy-trend">
+      <h2>Energy Trend</h2>
+      <div class="chart skeleton" aria-hidden="true"></div>
+      <p class="hint">Will visualize logged energy over the day.</p>
+    </div>
+    <div class="panel-glass panel-section tile routine-adherence">
+      <h2>Routine Adherence</h2>
+      <div class="bars skeleton" aria-hidden="true"></div>
+      <p class="hint">Routine completion ratio & streak.</p>
+    </div>
+    <div class="panel-glass panel-section tile suggestions">
+      <h2>Suggestions</h2>
+      <ul class="suggest-list">
+        <li>Energy dip detected window (static)</li>
+        <li>Try a 10m reset focus sprint</li>
+        <li>Review routine steps tagged low adherence</li>
+      </ul>
+    </div>
+  </div>
 </section>

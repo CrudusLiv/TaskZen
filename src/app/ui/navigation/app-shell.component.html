@@ -1,22 +1,52 @@
-<div class="shell" [class.open]="sidebarOpen()" [class.calm]="calmMode()">
-  <aside class="nav" role="navigation" aria-label="Primary">
+<div
+  class="shell"
+  [class.open]="sidebarOpen()"
+  [class.calm]="calmMode()"
+  [class.nav-collapsed]="collapsed()"
+>
+  <aside class="nav" role="navigation" aria-label="Primary" [attr.aria-expanded]="!collapsed()">
     <div class="brand" aria-label="App brand">TaskZen</div>
-    <nav>
-      <a *ngFor="let l of nav" [routerLink]="l.path" routerLinkActive="active" (click)="toggle()">{{
-        l.label
-      }}</a>
-    </nav>
+    <button
+      type="button"
+      class="collapse-btn btn-ghost btn-base"
+      (click)="toggleCollapse()"
+      aria-label="Toggle collapse navigation"
+      [attr.aria-pressed]="collapsed()"
+    >
+      {{ collapsed() ? '›' : '‹' }}
+    </button>
+    <div class="nav-glass">
+      <div
+        class="indicator"
+        [style.transform]="'translateY(' + activeIndex() * (itemHeight + gap) + 'px)'"
+      ></div>
+      <nav>
+        <a
+          *ngFor="let l of nav; let i = index"
+          [routerLink]="l.path"
+          routerLinkActive="active"
+          (click)="toggle()"
+          [attr.data-index]="i"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path [attr.d]="l.icon" /></svg>
+          <span>{{ l.label }}</span>
+        </a>
+      </nav>
+    </div>
     <div class="nav-footer">
-      <button class="calm-toggle" type="button" (click)="toggleCalm()">
-        Calm Mode: {{ calmMode() ? 'On' : 'Off' }}
+      <button
+        class="calm-toggle"
+        type="button"
+        (click)="toggleCalm()"
+        aria-pressed="{{ calmMode() }}"
+        aria-label="Toggle calm mode"
+      >
+        <span class="dot" [class.on]="calmMode()"></span>
+        Calm Mode
       </button>
     </div>
   </aside>
   <div class="main">
-    <header class="top">
-      <button class="menu" (click)="toggle()" aria-label="Toggle navigation">☰</button>
-      <h1 class="app-title">TaskZen</h1>
-    </header>
     <div class="content" role="main">
       <router-outlet></router-outlet>
     </div>

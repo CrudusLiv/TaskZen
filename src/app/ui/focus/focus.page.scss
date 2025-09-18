@@ -1,8 +1,17 @@
-.page {
-  padding: 2rem;
+.page-focus {
+  padding: var(--space-5) var(--space-5) var(--space-7);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-5);
+}
+.heading h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.4rem;
+}
+.heading .intro {
+  opacity: 0.7;
+  font-size: 0.78rem;
+  margin: 0;
 }
 .picker {
   display: flex;
@@ -17,15 +26,6 @@
   background: #161c23;
   color: var(--color-text);
   border: 1px solid var(--color-border);
-}
-.picker button {
-  align-self: flex-start;
-  padding: 0.7rem 1.1rem;
-  border-radius: 0.8rem;
-  background: linear-gradient(135deg, var(--color-brand), var(--color-brand-accent));
-  color: #fff;
-  border: 1px solid var(--color-brand-accent);
-  cursor: pointer;
 }
 .session {
   display: flex;
@@ -70,21 +70,7 @@
   gap: 0.75rem;
 }
 .controls button {
-  padding: 0.6rem 0.95rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--color-border);
-  background: #192129;
-  color: var(--color-text);
-  cursor: pointer;
-  font-size: 0.75rem;
-  letter-spacing: 0.5px;
-}
-.controls button:hover {
-  background: #1f2730;
-}
-.controls button.ghost {
-  background: transparent;
-  border-color: #333;
+  font-size: 0.65rem;
 }
 .session.paused .ring circle.fg {
   stroke: var(--status-warn, #f7b500);

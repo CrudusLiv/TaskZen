@@ -1,0 +1,37 @@
+<section class="page-prioritize panel-stack">
+  <header class="heading panel-glass panel-section">
+    <h1>Top Focus Picks</h1>
+    <p class="hint">
+      Early heuristic mix of status, recency, energy tagging, effort & focus boost.
+    </p>
+  </header>
+  <div class="top3">
+    <div class="card" *ngFor="let it of top3(); let i = index" [style.--i]="i">
+      <div class="rank">{{ i + 1 }}</div>
+      <div class="main">
+        <h2>{{ it.title }}</h2>
+        <div class="meta">
+          <span *ngIf="it.energyLevel" class="pill energy">E{{ it.energyLevel }}</span>
+          <span *ngIf="it.effort" class="pill effort">Effort {{ it.effort }}</span>
+          <span *ngIf="it.estimateMinutes" class="pill est">~{{ it.estimateMinutes }}m</span>
+          <span *ngIf="it.focusBoost" class="pill boost">Boost</span>
+        </div>
+      </div>
+      <div class="score">{{ it._priorityScore | number : '1.2-2' }}</div>
+    </div>
+  </div>
+  <button
+    type="button"
+    class="btn-ghost more"
+    (click)="toggleExpanded()"
+    *ngIf="(all()?.length || 0) > 3"
+  >
+    {{ expanded() ? 'Hide rest' : 'Show more' }}
+  </button>
+  <div class="rest" *ngIf="expanded()">
+    <div class="row" *ngFor="let it of all().slice(3)">
+      <div class="title">{{ it.title }}</div>
+      <div class="score-small">{{ it._priorityScore | number : '1.2-2' }}</div>
+    </div>
+  </div>
+</section>

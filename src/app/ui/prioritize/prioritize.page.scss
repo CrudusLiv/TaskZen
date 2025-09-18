@@ -1,0 +1,127 @@
+.page-prioritize {
+  padding: var(--space-5) var(--space-5) var(--space-7);
+}
+.page-prioritize .heading h1 {
+  font-size: 1.4rem;
+  margin: 0 0 0.4rem;
+}
+.page-prioritize .heading .hint {
+  opacity: 0.7;
+  font-size: 0.75rem;
+  margin: 0;
+}
+.top3 {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.card {
+  position: relative;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--glass-panel-bg, rgba(255, 255, 255, 0.07));
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.4), 0 6px 24px -4px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  animation: fadeUp 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: calc(var(--i) * 60ms);
+}
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 35%);
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+.rank {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+.main h2 {
+  font-size: 1.05rem;
+  margin: 0 0 var(--space-2);
+  font-weight: 500;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.pill {
+  font-size: 0.6rem;
+  letter-spacing: 0.5px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  text-transform: uppercase;
+}
+.pill.energy {
+  background: linear-gradient(135deg, #6ad1ff33, #6ad1ff18);
+}
+.pill.effort {
+  background: linear-gradient(135deg, #ffca6a33, #ffca6a18);
+}
+.pill.est {
+  background: linear-gradient(135deg, #b66aff33, #b66aff18);
+}
+.pill.boost {
+  background: linear-gradient(135deg, #6aff8f33, #6aff8f18);
+}
+.score {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 0.7rem;
+  opacity: 0.65;
+}
+.more {
+  margin-top: var(--space-5);
+}
+.rest {
+  margin-top: var(--space-5);
+  display: grid;
+  gap: 6px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  animation: fadeUp 0.4s ease both;
+}
+.title {
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+.score-small {
+  font-size: 0.65rem;
+  opacity: 0.55;
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.calm .card {
+  animation-duration: 0.7s;
+}

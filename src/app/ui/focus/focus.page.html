@@ -1,37 +1,60 @@
-<section class="page">
-  <h1>Focus</h1>
-  <ng-container *ngIf="(current$ | async) as current; else pick">
-    <div class="session" [class.paused]="current.status==='paused'">
+<section class="page-focus panel-stack">
+  <header class="heading panel-glass panel-section">
+    <h1>Focus</h1>
+    <p class="intro">Sprint-based deep work helper. UI shell refined.</p>
+  </header>
+  <ng-container *ngIf="current$ | async as current; else pick">
+    <div class="session panel-glass panel-section" [class.paused]="current.status === 'paused'">
       <div class="ring">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="46" class="bg" />
-          <circle cx="50" cy="50" r="46" class="fg" [attr.stroke-dasharray]="progressPct(current)+', 100'" />
+          <circle
+            cx="50"
+            cy="50"
+            r="46"
+            class="fg"
+            [attr.stroke-dasharray]="progressPct(current) + ', 100'"
+          />
         </svg>
-        <div class="time">{{ (current.tickSeconds/60) | number:'1.0-0' }}m</div>
+        <div class="time">{{ current.tickSeconds / 60 | number : '1.0-0' }}m</div>
       </div>
       <div class="controls">
-        <button *ngIf="current.status==='running'" (click)="pause()">Pause</button>
-        <button *ngIf="current.status==='paused'" (click)="resume()">Resume</button>
-        <button (click)="stop()">Stop</button>
-        <button (click)="abort()" class="ghost">Abort</button>
+        <button class="btn-primary" *ngIf="current.status === 'running'" (click)="pause()">
+          Pause
+        </button>
+        <button class="btn-primary" *ngIf="current.status === 'paused'" (click)="resume()">
+          Resume
+        </button>
+        <button class="btn-secondary" (click)="stop()">Stop</button>
+        <button class="btn-ghost btn-base" (click)="abort()">Abort</button>
       </div>
     </div>
   </ng-container>
   <ng-template #pick>
-    <div class="picker">
+    <div class="picker panel-glass panel-section">
       <h2>Choose Focus Sprint</h2>
-      <label>Duration:
+      <label
+        >Duration:
         <select #durSel (change)="onDurationChange(durSel.value)">
-          <option *ngFor="let d of durations" [selected]="d===pickedDuration()" [value]="d">{{d}} min</option>
+          <option *ngFor="let d of durations" [selected]="d === pickedDuration()" [value]="d">
+            {{ d }} min
+          </option>
         </select>
       </label>
-      <label>Item (optional):
+      <label
+        >Item (optional):
         <select #itemSel (change)="onItemChange(itemSel.value)">
           <option value="" [selected]="!pickedItemId()">-- none --</option>
-          <option *ngFor="let it of (items$ | async)" [value]="it.id" [selected]="it.id===pickedItemId()">{{it.title}}</option>
+          <option
+            *ngFor="let it of items$ | async"
+            [value]="it.id"
+            [selected]="it.id === pickedItemId()"
+          >
+            {{ it.title }}
+          </option>
         </select>
       </label>
-      <button (click)="startSession()">Start</button>
+      <button class="btn-primary" (click)="startSession()">Start</button>
     </div>
   </ng-template>
 </section>

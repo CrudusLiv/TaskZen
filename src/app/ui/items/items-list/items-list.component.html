@@ -1,19 +1,110 @@
-<section class="list" aria-label="Items list">
-  <header>
-    <h1>Items</h1>
-    <a routerLink="/">Capture</a>
+<section class="list panel-stack" aria-label="Items list">
+  <header
+    class="panel-glass panel-section"
+    style="display: flex; align-items: center; justify-content: space-between; gap: 1rem"
+  >
+    <h1 style="margin: 0">Items</h1>
+    <a routerLink="/" class="btn-base btn-ghost" style="text-decoration: none">Capture</a>
   </header>
-  <div class="group" *ngFor="let status of statuses">
+  <div class="group panel-glass panel-section" *ngFor="let status of statuses">
     <h2>{{ status }}</h2>
     <ul>
-      <li *ngFor="let it of byStatus(status)" [class.done]="it.status === 'done'" tabindex="0" (keydown)="onKey($event,it)">
-        <button class="status"
-                [ngClass]="'status-' + it.status"
-                (click)="cycle(it)"
-                aria-label="Change status (current: {{it.status}})">{{ it.status }}</button>
+      <li
+        *ngFor="let it of byStatus(status)"
+        [class.done]="it.status === 'done'"
+        tabindex="0"
+        (keydown)="onKey($event, it)"
+      >
+        <button
+          class="status"
+          [ngClass]="'status-' + it.status"
+          (click)="cycle(it)"
+          aria-label="Change status (current: {{ it.status }})"
+        >
+          {{ it.status }}
+        </button>
         <span class="title">{{ it.title }}</span>
         <small *ngIf="it.estimateMinutes">~{{ it.estimateMinutes }}m</small>
-        <button class="del" (click)="remove(it.id)" aria-label="Delete item">×<span class="sr-only"> Delete {{it.title}}</span></button>
+        <button
+          class="enrich btn-ghost btn-base"
+          (click)="toggleEnrich(it)"
+          aria-label="Enrich item"
+        >
+          ⚙
+        </button>
+        <button class="del" (click)="remove(it.id)" aria-label="Delete item">
+          ×<span class="sr-only"> Delete {{ it.title }}</span>
+        </button>
+        <div class="enrich-drawer panel-glass" *ngIf="enrichingId() === it.id">
+          <div class="enrich-content">
+            <h3>Enrich</h3>
+            <label>
+              Estimate (m)
+              <input
+                type="number"
+                class="input"
+                [value]="it.estimateMinutes || ''"
+                (change)="updateNumber(it, 'estimateMinutes', $event)"
+              />
+            </label>
+            <label>
+              Energy (1-5)
+              <input
+                type="number"
+                class="input"
+                [value]="it.energyLevel || ''"
+                min="1"
+                max="5"
+                (change)="updateNumber(it, 'energyLevel', $event)"
+              />
+            </label>
+            <label>
+              Effort (1-5)
+              <input
+                type="number"
+                class="input"
+                [value]="it.effort || ''"
+                min="1"
+                max="5"
+                (change)="updateNumber(it, 'effort', $event)"
+              />
+            </label>
+            <label>
+              Context / Why
+              <input
+                type="text"
+                class="input"
+                [value]="it.contextNote || ''"
+                (change)="updateField(it, 'contextNote', $any($event.target).value)"
+              />
+            </label>
+            <label>
+              Micro-steps (comma)
+              <input
+                type="text"
+                class="input"
+                placeholder="draft, outline"
+                (change)="updateMicroSteps(it, $event)"
+                [value]="(it.microSteps || []).join(', ')"
+              />
+            </label>
+            <label>
+              Routine Link
+              <input
+                type="text"
+                class="input"
+                placeholder="routine id"
+                [value]="it.routineId || ''"
+                (change)="updateField(it, 'routineId', ($any($event.target).value || '').trim())"
+              />
+            </label>
+            <div class="actions">
+              <button type="button" class="btn-base btn-ghost" (click)="closeEnrich()">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       </li>
     </ul>
   </div>

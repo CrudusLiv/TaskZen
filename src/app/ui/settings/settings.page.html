@@ -1,4 +1,52 @@
-<section class="page">
-  <h1>Settings</h1>
-  <p>Placeholder for personalization, calm mode, and preferences.</p>
+<section class="page-settings panel-stack">
+  <header class="heading panel-glass panel-section">
+    <h1>Settings</h1>
+    <p class="intro">Personalization shell (no persistence wired yet).</p>
+  </header>
+  <form class="prefs panel-glass panel-section" (submit)="onSubmit($event)">
+    <fieldset class="group">
+      <legend>Focus</legend>
+      <label>
+        <span>Default Focus Length (min)</span>
+        <input type="number" min="5" step="5" value="25" />
+      </label>
+      <label class="inline">
+        <input type="checkbox" checked /> Auto-start break after session
+      </label>
+    </fieldset>
+    <fieldset class="group">
+      <legend>Energy & Routines</legend>
+      <label class="inline"> <input type="checkbox" checked /> Enable energy logging UI </label>
+      <label class="inline"> <input type="checkbox" /> Routine play sound cues </label>
+    </fieldset>
+    <fieldset class="group">
+      <legend>Interface</legend>
+      <label class="inline">
+        <input type="checkbox" /> Calm mode (reduced saturation & motion)
+      </label>
+      <label>
+        <span>Density</span>
+        <select>
+          <option selected>Comfortable</option>
+          <option>Compact</option>
+        </select>
+      </label>
+      <label>
+        <span>Contrast</span>
+        <select>
+          <option selected>Standard</option>
+          <option>High</option>
+        </select>
+      </label>
+    </fieldset>
+    <fieldset class="group">
+      <legend>Notifications</legend>
+      <label class="inline"> <input type="checkbox" /> Focus session complete </label>
+      <label class="inline"> <input type="checkbox" /> Routine reminder </label>
+    </fieldset>
+    <div class="actions">
+      <button class="btn-secondary" type="reset">Reset</button>
+      <button class="btn-primary" type="submit">Save Changes</button>
+    </div>
+  </form>
 </section>

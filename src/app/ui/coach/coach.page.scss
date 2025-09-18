@@ -1,1 +1,88 @@
-.page { padding:2rem; }
+@use '../../../styles';
+
+.page-coach {
+  padding: var(--space-5) var(--space-5) var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.heading h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.4rem;
+}
+.heading .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.heading .actions {
+  display: flex;
+  gap: 0.6rem;
+}
+.intro {
+  opacity: 0.7;
+  font-size: 0.78rem;
+  margin: 0 0 0.75rem;
+}
+.filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.feed-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.coach-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  animation: fadeUp 0.5s ease both;
+  animation-delay: calc(var(--i) * 70ms);
+}
+.coach-card h2 {
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 600;
+}
+.coach-card .body {
+  font-size: 0.7rem;
+  line-height: 1.4;
+  margin: 0;
+}
+.subtle {
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+.badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+.badge-row .time {
+  font-size: 0.55rem;
+  opacity: 0.5;
+}
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.shell.calm .coach-card {
+  animation-duration: 0.7s;
+}

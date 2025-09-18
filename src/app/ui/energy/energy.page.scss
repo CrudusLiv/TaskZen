@@ -1,3 +1,200 @@
-.page {
-  padding: 2rem;
+.energy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.head h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+.head .meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.pill {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+.capture {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.levels {
+  display: flex;
+  gap: 0.5rem;
+}
+.levels button {
+  flex: 1;
+  padding: 0.65rem 0;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(40, 46, 54, 0.55);
+  backdrop-filter: blur(10px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s;
+}
+.levels button.active {
+  background: linear-gradient(165deg, #4e7df8, #335bd8);
+  color: #fff;
+  box-shadow: 0 4px 14px -4px rgba(78, 125, 248, 0.55);
+}
+.levels button:hover:not(.active) {
+  background: rgba(60, 66, 74, 0.6);
+}
+
+// Level color accents for small badges
+.lvl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0.7rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  background: rgba(60, 66, 74, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lvl-1 {
+  background: linear-gradient(140deg, #444, #333);
+}
+.lvl-2 {
+  background: linear-gradient(140deg, #555, #38424c);
+}
+.lvl-3 {
+  background: linear-gradient(140deg, #3d5368, #2c3946);
+}
+.lvl-4 {
+  background: linear-gradient(140deg, #3c5f8a, #2a4160);
+}
+.lvl-5 {
+  background: linear-gradient(140deg, #4b7ff5, #335cd9);
+}
+
+.moods {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.moods button {
+  padding: 4px 10px;
+  border-radius: 2rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+.moods button.selected {
+  background: linear-gradient(160deg, #6d8bff, #4e6fe8);
+  color: #fff;
+}
+.moods button:hover:not(.selected) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.note-row {
+  display: flex;
+  gap: 0.6rem;
+}
+.note-row .add {
+  padding: 0 0.9rem;
+}
+
+.logs ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.logs li {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  background: rgba(25, 32, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.9rem;
+  backdrop-filter: blur(14px);
+}
+.logs .badge {
+  width: 1.65rem;
+  height: 1.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.logs .time {
+  font-size: 0.6rem;
+  opacity: 0.65;
+}
+.logs .mood-list {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  font-size: 0.55rem;
+}
+.logs .mood {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 0.6rem;
+}
+.logs .note {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+.logs button.del {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+}
+.logs button.del:hover {
+  color: #eee;
+}
+
+.empty {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 720px) {
+  .levels button {
+    padding: 0.55rem 0;
+  }
+  .logs li {
+    grid-template-columns: auto auto 1fr auto;
+  }
+  .logs .note {
+    grid-column: 1/-1;
+  }
+}
+
+.shell.calm .levels button.active {
+  background: linear-gradient(165deg, #4e5d68, #33404a);
+  box-shadow: none;
+}
+.shell.calm .moods button.selected {
+  background: linear-gradient(160deg, #4a5a66, #36454f);
+}
+.shell.calm .lvl-5 {
+  background: linear-gradient(140deg, #4a5a66, #36454f);
 }

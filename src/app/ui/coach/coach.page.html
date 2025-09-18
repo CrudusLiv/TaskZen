@@ -1,4 +1,36 @@
-<section class="page">
-  <h1>Coach</h1>
-  <p>Placeholder for nudges, encouragement, and micro-coaching feed.</p>
+<section class="page-coach panel-stack">
+  <header class="heading panel-glass panel-section">
+    <div class="top">
+      <h1>Coach</h1>
+      <div class="actions">
+        <button class="btn-ghost btn-base" type="button">Refresh</button>
+        <button class="btn-primary" type="button">New Nudge</button>
+      </div>
+    </div>
+    <p class="intro">
+      Adaptive micro-prompts & gentle accountability. Static shell (no logic yet).
+    </p>
+    <div class="filters">
+      <button class="pill active" type="button">All</button>
+      <button class="pill" type="button">Focus</button>
+      <button class="pill" type="button">Energy</button>
+      <button class="pill" type="button">Routines</button>
+      <button class="pill" type="button">Mindset</button>
+    </div>
+  </header>
+  <div class="feed-grid">
+    <article class="card coach-card" *ngFor="let c of demoCards; index as i" [style.--i]="i">
+      <div class="badge-row">
+        <span class="chip brand">{{ c.category }}</span>
+        <span class="time">{{ c.time }}</span>
+      </div>
+      <h2>{{ c.title }}</h2>
+      <p class="body">{{ c.body }}</p>
+      <div class="subtle" *ngIf="c.suggestion"><strong>Try:</strong> {{ c.suggestion }}</div>
+      <footer class="card-actions">
+        <button class="btn-ghost btn-base" type="button">Dismiss</button>
+        <button class="btn-secondary" type="button">Pin</button>
+      </footer>
+    </article>
+  </div>
 </section>

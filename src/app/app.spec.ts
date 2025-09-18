@@ -15,8 +15,8 @@ describe('App', () => {
         provideStore({}),
         provideEffects([]),
         provideRouter([], withRouterConfig({ paramsInheritanceStrategy: 'always' })),
-        provideLocationMocks()
-      ]
+        provideLocationMocks(),
+      ],
     }).compileComponents();
   });
 

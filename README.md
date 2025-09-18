@@ -3,6 +3,7 @@
 Modern, signal‑driven productivity & kanban workspace built with Angular 20, Firebase, and NgRx.
 
 ## Firestore Composite Index (Cards Ordering)
+
 To enable ordered card streaming (by column + position) a composite index is defined in `firestore.indexes.json`:
 
 - collectionGroup: `cards`
@@ -69,13 +70,13 @@ Local dev reads from `src/app/firebase.config.local.ts` (gitignored but currentl
 
 ```ts
 export const firebaseEnv = {
-	apiKey: '...'
-	, authDomain: '...'
-	, projectId: '...'
-	, storageBucket: '...'
-	, messagingSenderId: '...'
-	, appId: '...'
-	, measurementId: '...'
+  apiKey: '...',
+  authDomain: '...',
+  projectId: '...',
+  storageBucket: '...',
+  messagingSenderId: '...',
+  appId: '...',
+  measurementId: '...',
 } as const;
 ```
 
@@ -129,7 +130,7 @@ Artifacts output to `dist/TaskZen`.
 Build budgets
 - Initial bundle warning: 800kB; error: 1.5MB (configured in `angular.json`).
 - Component style warning: 4kB; error: 8kB.
-We will optimize bundles (code-split and trim dependencies) in a follow-up.
+  We will optimize bundles (code-split and trim dependencies) in a follow-up.
 
 ## 🧬 State Management Notes
 
@@ -194,20 +195,23 @@ File an issue or start a discussion if you have questions or suggestions.
 ## 📅 Calendar & Planner
 
 - Calendar (`/calendar`) shows:
-	- Card-based events: cards that have a `dueDate` (ISO `YYYY-MM-DD`), styled by priority, with quick clear/open actions.
-	- Standalone events: personal events stored in Firestore (`calendarEvents`) per user. Click the + button on a day to add; click ✕ to delete.
+  - Card-based events: cards that have a `dueDate` (ISO `YYYY-MM-DD`), styled by priority, with quick clear/open actions.
+  - Standalone events: personal events stored in Firestore (`calendarEvents`) per user. Click the + button on a day to add; click ✕ to delete.
 - Unscheduled panel lists cards without a due date, sorted by priority then title; quick buttons schedule into the next 7 days.
 - Planner focus highlights focused cards in the calendar and in the unscheduled list.
 
 Data model
+
 - Calendar events in store include a `source` field: `'card' | 'event'`. Card events mirror the card and are not persisted separately. Standalone events are persisted.
 
 Firestore collections
+
 - `cards`: board-scoped; `dueDate` must be ISO `YYYY-MM-DD` or `null`.
 - `plannerFocus/{uid}`: `{ ids: string[], updatedAt: number }` limited to 25 IDs per user.
 - `calendarEvents/{eventId}`: `{ ownerId, title, date, createdAt, updatedAt }` owned by the creating user.
 
 Security rules highlights (see `firestore.rules`)
+
 - Auth required everywhere. Board access gated by membership.
 - `cards.dueDate` validated as ISO date; comments/subtasks size capped.
 - `plannerFocus` limited to 25 IDs and only readable/writable by its user.

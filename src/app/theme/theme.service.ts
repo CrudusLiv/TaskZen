@@ -7,33 +7,56 @@ export class ThemeService {
   readonly accent = signal<string>('#7c3aed');
   // Dark mode is the only mode now; keep a signal for compatibility if needed by components
   readonly mode = signal<'dark'>('dark');
-  readonly density = signal<'comfortable'|'compact'>('comfortable');
+  readonly density = signal<'comfortable' | 'compact'>('comfortable');
   readonly highContrast = signal(false);
 
-  constructor(){
+  constructor() {
     // Initial load: attempt restore from localStorage, else system preference
     try {
       const acc = localStorage.getItem('tz.accent');
-      if(acc) this.setAccent(acc);
+      if (acc) this.setAccent(acc);
     } catch {}
 
     // Always enforce dark theme dataset
     document.documentElement.dataset['theme'] = 'dark';
-    effect(()=>{
+    effect(() => {
       const a = this.accent();
       this.applyVar('--board-accent', a);
-      try { localStorage.setItem('tz.accent', a); } catch {}
+      try {
+        localStorage.setItem('tz.accent', a);
+      } catch {}
     });
   }
 
-  setAccent(color?: string){ if(color) { this.accent.set(color); } }
+  setAccent(color?: string) {
+    if (color) {
+      this.accent.set(color);
+    }
+  }
   // setMode / toggleMode are deprecated; no-ops retained for backward compatibility
-  setMode(_m: 'dark'|'light'|'dark'){ /* dark only */ this.mode.set('dark'); document.documentElement.dataset['theme']='dark'; }
-  toggleMode(){ /* dark only */ this.setMode('dark'); }
-  setDensity(d: 'comfortable'|'compact'){ this.density.set(d); document.documentElement.dataset['density'] = d; }
-  toggleDensity(){ this.setDensity(this.density()==='comfortable'?'compact':'comfortable'); }
-  setHighContrast(on: boolean){ this.highContrast.set(on); document.documentElement.dataset['contrast'] = on ? 'high' : 'normal'; }
-  toggleHighContrast(){ this.setHighContrast(!this.highContrast()); }
+  setMode(_m: 'dark' | 'light' | 'dark') {
+    /* dark only */ this.mode.set('dark');
+    document.documentElement.dataset['theme'] = 'dark';
+  }
+  toggleMode() {
+    /* dark only */ this.setMode('dark');
+  }
+  setDensity(d: 'comfortable' | 'compact') {
+    this.density.set(d);
+    document.documentElement.dataset['density'] = d;
+  }
+  toggleDensity() {
+    this.setDensity(this.density() === 'comfortable' ? 'compact' : 'comfortable');
+  }
+  setHighContrast(on: boolean) {
+    this.highContrast.set(on);
+    document.documentElement.dataset['contrast'] = on ? 'high' : 'normal';
+  }
+  toggleHighContrast() {
+    this.setHighContrast(!this.highContrast());
+  }
 
-  private applyVar(name: string, value: string){ document.documentElement.style.setProperty(name, value); }
+  private applyVar(name: string, value: string) {
+    document.documentElement.style.setProperty(name, value);
+  }
 }

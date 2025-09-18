@@ -12,5 +12,5 @@ export const PreferencesActions = createActionGroup({
   events: {
     'Toggle Calm Mode': () => ({ toggling: true as true }),
     'Set Calm Mode': props<{ value: boolean }>(),
-  }
+  },
 });

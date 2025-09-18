@@ -1,1 +1,91 @@
-.page { padding:2rem; }
+@use '../../../styles';
+
+.page-insights {
+  padding: var(--space-5) var(--space-5) var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.heading h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.4rem;
+}
+.intro {
+  opacity: 0.7;
+  font-size: 0.78rem;
+  margin: 0;
+}
+.dash-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 160px;
+  position: relative;
+}
+.tile h2 {
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  margin: 0;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.stat-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.stat-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.6rem;
+}
+.stat-list .value {
+  font-weight: 600;
+}
+.hint {
+  opacity: 0.55;
+  font-size: 0.6rem;
+  margin: 0;
+}
+.suggest-list {
+  list-style: disc;
+  margin: 0.2rem 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+}
+.spark,
+.chart,
+.bars {
+  border-radius: 0.6rem;
+}
+.spark {
+  height: 60px;
+}
+.chart {
+  height: 90px;
+}
+.bars {
+  height: 80px;
+}
+@media (min-width: 1100px) {
+  .dash-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+.shell.calm .tile {
+  animation-duration: 0.7s;
+}

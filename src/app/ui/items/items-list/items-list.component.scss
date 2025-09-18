@@ -108,3 +108,88 @@ h2 {
 .shell.calm li {
   background: linear-gradient(145deg, #161c22, #1b2229);
 }
+
+/* Enrichment Drawer */
+li {
+  position: relative;
+}
+.enrich {
+  margin-left: 0.25rem;
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.enrich:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.enrich-drawer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 320px;
+  padding: var(--space-3, 0.9rem);
+  margin-top: 6px;
+  border-radius: var(--radius-md, 0.9rem);
+  background: rgba(20, 26, 32, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.55), 0 10px 32px -6px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px) saturate(160%);
+  animation: drawerIn 0.34s cubic-bezier(0.22, 0.61, 0.36, 1);
+  z-index: 10;
+}
+.enrich-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.enrich-content h3 {
+  margin: 0 0 2px;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+.enrich-content label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+.enrich-content input {
+  font-size: 0.65rem;
+  padding: 4px 6px;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1d242c;
+  color: #e2e8f0;
+}
+.enrich-content input:focus {
+  outline: 2px solid rgba(120, 170, 255, 0.4);
+  outline-offset: 1px;
+}
+.enrich-content .actions {
+  display: flex;
+  justify-content: flex-end;
+}
+@keyframes drawerIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.shell.calm .enrich-drawer {
+  background: rgba(18, 23, 28, 0.82);
+}

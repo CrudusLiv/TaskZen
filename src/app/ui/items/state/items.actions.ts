@@ -10,6 +10,9 @@ export interface ItemEntity {
   effort?: 1 | 2 | 3 | 4 | 5;
   rewardNote?: string;
   focusBoost?: boolean;
+  contextNote?: string; // brief context / why
+  microSteps?: string[]; // parsed micro steps
+  routineId?: string; // link to routine template
   status: 'inbox' | 'next' | 'progress' | 'done';
   createdAt: string;
   updatedAt: string;

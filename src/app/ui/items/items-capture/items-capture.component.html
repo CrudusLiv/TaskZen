@@ -1,9 +1,20 @@
-<section class="capture" aria-label="Quick capture">
-  <form (submit)="capture($event)">
-    <input #titleInput type="text" placeholder="Capture a thought or task (#tag !3 ~15)" [value]="title()" (input)="onInput($event)" autocomplete="off" required />
-    <button type="submit">Add</button>
+<section class="capture panel-glass panel-section" aria-label="Quick capture">
+  <form (submit)="capture($event)" class="capture-row">
+    <input
+      #titleInput
+      class="input-base"
+      type="text"
+      placeholder="Capture a thought or task (#tag !3 ~15)"
+      [value]="title()"
+      (input)="onInput($event)"
+      autocomplete="off"
+      required
+    />
+    <button type="submit" class="btn-base">Add</button>
   </form>
-  <a routerLink="/list" class="view-link">View List →</a>
+  <a routerLink="/list" class="view-link btn-ghost btn-base" style="width: max-content"
+    >View List →</a
+  >
   <div class="sr-only" aria-live="polite">{{ liveMsg() }}</div>
 </section>
 <section class="demo" *ngIf="showDemo()">

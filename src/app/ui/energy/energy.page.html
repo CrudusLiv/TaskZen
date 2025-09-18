@@ -1,4 +1,60 @@
-<section class="page">
-  <h1>Energy</h1>
-  <p>Placeholder for energy tracking and suggestions.</p>
+<section class="energy page panel-stack" aria-label="Energy tracking">
+  <header class="panel-glass panel-section head">
+    <h1>Energy</h1>
+    <div class="meta" *ngIf="latestSig() as latest">
+      <span class="pill"
+        >Latest: <strong>{{ latest.level }}</strong></span
+      >
+      <span class="pill" *ngIf="avgSig() as avg">Avg: {{ avg }}</span>
+    </div>
+  </header>
+  <div class="panel-glass panel-section capture">
+    <div class="levels" role="radiogroup" aria-label="Energy level">
+      <button
+        *ngFor="let l of [1, 2, 3, 4, 5]"
+        type="button"
+        (click)="setLevel(l)"
+        [attr.aria-pressed]="level() === l"
+        [class.active]="level() === l"
+        [class]="levelClass(l)"
+      >
+        {{ l }}
+      </button>
+    </div>
+    <div class="moods" aria-label="Mood tags">
+      <button
+        type="button"
+        *ngFor="let m of moodPalette"
+        (click)="toggleMood(m)"
+        [class.selected]="moods().includes(m)"
+      >
+        {{ m }}
+      </button>
+    </div>
+    <div class="note-row">
+      <input
+        class="input"
+        placeholder="Optional note"
+        [value]="note()"
+        (input)="note.set($any($event.target).value)"
+      />
+      <button class="btn-base btn-ghost add" (click)="add()">Add</button>
+    </div>
+  </div>
+  <div class="panel-glass panel-section logs" *ngIf="logsSig().length; else empty">
+    <ul>
+      <li *ngFor="let log of logsSig()">
+        <span class="badge" [class]="levelClass(log.level)">{{ log.level }}</span>
+        <span class="time">{{ rel(log.createdAt) }}</span>
+        <span class="mood-list">
+          <span *ngFor="let m of log.moods" class="mood">{{ m }}</span>
+        </span>
+        <span class="note" *ngIf="log.note">{{ log.note }}</span>
+        <button class="del" (click)="remove(log.id)" aria-label="Delete log">×</button>
+      </li>
+    </ul>
+  </div>
+  <ng-template #empty>
+    <p class="empty">No logs yet. Track how you feel to get smarter suggestions.</p>
+  </ng-template>
 </section>
