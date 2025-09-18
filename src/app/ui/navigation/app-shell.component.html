@@ -1,0 +1,22 @@
+<div class="shell" [class.open]="sidebarOpen()" [class.calm]="calmMode()">
+  <aside class="nav" role="navigation" aria-label="Primary">
+    <div class="brand" aria-label="App brand">TaskZen</div>
+    <nav>
+      <a *ngFor="let l of nav" [routerLink]="l.path" routerLinkActive="active" (click)="toggle()">{{
+        l.label
+      }}</a>
+    </nav>
+    <div class="nav-footer">
+      <button class="calm-toggle" type="button">Calm Mode</button>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <button class="menu" (click)="toggle()" aria-label="Toggle navigation">☰</button>
+      <h1 class="app-title">TaskZen</h1>
+    </header>
+    <div class="content" role="main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
