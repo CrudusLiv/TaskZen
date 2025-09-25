@@ -1,8 +1,9 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { RoutinesActions, RoutineEntity } from './state/routines.actions';
-import { selectRoutinesArray } from './state/routines.selectors';
+import { RoutinesActions, RoutineEntity } from '../state/routines.actions';
+import { selectRoutinesArray } from '../state/routines.selectors';
 @Component({
   standalone: true,
   selector: 'app-routines-page',
@@ -12,6 +13,7 @@ import { selectRoutinesArray } from './state/routines.selectors';
 })
 export class RoutinesPage {
   private store = inject(Store);
+  private router = inject(Router);
   routinesSig = this.store.selectSignal(selectRoutinesArray);
   editingId = signal<string | null>(null);
   newRoutineName = signal('');
@@ -82,8 +84,8 @@ export class RoutinesPage {
     );
   }
   play(r: RoutineEntity) {
-    // placeholder for navigation to play mode
-    console.log('Play routine', r.id);
+    // Future: pass id via query or param; for now just navigate to play shell
+    this.router.navigate(['/routines/play']);
   }
   isEditing(r: RoutineEntity) {
     return this.editingId() === r.id;

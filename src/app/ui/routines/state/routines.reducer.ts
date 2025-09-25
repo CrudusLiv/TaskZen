@@ -34,6 +34,12 @@ function sample(): RoutinesState {
 export const routinesReducer = createReducer(
   initial,
   on(RoutinesActions.loadSample, () => sample()),
+  on(RoutinesActions.hydrate, (s, { routines }) => {
+    const entities: Record<string, RoutineEntity> = {};
+    const order: string[] = [];
+    routines.forEach((r) => { entities[r.id] = r; order.unshift(r.id); });
+    return { entities, order };
+  }),
   on(RoutinesActions.addRoutine, (s, { name, energyTarget, cue }) => {
     const id = 'r' + Date.now();
     const now = new Date().toISOString();

@@ -1,0 +1,104 @@
+
+.routine-play {
+  padding: var(--space-5) var(--space-5) var(--space-7);
+  gap: var(--space-5);
+}
+.heading h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.4rem;
+}
+.intro {
+  opacity: 0.7;
+  font-size: 0.75rem;
+  margin: 0;
+}
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+}
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar .bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-brand), var(--color-brand-accent));
+  transition: width 0.4s ease;
+}
+.current-step h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.current-step .meta {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  margin: 0.3rem 0 0;
+}
+.controls {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.steps-mini {
+  list-style: none;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.steps-mini li {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  background: rgba(255, 255, 255, 0.07);
+  opacity: 0.55;
+}
+.steps-mini li.active {
+  opacity: 1;
+  background: linear-gradient(135deg, var(--color-brand), var(--color-brand-accent));
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+.pre {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.pre h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.hint {
+  opacity: 0.65;
+  font-size: 0.65rem;
+  margin: 0;
+}
+.preview {
+  margin: 0 0 0.5rem 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.65rem;
+}
+.preview .dur {
+  opacity: 0.6;
+}
+@media (max-width: 640px) {
+  .controls button {
+    flex: 1 1 auto;
+  }
+}
+.shell.calm .progress-bar .bar {
+  filter: saturate(0.7);
+}

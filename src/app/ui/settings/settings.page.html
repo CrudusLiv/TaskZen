@@ -3,50 +3,61 @@
     <h1>Settings</h1>
     <p class="intro">Personalization shell (no persistence wired yet).</p>
   </header>
-  <form class="prefs panel-glass panel-section" (submit)="onSubmit($event)">
-    <fieldset class="group">
-      <legend>Focus</legend>
-      <label>
-        <span>Default Focus Length (min)</span>
-        <input type="number" min="5" step="5" value="25" />
-      </label>
-      <label class="inline">
-        <input type="checkbox" checked /> Auto-start break after session
-      </label>
-    </fieldset>
-    <fieldset class="group">
-      <legend>Energy & Routines</legend>
-      <label class="inline"> <input type="checkbox" checked /> Enable energy logging UI </label>
-      <label class="inline"> <input type="checkbox" /> Routine play sound cues </label>
-    </fieldset>
+  <form class="prefs panel-glass panel-section" (submit)="$event.preventDefault()">
     <fieldset class="group">
       <legend>Interface</legend>
       <label class="inline">
-        <input type="checkbox" /> Calm mode (reduced saturation & motion)
+        <input type="checkbox" [checked]="calm()" (change)="toggleCalm()" /> Calm mode
+      </label>
+      <label>
+        <span>Theme Mode</span>
+        <div class="accent-swatches" role="radiogroup" aria-label="Accent color choices">
+          <button
+            type="button"
+            *ngFor="let a of accentPalette"
+            class="swatch"
+            [class.active]="accent() === a"
+            [style.--swatch-color]="a"
+            role="radio"
+            [attr.aria-checked]="accent() === a"
+            (click)="setAccent(a)"
+            (keydown.enter)="setAccent(a)"
+            (keydown.space)="setAccent(a)"
+          >
+            <span class="sr-only">{{ a }}</span>
+          </button>
+        </div>
+        <select [value]="themeMode()" (change)="setThemeMode($any($event.target).value)">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+          <option value="system">System</option>
+        </select>
+      </label>
+      <label>
+        <span>Accent</span>
+        <input
+          type="color"
+          [value]="accent() || '#7c3aed'"
+          (input)="setAccent($any($event.target).value)"
+        />
       </label>
       <label>
         <span>Density</span>
-        <select>
-          <option selected>Comfortable</option>
-          <option>Compact</option>
+        <select [value]="density()" (change)="setDensity($any($event.target).value)">
+          <option value="comfortable">Comfortable</option>
+          <option value="compact">Compact</option>
         </select>
       </label>
       <label>
         <span>Contrast</span>
-        <select>
-          <option selected>Standard</option>
-          <option>High</option>
+        <select
+          [value]="highContrast() ? 'high' : 'standard'"
+          (change)="setHighContrast($any($event.target).value === 'high')"
+        >
+          <option value="standard">Standard</option>
+          <option value="high">High</option>
         </select>
       </label>
     </fieldset>
-    <fieldset class="group">
-      <legend>Notifications</legend>
-      <label class="inline"> <input type="checkbox" /> Focus session complete </label>
-      <label class="inline"> <input type="checkbox" /> Routine reminder </label>
-    </fieldset>
-    <div class="actions">
-      <button class="btn-secondary" type="reset">Reset</button>
-      <button class="btn-primary" type="submit">Save Changes</button>
-    </div>
   </form>
 </section>

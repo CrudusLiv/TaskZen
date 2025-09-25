@@ -1,38 +1,95 @@
 <section class="page-insights panel-stack">
   <header class="heading panel-glass panel-section">
     <h1>Insights</h1>
-    <p class="intro">High-level patterns. Static visual shell only – data wiring later.</p>
+    <p class="intro">High-level patterns. Early live metrics; more depth coming.</p>
   </header>
   <div class="dash-grid">
     <div class="panel-glass panel-section tile focus-summary">
       <h2>Today Summary</h2>
       <ul class="stat-list">
-        <li><span class="label">Items Captured</span><span class="value">12</span></li>
-        <li><span class="label">Completed</span><span class="value">5</span></li>
-        <li><span class="label">Focus Sessions</span><span class="value">2</span></li>
+        <li>
+          <span class="label">Items Captured</span
+          ><span class="value">{{ (capturedToday$ | async) ?? 0 }}</span>
+        </li>
+        <li>
+          <span class="label">Completed</span
+          ><span class="value">{{ (completedToday$ | async) ?? 0 }}</span>
+        </li>
+        <li>
+          <span class="label">Focus Minutes</span
+          ><span class="value">{{ (focusMinutesToday$ | async) ?? 0 }}</span>
+        </li>
       </ul>
     </div>
     <div class="panel-glass panel-section tile focus-time">
-      <h2>Focus Time</h2>
-      <div class="spark skeleton" aria-hidden="true"></div>
-      <p class="hint">Upcoming: distribution of deep vs micro-focus.</p>
+      <h2>Priority Distribution</h2>
+      <ng-container *ngIf="priorityDistribution$ | async as dist; else distSkeleton">
+        <ul class="stat-list">
+          <li>
+            <span class="label">High</span><span class="value">{{ dist.high }}</span>
+          </li>
+          <li>
+            <span class="label">Medium</span><span class="value">{{ dist.medium }}</span>
+          </li>
+          <li>
+            <span class="label">Low</span><span class="value">{{ dist.low }}</span>
+          </li>
+        </ul>
+      </ng-container>
+      <ng-template #distSkeleton>
+        <div class="spark skeleton" aria-hidden="true"></div>
+      </ng-template>
+      <p class="hint">Distribution based on heuristic score.</p>
     </div>
     <div class="panel-glass panel-section tile energy-trend">
       <h2>Energy Trend</h2>
-      <div class="chart skeleton" aria-hidden="true"></div>
-      <p class="hint">Will visualize logged energy over the day.</p>
+      <ng-container *ngIf="energyTrend$ | async as trend; else energySkeleton">
+        <div class="chart" style="display: flex; gap: 4px; align-items: flex-end; height: 90px">
+          <div
+            *ngFor="let p of trend"
+            [title]="p.createdAt"
+            [style.height.%]="p.level * 20"
+            style="flex: 1; background: var(--brand-glow); opacity: 0.6; border-radius: 4px"
+          ></div>
+        </div>
+      </ng-container>
+      <ng-template #energySkeleton
+        ><div class="chart skeleton" aria-hidden="true"></div
+      ></ng-template>
+      <p class="hint">Last 7 energy logs (newest right).</p>
     </div>
     <div class="panel-glass panel-section tile routine-adherence">
       <h2>Routine Adherence</h2>
-      <div class="bars skeleton" aria-hidden="true"></div>
-      <p class="hint">Routine completion ratio & streak.</p>
+      <ng-container *ngIf="routineAdherence$ | async as ra; else routineSkeleton">
+        <div class="bars" style="display: flex; align-items: center; gap: 0.6rem">
+          <div
+            style="
+              flex: 1;
+              height: 8px;
+              background: rgba(255, 255, 255, 0.08);
+              border-radius: 6px;
+              overflow: hidden;
+            "
+          >
+            <div
+              [style.width.%]="ra.percent"
+              style="height: 100%; background: var(--accent-glow)"
+            ></div>
+          </div>
+          <div style="font-size: 0.7rem; font-weight: 600">{{ ra.percent }}%</div>
+        </div>
+      </ng-container>
+      <ng-template #routineSkeleton
+        ><div class="bars skeleton" aria-hidden="true"></div
+      ></ng-template>
+      <p class="hint">% routines with steps (placeholder).</p>
     </div>
     <div class="panel-glass panel-section tile suggestions">
       <h2>Suggestions</h2>
       <ul class="suggest-list">
-        <li>Energy dip detected window (static)</li>
-        <li>Try a 10m reset focus sprint</li>
-        <li>Review routine steps tagged low adherence</li>
+        <li>Energy dip window detection coming</li>
+        <li>Adaptive micro-focus prompts soon</li>
+        <li>Routine adherence streak logic pending</li>
       </ul>
     </div>
   </div>

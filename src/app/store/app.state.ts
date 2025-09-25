@@ -10,6 +10,8 @@ import { energyFeatureKey } from '../ui/energy/state/energy.actions';
 import { energyReducer, EnergyState } from '../ui/energy/state/energy.reducer';
 import { routinesFeatureKey } from '../ui/routines/state/routines.actions';
 import { routinesReducer, RoutinesState } from '../ui/routines/state/routines.reducer';
+import { coachFeatureKey } from '../ui/coach/state/coach.actions';
+import { coachReducer, CoachState } from '../ui/coach/state/coach.reducer';
 
 export interface AppState {
   [preferencesFeatureKey]: PreferencesState;
@@ -17,6 +19,7 @@ export interface AppState {
   [focusFeatureKey]: FocusSessionState;
   [energyFeatureKey]: EnergyState;
   [routinesFeatureKey]: RoutinesState;
+  [coachFeatureKey]: CoachState;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
@@ -25,4 +28,5 @@ export const reducers: ActionReducerMap<AppState> = {
   [focusFeatureKey]: focusReducer,
   [energyFeatureKey]: energyReducer,
   [routinesFeatureKey]: routinesReducer,
+  [coachFeatureKey]: coachReducer,
 };

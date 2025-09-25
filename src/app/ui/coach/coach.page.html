@@ -3,13 +3,10 @@
     <div class="top">
       <h1>Coach</h1>
       <div class="actions">
-        <button class="btn-ghost btn-base" type="button">Refresh</button>
-        <button class="btn-primary" type="button">New Nudge</button>
+        <button class="btn-ghost btn-base" type="button" (click)="refresh()">Refresh</button>
       </div>
     </div>
-    <p class="intro">
-      Adaptive micro-prompts & gentle accountability. Static shell (no logic yet).
-    </p>
+    <p class="intro">Adaptive micro-prompts & gentle accountability. Early rule engine active.</p>
     <div class="filters">
       <button class="pill active" type="button">All</button>
       <button class="pill" type="button">Focus</button>
@@ -18,19 +15,22 @@
       <button class="pill" type="button">Mindset</button>
     </div>
   </header>
-  <div class="feed-grid">
-    <article class="card coach-card" *ngFor="let c of demoCards; index as i" [style.--i]="i">
+  <div class="feed-grid" *ngIf="cards$ | async as cards">
+    <article class="card coach-card" *ngFor="let c of cards; index as i" [style.--i]="i">
       <div class="badge-row">
         <span class="chip brand">{{ c.category }}</span>
-        <span class="time">{{ c.time }}</span>
+        <span class="time">{{ c.createdAt | date : 'shortTime' }}</span>
       </div>
       <h2>{{ c.title }}</h2>
       <p class="body">{{ c.body }}</p>
       <div class="subtle" *ngIf="c.suggestion"><strong>Try:</strong> {{ c.suggestion }}</div>
       <footer class="card-actions">
-        <button class="btn-ghost btn-base" type="button">Dismiss</button>
-        <button class="btn-secondary" type="button">Pin</button>
+        <button class="btn-ghost btn-base" type="button" (click)="dismiss(c.id)">Dismiss</button>
+        <button class="btn-secondary" type="button" (click)="pin(c.id)">
+          {{ c.pinned ? 'Unpin' : 'Pin' }}
+        </button>
       </footer>
     </article>
+    <div *ngIf="!cards.length" class="empty subtle">No suggestions yet. Refresh to evaluate.</div>
   </div>
 </section>

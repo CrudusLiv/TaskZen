@@ -10,46 +10,72 @@ export const selectItemsArray = createSelector(
   (entities, order) => order.map((id) => entities[id]).filter(Boolean)
 );
 
-// Priority scoring (lightweight initial heuristic)
-// Factors (0..1 scaled) with weights: statusFocus, recency, energyFitPresence, effort, focusBoost
-// Will evolve to include due urgency, streaks, energy match once those slices exist.
-function scoreItem(it: any, now: number): number {
-  // Status weight: inbox(0.2) next(1) progress(0.9) done(0)
-  const statusWeights: Record<string, number> = { inbox: 0.2, next: 1, progress: 0.9, done: 0 };
+// Priority scoring v2
+// Factors:
+//  - status weight (context readiness)
+//  - freshness (recently updated) with decay
+//  - age decay (very old items fade unless progress)
+//  - energy alignment (penalize if item energy requirement far from latest logged energy)
+//  - effort activation curve (prefer mid-low for quick wins unless boosted)
+//  - focusBoost flag (explicit manual encouragement)
+//  - due urgency placeholder (not yet implemented)
+function scoreItem(it: any, now: number, latestEnergy?: number): number {
+  const statusWeights: Record<string, number> = { inbox: 0.15, next: 1, progress: 0.95, done: 0 };
   const statusFocus = statusWeights[it.status] ?? 0;
 
-  // Recency: newer updatedAt -> slight boost (decay after 48h)
-  let recency = 0;
+  // Freshness based on updatedAt within 72h window
+  let freshness = 0;
   if (it.updatedAt) {
-    const ageHours = (now - Date.parse(it.updatedAt)) / 36e5;
-    recency = ageHours < 48 ? 1 - ageHours / 48 : 0;
+    const ageH = (now - Date.parse(it.updatedAt)) / 36e5;
+    freshness = ageH < 72 ? 1 - ageH / 72 : 0;
   }
 
-  // Energy fit presence: if energyLevel set give modest boost so curated tasks surface
-  const energyFitPresence = it.energyLevel ? 0.6 : 0;
+  // Age decay (createdAt) after 14 days if untouched
+  let ageDecay = 1;
+  if (it.createdAt) {
+    const ageDays = (now - Date.parse(it.createdAt)) / 86400000;
+    if (ageDays > 14) {
+      // logistic-ish fade
+      ageDecay = 1 / (1 + (ageDays - 14) / 14);
+    }
+  }
 
-  // Effort: prefer low/moderate effort for activation: inverse curve mapping 1..5 => boost peaked at 2-3
-  const effort = it.effort
+  // Energy alignment penalty if difference >1 level
+  let energyAlign = 0.6; // base if no data
+  if (it.energyLevel && latestEnergy) {
+    const diff = Math.abs(it.energyLevel - latestEnergy);
+    energyAlign = diff === 0 ? 1 : diff === 1 ? 0.85 : diff === 2 ? 0.55 : 0.35;
+  } else if (it.energyLevel) {
+    energyAlign = 0.75; // have tagged energy but no current reading
+  }
+
+  // Effort curve (prefer 2-3). Higher effort gets modest penalty unless focusBoost
+  const effortScore = it.effort
     ? it.effort === 3
       ? 1
       : it.effort === 2
-      ? 0.9
-      : it.effort === 4
-      ? 0.6
+      ? 0.95
       : it.effort === 1
       ? 0.7
-      : 0.3
-    : 0.5;
+      : it.effort === 4
+      ? 0.55
+      : 0.45
+    : 0.55;
 
-  // Focus boost flag
   const focusBoost = it.focusBoost ? 1 : 0;
 
-  // Weighted sum
-  return (
-    statusFocus * 0.35 + recency * 0.2 + energyFitPresence * 0.1 + effort * 0.15 + focusBoost * 0.2
-  );
+  const base =
+    statusFocus * 0.33 +
+    freshness * 0.15 +
+    energyAlign * 0.14 +
+    effortScore * 0.12 +
+    focusBoost * 0.18;
+
+  // Apply age decay multiplicatively
+  return base * ageDecay;
 }
 
+// NOTE: Latest energy isn't directly imported here to avoid circular; caller can enhance later.
 export const selectItemsWithPriority = createSelector(selectItemsArray, (items) => {
   const now = Date.now();
   return items

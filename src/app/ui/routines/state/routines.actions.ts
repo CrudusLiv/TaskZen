@@ -32,6 +32,7 @@ export const RoutinesActions = createActionGroup({
     'Update Step': props<{ routineId: string; stepId: string; title?: string; minutes?: number }>(),
     'Remove Step': props<{ routineId: string; stepId: string }>(),
     'Reorder Step': props<{ routineId: string; stepId: string; direction: 'up' | 'down' }>(),
+    'Hydrate': props<{ routines: RoutineEntity[] }>(),
     'Load Sample': emptyProps(),
   },
 });

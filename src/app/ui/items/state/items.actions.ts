@@ -13,6 +13,7 @@ export interface ItemEntity {
   contextNote?: string; // brief context / why
   microSteps?: string[]; // parsed micro steps
   routineId?: string; // link to routine template
+  tags?: string[]; // lightweight categorization
   status: 'inbox' | 'next' | 'progress' | 'done';
   createdAt: string;
   updatedAt: string;
@@ -33,11 +34,25 @@ export const ItemsActions = createActionGroup({
       effort?: 1 | 2 | 3 | 4 | 5;
       due?: string;
       focusBoost?: boolean;
+      tags?: string[];
+    }>(),
+    'Add Many': props<{
+      items: Array<{
+        title: string;
+        description?: string;
+        estimateMinutes?: number;
+        energyLevel?: 1 | 2 | 3 | 4 | 5;
+        effort?: 1 | 2 | 3 | 4 | 5;
+        due?: string;
+        focusBoost?: boolean;
+        tags?: string[];
+      }>;
     }>(),
     'Update Item': props<{ id: string; changes: Partial<Omit<ItemEntity, 'id' | 'createdAt'>> }>(),
     'Delete Item': props<{ id: string }>(),
     'Move Status': props<{ id: string; status: ItemEntity['status'] }>(),
     'Replace All': props<{ items: ItemEntity[] }>(),
+    Hydrate: props<{ items: ItemEntity[] }>(),
     'Load Demo': emptyProps(),
   },
 });

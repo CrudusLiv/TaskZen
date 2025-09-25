@@ -16,6 +16,7 @@ export const EnergyActions = createActionGroup({
     Init: emptyProps(),
     'Add Log': props<{ level: 1 | 2 | 3 | 4 | 5; moods: string[]; note?: string }>(),
     'Delete Log': props<{ id: string }>(),
+    'Hydrate': props<{ logs: EnergyLog[] }>(),
     'Load Sample': emptyProps(),
   },
 });

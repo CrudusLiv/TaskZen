@@ -31,6 +31,7 @@ function sample(): EnergyState {
 export const energyReducer = createReducer(
   initial,
   on(EnergyActions.loadSample, () => sample()),
+  on(EnergyActions.hydrate, (s, { logs }) => ({ logs: [...logs] })),
   on(EnergyActions.addLog, (s, { level, moods, note }) => {
     const log: EnergyLog = {
       id: 'e' + Date.now(),

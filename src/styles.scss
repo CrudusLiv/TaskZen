@@ -24,6 +24,54 @@
   --nf-font-stack: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
 }
 
+/* Calm mode global adjustments */
+.calm-mode {
+  --color-brand: #64748b;
+  --color-brand-accent: #94a3b8;
+  --blur-bg: rgba(255, 255, 255, 0.03);
+  --focus-ring: 0 0 0 2px rgba(148, 163, 184, 0.55), 0 0 0 4px rgba(100, 116, 139, 0.25);
+}
+.calm-mode body,
+body.calm-mode {
+  animation: none !important;
+  background: linear-gradient(180deg, #0b0e11, #12161c 65%, #0f1115);
+  filter: saturate(0.85);
+}
+
+/* High contrast additive tweaks (class form) */
+.high-contrast {
+  --color-border: #3b4450;
+  --color-border-strong: #4c5663;
+  --color-text-dim: #c7d1dd;
+}
+
+/* Accent swatch buttons */
+.accent-swatches {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.accent-swatches .swatch {
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: var(--swatch-color);
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+.accent-swatches .swatch.active {
+  border-color: var(--swatch-color);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25), 0 0 0 4px var(--swatch-color);
+}
+.accent-swatches .swatch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6), 0 0 0 4px var(--swatch-color);
+}
+
 body {
   background: var(--nf-bg);
   color: var(--nf-text);

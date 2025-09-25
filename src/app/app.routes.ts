@@ -29,7 +29,13 @@ export const routes: Routes = [
       },
       {
         path: 'routines',
-        loadComponent: () => import('./ui/routines/routines.page').then((m) => m.RoutinesPage),
+        loadComponent: () =>
+          import('./ui/routines/routines/routines.page').then((m) => m.RoutinesPage),
+      },
+      {
+        path: 'routines/play',
+        loadComponent: () =>
+          import('./ui/routines/routine-play/routine-play.page').then((m) => m.RoutinePlayPage),
       },
       {
         path: 'coach',

@@ -1,22 +1,82 @@
 <section class="capture panel-glass panel-section" aria-label="Quick capture">
+  <div class="mode-toggle">
+    <button
+      type="button"
+      class="btn-ghost btn-base"
+      (click)="toggleBulk()"
+      [attr.aria-pressed]="bulkMode()"
+    >
+      {{ bulkMode() ? 'Single Line Mode' : 'Bulk Capture Mode' }}
+    </button>
+  </div>
+  @if (!bulkMode()) {
   <form (submit)="capture($event)" class="capture-row">
-    <input
-      #titleInput
-      class="input-base"
-      type="text"
-      placeholder="Capture a thought or task (#tag !3 ~15)"
-      [value]="title()"
-      (input)="onInput($event)"
-      autocomplete="off"
-      required
-    />
+    <div class="field-with-meta">
+      <input
+        #titleInput
+        class="input-base"
+        type="text"
+        placeholder="Capture a thought or task (#tag !3 ~15)"
+        [value]="title()"
+        (input)="onInput($event)"
+        autocomplete="off"
+        required
+      />
+      <div class="inline-tokens" aria-hidden="true">
+        @if (quickMeta().tags.length) { @for (t of quickMeta().tags; track t) {<span
+          class="chip tag"
+          >#{{ t }}</span
+        >} } @if (quickMeta().energyLevel) {<span class="chip energy"
+          >⚡ {{ quickMeta().energyLevel }}</span
+        >} @if (quickMeta().estimateMinutes) {<span class="chip est"
+          >~{{ quickMeta().estimateMinutes }}m</span
+        >}
+      </div>
+    </div>
     <button type="submit" class="btn-base">Add</button>
   </form>
-  <a routerLink="/list" class="view-link btn-ghost btn-base" style="width: max-content"
+  } @if (bulkMode()) {
+  <div class="bulk-wrapper">
+    <textarea
+      class="input-base bulk-input"
+      rows="6"
+      placeholder="One item per line (supports #tags !energy ~estimate)"
+      [value]="bulkText()"
+      (input)="parseBulkInput($any($event.target).value)"
+    ></textarea>
+    <div class="bulk-actions">
+      <button
+        class="btn-base"
+        type="button"
+        (click)="submitBulk()"
+        [disabled]="!parsedPreview().length"
+      >
+        Add {{ parsedPreview().length }} Items
+      </button>
+      @if (parsedPreview().length) {<span class="muted">Preview:</span>}
+    </div>
+    @if (parsedPreview().length) {
+    <ul class="preview">
+      @for (p of parsedPreviewMeta(); track p.title; let i = $index) {
+      <li>
+        {{ i + 1 }}. {{ p.title }} @if (p.tags?.length) { @for (tg of p.tags; track tg) {<span
+          class="chip tag"
+          >#{{ tg }}</span
+        >} } @if (p.energyLevel) {<span class="chip energy">⚡ {{ p.energyLevel }}</span
+        >} @if (p.estimateMinutes) {<span class="chip est">~{{ p.estimateMinutes }}m</span>}
+      </li>
+      }
+    </ul>
+    }
+  </div>
+  }
+  <a routerLink="/items" class="view-link btn-ghost btn-base" style="width: max-content"
     >View List →</a
   >
   <div class="sr-only" aria-live="polite">{{ liveMsg() }}</div>
 </section>
-<section class="demo" *ngIf="showDemo()">
+@if (showDemo()) {
+<section class="demo">
   <button (click)="loadDemo()">Load Demo Items</button>
 </section>
+}

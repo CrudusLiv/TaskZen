@@ -1,4 +1,12 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
+import {
+  selectAccent,
+  selectDensity,
+  selectHighContrast,
+  selectThemeMode,
+  selectCalmMode,
+} from '../ui/preferences/state/preferences.selectors';
 
 /** Manages runtime theme tokens (board accent, density, mode, contrast). */
 @Injectable({ providedIn: 'root' })
@@ -10,6 +18,8 @@ export class ThemeService {
   readonly density = signal<'comfortable' | 'compact'>('comfortable');
   readonly highContrast = signal(false);
 
+  private store = inject(Store);
+
   constructor() {
     // Initial load: attempt restore from localStorage, else system preference
     try {
@@ -17,14 +27,44 @@ export class ThemeService {
       if (acc) this.setAccent(acc);
     } catch {}
 
-    // Always enforce dark theme dataset
+    // Always enforce (initial) dark theme dataset until store hydration overrides
     document.documentElement.dataset['theme'] = 'dark';
+
+    // Accent reactive application
     effect(() => {
-      const a = this.accent();
-      this.applyVar('--board-accent', a);
-      try {
-        localStorage.setItem('tz.accent', a);
-      } catch {}
+      const accent = this.store.selectSignal(selectAccent)();
+      if (accent) {
+        this.accent.set(accent);
+        try {
+          localStorage.setItem('tz.accent', accent);
+        } catch {}
+      }
+      this.applyVar('--board-accent', this.accent());
+    });
+
+    // Theme mode (dark / light future)
+    effect(() => {
+      const mode = this.store.selectSignal(selectThemeMode)();
+      if (mode) document.documentElement.dataset['theme'] = mode;
+    });
+
+    // Density
+    effect(() => {
+      const density = this.store.selectSignal(selectDensity)();
+      if (density) document.documentElement.dataset['density'] = density;
+    });
+
+    // High contrast
+    effect(() => {
+      const hc = this.store.selectSignal(selectHighContrast)();
+      document.documentElement.classList.toggle('high-contrast', !!hc);
+      document.documentElement.dataset['contrast'] = hc ? 'high' : 'normal';
+    });
+
+    // Calm mode (reduced saturation / motion)
+    effect(() => {
+      const calm = this.store.selectSignal(selectCalmMode)();
+      document.documentElement.classList.toggle('calm-mode', !!calm);
     });
   }
 

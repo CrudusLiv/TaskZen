@@ -46,6 +46,15 @@ function demo(): ItemsState {
 export const itemsReducer = createReducer(
   initial,
   on(ItemsActions.loadDemo, () => demo()),
+  on(ItemsActions.hydrate, (s, { items }) => {
+    const entities: Record<string, ItemEntity> = {};
+    const order: string[] = [];
+    items.forEach((it) => {
+      entities[it.id] = it;
+      order.unshift(it.id);
+    });
+    return { entities, order };
+  }),
   on(ItemsActions.replaceAll, (s, { items }) => {
     const entities: Record<string, ItemEntity> = {};
     const order: string[] = [];
@@ -57,7 +66,7 @@ export const itemsReducer = createReducer(
   }),
   on(
     ItemsActions.addItem,
-    (s, { title, description, estimateMinutes, energyLevel, effort, due, focusBoost }) => {
+    (s, { title, description, estimateMinutes, energyLevel, effort, due, focusBoost, tags }) => {
       const id = 'i' + Date.now();
       const now = new Date().toISOString();
       const entity: ItemEntity = {
@@ -69,6 +78,7 @@ export const itemsReducer = createReducer(
         effort,
         due,
         focusBoost,
+        tags: tags && tags.length ? [...new Set(tags.map((t) => t.toLowerCase()))] : undefined,
         actualMinutes: 0,
         status: 'inbox',
         createdAt: now,
@@ -77,6 +87,32 @@ export const itemsReducer = createReducer(
       return { entities: { ...s.entities, [id]: entity }, order: [id, ...s.order] };
     }
   ),
+  on(ItemsActions.addMany, (s, { items }) => {
+    if (!items.length) return s;
+    const entities = { ...s.entities } as Record<string, ItemEntity>;
+    const order = [...s.order];
+    const nowIso = new Date().toISOString();
+    items.forEach((it, idx) => {
+      const id = 'i' + Date.now() + '_' + idx;
+      entities[id] = {
+        id,
+        title: it.title,
+        description: it.description,
+        estimateMinutes: it.estimateMinutes,
+        energyLevel: it.energyLevel,
+        effort: it.effort,
+        due: it.due,
+        focusBoost: it.focusBoost,
+        tags: it.tags && it.tags.length ? [...new Set(it.tags.map((t) => t.toLowerCase()))] : undefined,
+        actualMinutes: 0,
+        status: 'inbox',
+        createdAt: nowIso,
+        updatedAt: nowIso,
+      };
+      order.unshift(id);
+    });
+    return { entities, order };
+  }),
   on(ItemsActions.updateItem, (s, { id, changes }) => {
     const current = s.entities[id];
     if (!current) return s;
