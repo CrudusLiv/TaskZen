@@ -21,16 +21,37 @@
         (input)="onInput($event)"
         autocomplete="off"
         required
+        aria-describedby="quick-meta-desc"
       />
-      <div class="inline-tokens" aria-hidden="true">
-        @if (quickMeta().tags.length) { @for (t of quickMeta().tags; track t) {<span
-          class="chip tag"
-          >#{{ t }}</span
-        >} } @if (quickMeta().energyLevel) {<span class="chip energy"
-          >⚡ {{ quickMeta().energyLevel }}</span
-        >} @if (quickMeta().estimateMinutes) {<span class="chip est"
-          >~{{ quickMeta().estimateMinutes }}m</span
-        >}
+      <div
+        id="quick-meta-desc"
+        class="inline-tokens"
+        [class.visible]="quickMeta().tags.length || quickMeta().energyLevel || quickMeta().estimateMinutes"
+        aria-live="polite"
+        aria-label="Parsed metadata preview"
+      >
+        @if (quickMeta().tags.length) {
+          <span class="group-label" aria-hidden="true">Tags:</span>
+          @for (t of quickMeta().tags; track t) {
+            <span class="chip tag" [attr.title]="'#' + t">#{{ t }}</span>
+          }
+        }
+        @if (quickMeta().energyLevel) {
+          <span
+            class="chip energy level-{{ quickMeta().energyLevel }}"
+            [attr.aria-label]="'Energy ' + quickMeta().energyLevel"
+            [attr.title]="'Energy level ' + quickMeta().energyLevel"
+            >⚡ {{ quickMeta().energyLevel }}</span
+          >
+        }
+        @if (quickMeta().estimateMinutes) {
+          <span
+            class="chip est"
+            [attr.aria-label]="'Estimate ' + quickMeta().estimateMinutes + ' minutes'"
+            [attr.title]="'Estimated ' + quickMeta().estimateMinutes + ' minutes'"
+            >⏱ {{ quickMeta().estimateMinutes }}m</span
+          >
+        }
       </div>
     </div>
     <button type="submit" class="btn-base">Add</button>
@@ -59,7 +80,7 @@
     <ul class="preview">
       @for (p of parsedPreviewMeta(); track p.title; let i = $index) {
       <li>
-        {{ i + 1 }}. {{ p.title }} @if (p.tags?.length) { @for (tg of p.tags; track tg) {<span
+        {{ i + 1 }}. {{ p.title }} @if (p.tags.length) { @for (tg of p.tags; track tg) {<span
           class="chip tag"
           >#{{ tg }}</span
         >} } @if (p.energyLevel) {<span class="chip energy">⚡ {{ p.energyLevel }}</span

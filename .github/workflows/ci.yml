@@ -2,13 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [TaskZen]
   pull_request:
-    branches: [ main, master ]
+    branches: [TaskZen]
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,18 +23,53 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
+      - name: Lint (skip if absent)
         run: |
-          if npm run -q lint; then
-            echo "lint ok"
+          if command -v jq >/dev/null 2>&1 && [ -f package.json ] && jq -e '.scripts.lint' package.json > /dev/null; then
+            npm run lint
           else
-            echo "no lint script, skipping"
+            echo "No lint script; skipping."
           fi
+        shell: bash
 
       - name: Run unit tests
-        run: |
-          npx playwright install-deps || true
-          npm test -- --watch=false --browsers=ChromeHeadless || npm test -- --watch=false --browsers=ChromeHeadlessNoSandbox
+        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage=false
+        env:
+          CI: 'true'
 
+      - name: Build (prod)
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-taskzen
+          path: dist/TaskZen
+          if-no-files-found: error
+
+  preview-deploy:
+    if: github.ref == 'refs/heads/TaskZen' && github.event_name == 'push'
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci
       - name: Build
-        run: npm run build --if-present
+        run: npm run build
+      - name: Firebase Preview Deploy
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT: ${{ secrets.FIREBASE_PROJECT }}
+        run: |
+          if [ -n "$FIREBASE_TOKEN" ] && [ -n "$FIREBASE_PROJECT" ]; then
+            npx firebase-tools hosting:channel:deploy ci-${{ github.run_id }} --project "$FIREBASE_PROJECT" || echo "Preview deploy failed"
+          else
+            echo "Preview deploy skipped (missing FIREBASE_TOKEN or FIREBASE_PROJECT)"
+          fi

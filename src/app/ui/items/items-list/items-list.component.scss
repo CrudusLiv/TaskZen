@@ -10,6 +10,47 @@ header {
   align-items: center;
   margin-bottom: 1.4rem;
 }
+.filters {
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.6rem;
+}
+.filters .tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.tag-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.25rem 0.55rem;
+  border-radius: 1rem;
+  font-size: 0.55rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #b5c2ce;
+  letter-spacing: 0.04em;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
+.tag-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.tag-chip.active {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-color: #3b82f6;
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4) inset;
+}
+.active-filters {
+  font-size: 0.5rem;
+  opacity: 0.75;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
 ul {
   list-style: none;
   padding: 0;
@@ -133,52 +174,86 @@ li {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 320px;
-  padding: var(--space-3, 0.9rem);
-  margin-top: 6px;
-  border-radius: var(--radius-md, 0.9rem);
-  background: rgba(20, 26, 32, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.55), 0 10px 32px -6px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(18px) saturate(160%);
-  animation: drawerIn 0.34s cubic-bezier(0.22, 0.61, 0.36, 1);
-  z-index: 10;
+  width: 360px;
+  max-width: 90vw;
+  padding: 1rem 1.05rem 1.05rem;
+  margin-top: 8px;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgba(20,26,32,0.9), rgba(30,38,46,0.9));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 4px 18px -4px rgba(0,0,0,0.55), 0 12px 34px -6px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  animation: drawerIn 0.34s cubic-bezier(0.22,0.61,0.36,1);
+  z-index: 20;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 .enrich-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem 0.9rem;
+  font-size: 0.62rem;
 }
 .enrich-content h3 {
-  margin: 0 0 2px;
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  opacity: 0.7;
+  grid-column: 1 / -1;
+  margin: 0 0 0.25rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  opacity: 0.8;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.enrich-content h3:before {
+  content: '\2699'; /* gear symbol */
+  font-size: 0.8rem;
+  opacity: 0.85;
 }
 .enrich-content label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   font-size: 0.55rem;
-  letter-spacing: 0.06em;
-  opacity: 0.85;
+  letter-spacing: 0.05em;
+  color: #c8d4df;
+  position: relative;
 }
-.enrich-content input {
-  font-size: 0.65rem;
-  padding: 4px 6px;
-  border-radius: 0.4rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #1d242c;
+.enrich-content label:hover {
   color: #e2e8f0;
 }
+.enrich-content input {
+  font-size: 0.64rem;
+  padding: 6px 7px 6px;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: linear-gradient(125deg,#1d242c,#222c35);
+  color: #f1f5f9;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset, 0 2px 4px -2px rgba(0,0,0,0.5);
+  transition: border-color .25s, background .25s, box-shadow .25s;
+}
 .enrich-content input:focus {
-  outline: 2px solid rgba(120, 170, 255, 0.4);
+  outline: 2px solid #3b82f680;
   outline-offset: 1px;
+  border-color: #60a5fa;
+  background: #25313b;
+}
+.enrich-content input::placeholder {
+  color: #6b7c8b;
+  opacity: 0.75;
 }
 .enrich-content .actions {
+  grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
+  margin-top: 0.2rem;
+}
+.enrich-drawer:focus-within {
+  outline-color: #2563eb;
+}
+.shell.calm .enrich-drawer {
+  background: linear-gradient(145deg, rgba(18,23,28,0.88), rgba(24,30,36,0.88));
 }
 @keyframes drawerIn {
   from {

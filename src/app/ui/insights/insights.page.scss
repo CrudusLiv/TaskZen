@@ -1,4 +1,4 @@
-@use '../../../styles';
+/* Removed heavy @use of root styles to avoid re-emitting large token block. */
 
 .page-insights {
   padding: var(--space-5) var(--space-5) var(--space-7);

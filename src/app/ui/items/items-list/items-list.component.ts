@@ -1,8 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, effect } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { ItemsActions, ItemEntity } from '../state/items.actions';
-import { selectItemsFeature } from '../state/items.selectors';
+import { selectItemsFeature, selectAllTags } from '../state/items.selectors';
 
 @Component({
   standalone: true,
@@ -21,6 +21,93 @@ export class ItemsListComponent {
   statuses: ItemEntity['status'][] = ['inbox', 'next', 'progress', 'done'];
   liveMsg = signal('');
   enrichingId = signal<string | null>(null);
+  // Tag filter state
+  allTags = this.store.selectSignal(selectAllTags);
+  selectedTags = signal<Set<string>>(new Set());
+  search = signal('');
+  // Derived filtered order list (IDs) for quick membership tests
+  filteredIds = computed(() => {
+    const st = this.state();
+    const term = this.search().trim().toLowerCase();
+    const needTags = this.selectedTags();
+    if (!term && needTags.size === 0) return st.order;
+    return st.order.filter((id) => {
+      const it = st.entities[id];
+      if (!it) return false;
+      if (term) {
+        const blob = (
+          it.title +
+          ' ' +
+          (it.description || '') +
+          ' ' +
+          (it.tags || []).join(' ')
+        ).toLowerCase();
+        if (!blob.includes(term)) return false;
+      }
+      if (needTags.size) {
+        const tags = (it.tags || []).map((t) => t.toLowerCase());
+        for (const t of needTags) if (!tags.includes(t)) return false;
+      }
+      return true;
+    });
+  });
+  toggleTag(tag: string) {
+    const lower = tag.toLowerCase();
+    this.selectedTags.update((set) => {
+      const next = new Set(set);
+      if (next.has(lower)) next.delete(lower);
+      else next.add(lower);
+      return next;
+    });
+  }
+  clearFilters() {
+    this.selectedTags.set(new Set());
+    this.search.set('');
+  }
+  isTagActive(tag: string) {
+    return this.selectedTags().has(tag.toLowerCase());
+  }
+  tagList = computed(() => Array.from(this.selectedTags()).sort());
+  private storageKey = 'itemsFilters:v1';
+  constructor() {
+    // load persisted filters (non-blocking)
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.tags)) {
+          this.selectedTags.set(new Set(parsed.tags.map((t: string) => t.toLowerCase())));
+        }
+        if (typeof parsed.search === 'string') {
+          this.search.set(parsed.search.slice(0, 120));
+        }
+      }
+    } catch {}
+    // persist on changes (debounced via microtask batching using effect + timeout)
+    let t: any;
+    const save = () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        try {
+          const payload = {
+            tags: Array.from(this.selectedTags()),
+            search: this.search(),
+          };
+          localStorage.setItem(this.storageKey, JSON.stringify(payload));
+        } catch {}
+      }, 120);
+    };
+    // effect watchers
+    (window as any).queueMicrotask?.(() => {}); // noop to ensure microtask polyfill presence if needed
+    const that = this;
+    // minimal custom watch since Angular signals effect is tree-shakable; use dynamic import guard if SSR later
+    effect(() => {
+      // dependencies
+      this.selectedTags();
+      this.search();
+      save();
+    });
+  }
   toggleEnrich(it: ItemEntity) {
     this.enrichingId.update((v) => (v === it.id ? null : it.id));
   }
@@ -48,7 +135,8 @@ export class ItemsListComponent {
   }
   byStatus(status: ItemEntity['status']) {
     const st = this.state();
-    return st.order
+    const filtered = this.filteredIds();
+    return filtered
       .map((id: string) => st.entities[id])
       .filter((e: ItemEntity) => e && e.status === status);
   }

@@ -10,6 +10,13 @@ export const selectItemsArray = createSelector(
   (entities, order) => order.map((id) => entities[id]).filter(Boolean)
 );
 
+// All unique tags (lowercased) across items, sorted.
+export const selectAllTags = createSelector(selectItemsArray, (items) => {
+  const set = new Set<string>();
+  items.forEach((i: any) => (i.tags || []).forEach((t: string) => set.add(t.toLowerCase())));
+  return Array.from(set).sort();
+});
+
 // Priority scoring v2
 // Factors:
 //  - status weight (context readiness)

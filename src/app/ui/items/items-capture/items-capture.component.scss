@@ -14,23 +14,83 @@
   flex-direction: column;
 }
 .inline-tokens {
+  --fade-duration: 120ms;
   display: flex;
-  gap: 0.35rem;
-  padding: 0.25rem 0 0.1rem;
-  font-size: 0.55rem;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.35rem;
+  padding: 0.35rem 0 0.15rem;
+  font-size: 0.625rem; // increase for readability
+  line-height: 1.15;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity var(--fade-duration) ease, transform var(--fade-duration) ease;
+  pointer-events: none;
+}
+.inline-tokens.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.inline-tokens .group-label {
+  text-transform: uppercase;
+  font-size: 0.55em;
+  letter-spacing: 0.05em;
+  color: var(--color-text-dim, #8892a0);
+  font-weight: 600;
+  margin-right: 0.15rem;
+  position: relative;
+  top: -1px;
 }
 .chip {
+  --chip-bg: var(--surface-2, #222a33);
+  --chip-border: var(--color-border);
+  --chip-color: var(--color-text, #f1f5f9);
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.15rem 0.4rem 0.18rem;
-  border-radius: 0.5rem;
-  background: var(--surface-2, #222a33);
-  border: 1px solid var(--color-border);
-  line-height: 1;
+  padding: 0.2rem 0.55rem 0.25rem;
+  border-radius: 0.65rem;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  line-height: 1.05;
   font-weight: 500;
-  letter-spacing: 0.25px;
+  letter-spacing: 0.3px;
+  position: relative;
+  backdrop-filter: saturate(140%) blur(4px);
+  -webkit-backdrop-filter: saturate(140%) blur(4px);
+  box-shadow: 0 1px 2px -1px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  color: var(--chip-color);
+}
+.chip.tag { // refined gradient + contrast
+  --chip-bg: linear-gradient(135deg, #4d1d40, #7a275f);
+  --chip-border: #7a275f;
+  --chip-color: #ffe9f3;
+}
+.chip.energy {
+  --chip-bg: linear-gradient(135deg, #12324f, #245074);
+  --chip-border: #245074;
+  --chip-color: #e0f6ff;
+}
+.chip.energy.level-4, .chip.energy.level-5 {
+  --chip-bg: linear-gradient(135deg, #0f3a1a, #1e6e36);
+  --chip-border: #1e6e36;
+  --chip-color: #e3ffe9;
+}
+.chip.est {
+  --chip-bg: linear-gradient(135deg, #2f2b78, #5245d4);
+  --chip-border: #5245d4;
+  --chip-color: #eef1ff;
+}
+.chip + .chip {
+  margin-left: 0.05rem;
+}
+.chip[title] {
+  cursor: help;
+}
+.chip:focus-visible {
+  outline: 2px solid var(--color-accent, #38bdf8);
+  outline-offset: 2px;
 }
 .chip.energy {
   background: linear-gradient(135deg, #1e293b, #334155);

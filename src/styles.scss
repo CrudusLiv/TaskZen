@@ -1073,3 +1073,23 @@ $brand-950: #2e1065;
     filter: saturate(0.7) brightness(1.05);
   }
 }
+
+/* Shared page layout utilities extracted to slim per-page SCSS */
+.page-pad-default {
+  padding: var(--space-5) var(--space-5) var(--space-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.grid-auto-fit-260 {
+  /* used by coach feed-grid */
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.grid-auto-fit-250 {
+  /* used by insights dash-grid */
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}

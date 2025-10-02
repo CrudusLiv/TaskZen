@@ -6,6 +6,47 @@
     <h1 style="margin: 0">Items</h1>
     <a routerLink="/" class="btn-base btn-ghost" style="text-decoration: none">Capture</a>
   </header>
+  <div class="filters panel-glass panel-section" *ngIf="allTags().length || search()">
+    <div
+      class="filter-line"
+      style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center"
+    >
+      <input
+        type="text"
+        class="input"
+        placeholder="Search title, description, tags..."
+        style="flex: 1; min-width: 14rem"
+        [value]="search()"
+        (input)="search.set(($any($event.target).value || '').slice(0, 120))"
+        aria-label="Search items"
+      />
+      <button
+        type="button"
+        class="btn-base btn-ghost"
+        (click)="clearFilters()"
+        *ngIf="search() || selectedTags().size"
+        aria-label="Clear filters"
+      >
+        Clear
+      </button>
+    </div>
+    <div class="tag-cloud" *ngIf="allTags().length">
+      <button
+        type="button"
+        class="tag-chip"
+        *ngFor="let t of allTags()"
+        [class.active]="isTagActive(t)"
+        (click)="toggleTag(t)"
+        aria-pressed="{{ isTagActive(t) ? 'true' : 'false' }}"
+      >
+        {{ t }}
+      </button>
+    </div>
+    <p class="active-filters" *ngIf="selectedTags().size">
+      Filtering by:
+      <span class="tag-chip active" *ngFor="let t of tagList()">{{ t }}</span>
+    </p>
+  </div>
   <div class="group panel-glass panel-section" *ngFor="let status of statuses">
     <h2>{{ status }}</h2>
     <ul>
@@ -35,9 +76,14 @@
         <button class="del" (click)="remove(it.id)" aria-label="Delete item">
           ×<span class="sr-only"> Delete {{ it.title }}</span>
         </button>
-        <div class="enrich-drawer panel-glass" *ngIf="enrichingId() === it.id">
+        <div
+          class="enrich-drawer panel-glass"
+          *ngIf="enrichingId() === it.id"
+          role="dialog"
+          aria-label="Enrich item"
+        >
           <div class="enrich-content">
-            <h3>Enrich</h3>
+            <h3 id="enrich-head-{{ it.id }}">Enrich</h3>
             <label>
               Estimate (m)
               <input
@@ -45,6 +91,7 @@
                 class="input"
                 [value]="it.estimateMinutes || ''"
                 (change)="updateNumber(it, 'estimateMinutes', $event)"
+                aria-label="Estimate in minutes"
               />
             </label>
             <label>
@@ -56,6 +103,7 @@
                 min="1"
                 max="5"
                 (change)="updateNumber(it, 'energyLevel', $event)"
+                aria-label="Energy level 1 to 5"
               />
             </label>
             <label>
@@ -67,6 +115,7 @@
                 min="1"
                 max="5"
                 (change)="updateNumber(it, 'effort', $event)"
+                aria-label="Effort level 1 to 5"
               />
             </label>
             <label>
@@ -76,6 +125,8 @@
                 class="input"
                 [value]="it.contextNote || ''"
                 (change)="updateField(it, 'contextNote', $any($event.target).value)"
+                placeholder="Reason or background"
+                aria-label="Context or why"
               />
             </label>
             <label>
@@ -86,6 +137,7 @@
                 placeholder="draft, outline"
                 (change)="updateMicroSteps(it, $event)"
                 [value]="(it.microSteps || []).join(', ')"
+                aria-label="Micro steps comma separated"
               />
             </label>
             <label>
@@ -96,6 +148,7 @@
                 placeholder="routine id"
                 [value]="it.routineId || ''"
                 (change)="updateField(it, 'routineId', ($any($event.target).value || '').trim())"
+                aria-label="Routine identifier"
               />
             </label>
             <div class="actions">

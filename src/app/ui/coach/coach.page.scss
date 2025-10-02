@@ -1,6 +1,7 @@
-@use '../../../styles';
+/* Removed heavy @use of global styles to reduce duplicated CSS size. Rely on global CSS custom properties instead. */
 
 .page-coach {
+  /* cannot @extend global compiled selector when using component-scoped build; duplicate minimal rules */
   padding: var(--space-5) var(--space-5) var(--space-7);
   display: flex;
   flex-direction: column;

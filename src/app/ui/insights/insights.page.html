@@ -23,65 +23,63 @@
     </div>
     <div class="panel-glass panel-section tile focus-time">
       <h2>Priority Distribution</h2>
-      <ng-container *ngIf="priorityDistribution$ | async as dist; else distSkeleton">
-        <ul class="stat-list">
-          <li>
-            <span class="label">High</span><span class="value">{{ dist.high }}</span>
-          </li>
-          <li>
-            <span class="label">Medium</span><span class="value">{{ dist.medium }}</span>
-          </li>
-          <li>
-            <span class="label">Low</span><span class="value">{{ dist.low }}</span>
-          </li>
-        </ul>
-      </ng-container>
-      <ng-template #distSkeleton>
-        <div class="spark skeleton" aria-hidden="true"></div>
-      </ng-template>
+      @if (priorityDistribution$ | async; as dist) {
+      <ul class="stat-list">
+        <li>
+          <span class="label">High</span><span class="value">{{ dist.high }}</span>
+        </li>
+        <li>
+          <span class="label">Medium</span><span class="value">{{ dist.medium }}</span>
+        </li>
+        <li>
+          <span class="label">Low</span><span class="value">{{ dist.low }}</span>
+        </li>
+      </ul>
+      } @else {
+      <div class="spark skeleton" aria-hidden="true"></div>
+      }
       <p class="hint">Distribution based on heuristic score.</p>
     </div>
     <div class="panel-glass panel-section tile energy-trend">
       <h2>Energy Trend</h2>
-      <ng-container *ngIf="energyTrend$ | async as trend; else energySkeleton">
-        <div class="chart" style="display: flex; gap: 4px; align-items: flex-end; height: 90px">
-          <div
-            *ngFor="let p of trend"
-            [title]="p.createdAt"
-            [style.height.%]="p.level * 20"
-            style="flex: 1; background: var(--brand-glow); opacity: 0.6; border-radius: 4px"
-          ></div>
-        </div>
-      </ng-container>
-      <ng-template #energySkeleton
-        ><div class="chart skeleton" aria-hidden="true"></div
-      ></ng-template>
+      @if (energyTrend$ | async; as trend) {
+      <div class="chart" style="display: flex; gap: 4px; align-items: flex-end; height: 90px">
+        @for (p of trend; track p.createdAt) {
+        <div
+          [title]="p.createdAt"
+          [style.height.%]="p.level * 20"
+          style="flex: 1; background: var(--brand-glow); opacity: 0.6; border-radius: 4px"
+        ></div>
+        }
+      </div>
+      } @else {
+      <div class="chart skeleton" aria-hidden="true"></div>
+      }
       <p class="hint">Last 7 energy logs (newest right).</p>
     </div>
     <div class="panel-glass panel-section tile routine-adherence">
       <h2>Routine Adherence</h2>
-      <ng-container *ngIf="routineAdherence$ | async as ra; else routineSkeleton">
-        <div class="bars" style="display: flex; align-items: center; gap: 0.6rem">
+      @if (routineAdherence$ | async; as ra) {
+      <div class="bars" style="display: flex; align-items: center; gap: 0.6rem">
+        <div
+          style="
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            overflow: hidden;
+          "
+        >
           <div
-            style="
-              flex: 1;
-              height: 8px;
-              background: rgba(255, 255, 255, 0.08);
-              border-radius: 6px;
-              overflow: hidden;
-            "
-          >
-            <div
-              [style.width.%]="ra.percent"
-              style="height: 100%; background: var(--accent-glow)"
-            ></div>
-          </div>
-          <div style="font-size: 0.7rem; font-weight: 600">{{ ra.percent }}%</div>
+            [style.width.%]="ra.percent"
+            style="height: 100%; background: var(--accent-glow)"
+          ></div>
         </div>
-      </ng-container>
-      <ng-template #routineSkeleton
-        ><div class="bars skeleton" aria-hidden="true"></div
-      ></ng-template>
+        <div style="font-size: 0.7rem; font-weight: 600">{{ ra.percent }}%</div>
+      </div>
+      } @else {
+      <div class="bars skeleton" aria-hidden="true"></div>
+      }
       <p class="hint">% routines with steps (placeholder).</p>
     </div>
     <div class="panel-glass panel-section tile suggestions">

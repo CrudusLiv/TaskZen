@@ -26,7 +26,7 @@ export class ItemsCaptureComponent implements AfterViewInit {
   bulkText = signal('');
   parsedPreview = signal<string[]>([]);
   parsedPreviewMeta = signal<
-    Array<{ title: string; energyLevel?: number; estimateMinutes?: number; tags?: string[] }>
+    Array<{ title: string; energyLevel?: number; estimateMinutes?: number; tags: string[] }>
   >([]);
   showDemo = signal(true);
   liveMsg = signal('');
@@ -95,7 +95,7 @@ export class ItemsCaptureComponent implements AfterViewInit {
       title: string;
       energyLevel?: number;
       estimateMinutes?: number;
-      tags?: string[];
+      tags: string[];
     }> = [];
     lines.forEach((line) => {
       const { cleanTitle, energyLevel, estimateMinutes, tags } = this.parseQuickMeta(line);
@@ -117,7 +117,7 @@ export class ItemsCaptureComponent implements AfterViewInit {
       title: string;
       energyLevel?: 1 | 2 | 3 | 4 | 5;
       estimateMinutes?: number;
-      tags?: string[];
+      tags: string[];
     }[] = [];
     lines.forEach((line) => {
       const { cleanTitle, energyLevel, estimateMinutes, tags } = this.parseQuickMeta(line);
