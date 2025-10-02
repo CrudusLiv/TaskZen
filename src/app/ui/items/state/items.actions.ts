@@ -12,8 +12,10 @@ export interface ItemEntity {
   focusBoost?: boolean;
   contextNote?: string; // brief context / why
   microSteps?: string[]; // parsed micro steps
+  microStepsState?: boolean[]; // parallel state (done flags) matching microSteps length
   routineId?: string; // link to routine template
   tags?: string[]; // lightweight categorization
+  pinned?: boolean; // surfaced item for ADHD focus anchoring
   status: 'inbox' | 'next' | 'progress' | 'done';
   createdAt: string;
   updatedAt: string;
@@ -35,6 +37,8 @@ export const ItemsActions = createActionGroup({
       due?: string;
       focusBoost?: boolean;
       tags?: string[];
+      microSteps?: string[];
+      pinned?: boolean;
     }>(),
     'Add Many': props<{
       items: Array<{
@@ -46,9 +50,15 @@ export const ItemsActions = createActionGroup({
         due?: string;
         focusBoost?: boolean;
         tags?: string[];
+        microSteps?: string[];
+        pinned?: boolean;
       }>;
     }>(),
     'Update Item': props<{ id: string; changes: Partial<Omit<ItemEntity, 'id' | 'createdAt'>> }>(),
+    'Patch Item': props<{ id: string; changes: Partial<Omit<ItemEntity, 'id' | 'createdAt' | 'updatedAt'>> }>(),
+    'Patch Many': props<{ updates: Array<{ id: string; changes: Partial<Omit<ItemEntity, 'id' | 'createdAt' | 'updatedAt'>> }> }>(),
+  'Toggle Micro Step': props<{ id: string; index: number }>(),
+  'Toggle Pin': props<{ id: string }>(),
     'Delete Item': props<{ id: string }>(),
     'Move Status': props<{ id: string; status: ItemEntity['status'] }>(),
     'Replace All': props<{ items: ItemEntity[] }>(),

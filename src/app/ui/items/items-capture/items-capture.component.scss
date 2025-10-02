@@ -13,6 +13,27 @@
   display: flex;
   flex-direction: column;
 }
+.quick-energy {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+}
+.quick-energy .pill {
+  font-size: 0.55rem;
+  line-height: 1;
+  padding: 0.25rem 0.4rem 0.3rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg,#1e293b,#334155);
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+}
+.quick-energy .pill:hover { background: linear-gradient(135deg,#243249,#425165); }
+.quick-energy .pill:active { transform: translateY(1px); }
 .inline-tokens {
   --fade-duration: 120ms;
   display: flex;

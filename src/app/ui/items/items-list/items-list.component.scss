@@ -72,6 +72,94 @@ li {
   font-size: 0.72rem;
   line-height: 1.25;
 }
+/* Inline title editing */
+.title-edit {
+  font: inherit;
+  padding: 0.25rem 0.45rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  min-width: 8rem;
+  max-width: 20rem;
+  color: #f1f5f9;
+  letter-spacing: 0.3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  transition: border-color 0.25s, background 0.25s;
+}
+.title-edit:focus {
+  outline: 2px solid #3b82f6aa;
+  outline-offset: 2px;
+  border-color: #60a5fa;
+  background: rgba(255, 255, 255, 0.1);
+}
+.title[role='button'] {
+  cursor: text;
+}
+/* Metadata chips inline */
+.meta-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.52rem;
+  line-height: 1.1;
+  margin-left: 0.25rem;
+  max-width: 40%;
+}
+.meta-chips .chip {
+  --c-bg: rgba(255, 255, 255, 0.06);
+  --c-border: rgba(255, 255, 255, 0.14);
+  --c-color: #d8e1e9;
+  padding: 0.18rem 0.45rem 0.2rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg);
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  cursor: default;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
+.meta-chips .chip.tag {
+  cursor: pointer;
+}
+.meta-chips .chip.tag:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  color: #e8f1ff;
+}
+.meta-chips .chip.tag.active {
+  background: rgba(59, 130, 246, 0.28);
+  border-color: #60a5fa;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.4);
+}
+.meta-chips .chip.energy {
+  background: linear-gradient(135deg, #12324f, #1f4e72);
+  border-color: #255e86;
+}
+.meta-chips .chip.estimate {
+  background: linear-gradient(135deg, #2e2a62, #40389b);
+  border-color: #4f46e5;
+}
+.meta-chips .chip.effort {
+  background: linear-gradient(135deg, #452b18, #6d4023);
+  border-color: #b45309;
+  color: #ffe8d1;
+}
+.meta-chips .chip.pin {
+  background: linear-gradient(135deg, #3b3a1a, #5e5b26);
+  border-color: #a3a01f;
+  color: #fafae1;
+}
+.meta-chips .chip:focus-visible {
+  outline: 2px solid var(--color-accent, #3b82f6);
+  outline-offset: 2px;
+}
+.shell.calm .meta-chips .chip {
+  --c-bg: rgba(255, 255, 255, 0.05);
+}
 li:before {
   content: '';
   position: absolute;
@@ -179,12 +267,13 @@ li {
   padding: 1rem 1.05rem 1.05rem;
   margin-top: 8px;
   border-radius: 1rem;
-  background: linear-gradient(145deg, rgba(20,26,32,0.9), rgba(30,38,46,0.9));
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 4px 18px -4px rgba(0,0,0,0.55), 0 12px 34px -6px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  background: linear-gradient(145deg, rgba(20, 26, 32, 0.9), rgba(30, 38, 46, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.55), 0 12px 34px -6px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
   backdrop-filter: blur(22px) saturate(180%);
   -webkit-backdrop-filter: blur(22px) saturate(180%);
-  animation: drawerIn 0.34s cubic-bezier(0.22,0.61,0.36,1);
+  animation: drawerIn 0.34s cubic-bezier(0.22, 0.61, 0.36, 1);
   z-index: 20;
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -227,11 +316,11 @@ li {
   font-size: 0.64rem;
   padding: 6px 7px 6px;
   border-radius: 0.5rem;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: linear-gradient(125deg,#1d242c,#222c35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(125deg, #1d242c, #222c35);
   color: #f1f5f9;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset, 0 2px 4px -2px rgba(0,0,0,0.5);
-  transition: border-color .25s, background .25s, box-shadow .25s;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03) inset, 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
 }
 .enrich-content input:focus {
   outline: 2px solid #3b82f680;
@@ -253,7 +342,7 @@ li {
   outline-color: #2563eb;
 }
 .shell.calm .enrich-drawer {
-  background: linear-gradient(145deg, rgba(18,23,28,0.88), rgba(24,30,36,0.88));
+  background: linear-gradient(145deg, rgba(18, 23, 28, 0.88), rgba(24, 30, 36, 0.88));
 }
 @keyframes drawerIn {
   from {

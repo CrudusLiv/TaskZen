@@ -6,52 +6,63 @@
     <h1 style="margin: 0">Items</h1>
     <a routerLink="/" class="btn-base btn-ghost" style="text-decoration: none">Capture</a>
   </header>
-  <div class="filters panel-glass panel-section" *ngIf="allTags().length || search()">
-    <div
-      class="filter-line"
-      style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center"
-    >
-      <input
-        type="text"
-        class="input"
-        placeholder="Search title, description, tags..."
-        style="flex: 1; min-width: 14rem"
-        [value]="search()"
-        (input)="search.set(($any($event.target).value || '').slice(0, 120))"
-        aria-label="Search items"
-      />
-      <button
-        type="button"
-        class="btn-base btn-ghost"
-        (click)="clearFilters()"
-        *ngIf="search() || selectedTags().size"
-        aria-label="Clear filters"
+  @if (allTags().length || search()) {
+    <div class="filters panel-glass panel-section">
+      <div
+        class="filter-line"
+        style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center"
       >
-        Clear
-      </button>
+        <input
+          type="text"
+          class="input"
+          placeholder="Search title, description, tags..."
+          style="flex: 1; min-width: 14rem"
+          [value]="search()"
+          (input)="search.set(($any($event.target).value || '').slice(0, 120))"
+          aria-label="Search items"
+        />
+        @if (search() || selectedTags().size) {
+          <button
+            type="button"
+            class="btn-base btn-ghost"
+            (click)="clearFilters()"
+            aria-label="Clear filters"
+          >
+            Clear
+          </button>
+        }
+      </div>
+      @if (allTags().length) {
+        <div class="tag-cloud">
+          @for (t of allTags(); track t) {
+            <button
+              type="button"
+              class="tag-chip"
+              [class.active]="isTagActive(t)"
+              (click)="toggleTag(t)"
+              aria-pressed="{{ isTagActive(t) ? 'true' : 'false' }}"
+            >
+              {{ t }}
+            </button>
+          }
+        </div>
+      }
+      @if (selectedTags().size) {
+        <p class="active-filters">
+          Filtering by:
+          @for (t of tagList(); track t) {
+            <span class="tag-chip active">{{ t }}</span>
+          }
+        </p>
+      }
     </div>
-    <div class="tag-cloud" *ngIf="allTags().length">
-      <button
-        type="button"
-        class="tag-chip"
-        *ngFor="let t of allTags()"
-        [class.active]="isTagActive(t)"
-        (click)="toggleTag(t)"
-        aria-pressed="{{ isTagActive(t) ? 'true' : 'false' }}"
-      >
-        {{ t }}
-      </button>
-    </div>
-    <p class="active-filters" *ngIf="selectedTags().size">
-      Filtering by:
-      <span class="tag-chip active" *ngFor="let t of tagList()">{{ t }}</span>
-    </p>
-  </div>
-  <div class="group panel-glass panel-section" *ngFor="let status of statuses">
-    <h2>{{ status }}</h2>
-    <ul>
-      <li
-        *ngFor="let it of byStatus(status)"
+  }
+  @for (status of statuses; track status) {
+    <div class="group panel-glass panel-section">
+      <h2>{{ status }}</h2>
+      <ul>
+        @for (it of byStatus(status); track it.id) {
+          <li
         [class.done]="it.status === 'done'"
         tabindex="0"
         (keydown)="onKey($event, it)"
@@ -64,8 +75,63 @@
         >
           {{ it.status }}
         </button>
-        <span class="title">{{ it.title }}</span>
-        <small *ngIf="it.estimateMinutes">~{{ it.estimateMinutes }}m</small>
+        @if (editingId() === it.id) {
+          <input
+            class="title-edit"
+            type="text"
+            [value]="editDraft()"
+            (input)="editDraft.set(($any($event.target).value || '').slice(0,200))"
+            (blur)="commitEdit(it)"
+            (keydown.enter)="commitEdit(it)"
+            (keydown.escape)="cancelEdit()"
+            aria-label="Edit title"
+            autofocus
+          />
+        } @else {<span class="title" (dblclick)="startEdit(it)" (click)="startEdit(it)" role="button" tabindex="0" aria-label="Edit title">{{ it.title }}</span>}
+        @if (it.tags?.length || it.energyLevel || it.estimateMinutes || it.effort || it.pinned) {
+          <div class="meta-chips" aria-label="Item metadata">
+            @if (it.tags?.length) {
+              @for (tg of it.tags; track tg) {
+                <span
+                  class="chip tag"
+                  [class.active]="isTagActive(tg)"
+                  (click)="toggleTag(tg); $event.stopPropagation()"
+                  (keydown.enter)="toggleTag(tg); $event.stopPropagation()"
+                  (keydown.space)="toggleTag(tg); $event.preventDefault(); $event.stopPropagation()"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-pressed]="isTagActive(tg) ? 'true' : 'false'"
+                  aria-label="Filter by tag {{ tg }}"
+                  >#{{ tg }}</span>
+              }
+            }
+            @if (it.energyLevel) {
+              <span
+                class="chip energy"
+                [attr.aria-label]="'Energy ' + it.energyLevel"
+                >⚡ {{ it.energyLevel }}</span>
+            }
+            @if (it.estimateMinutes) {
+              <span
+                class="chip estimate"
+                [attr.aria-label]="'Estimate ' + it.estimateMinutes + ' minutes'"
+                >⏱ {{ it.estimateMinutes }}m</span>
+            }
+            @if (it.effort) {
+              <span
+                class="chip effort"
+                [attr.aria-label]="'Effort ' + it.effort"
+                >⬆ {{ it.effort }}</span>
+            }
+            @if (it.pinned) {
+              <span
+                class="chip pin"
+                aria-label="Pinned focus item"
+                title="Pinned"
+                >📌</span>
+            }
+          </div>
+        }
         <button
           class="enrich btn-ghost btn-base"
           (click)="toggleEnrich(it)"
@@ -76,13 +142,15 @@
         <button class="del" (click)="remove(it.id)" aria-label="Delete item">
           ×<span class="sr-only"> Delete {{ it.title }}</span>
         </button>
-        <div
-          class="enrich-drawer panel-glass"
-          *ngIf="enrichingId() === it.id"
-          role="dialog"
-          aria-label="Enrich item"
-        >
-          <div class="enrich-content">
+        @if (enrichingId() === it.id) {
+          <div
+            class="enrich-drawer panel-glass"
+            role="dialog"
+            aria-label="Enrich item"
+            appClickOutside
+            (appClickOutside)="closeEnrich()"
+          >
+            <div class="enrich-content">
             <h3 id="enrich-head-{{ it.id }}">Enrich</h3>
             <label>
               Estimate (m)
@@ -90,7 +158,7 @@
                 type="number"
                 class="input"
                 [value]="it.estimateMinutes || ''"
-                (change)="updateNumber(it, 'estimateMinutes', $event)"
+                (input)="inputNumber(it, 'estimateMinutes', $event)"
                 aria-label="Estimate in minutes"
               />
             </label>
@@ -102,7 +170,7 @@
                 [value]="it.energyLevel || ''"
                 min="1"
                 max="5"
-                (change)="updateNumber(it, 'energyLevel', $event)"
+                (input)="inputNumber(it, 'energyLevel', $event)"
                 aria-label="Energy level 1 to 5"
               />
             </label>
@@ -114,7 +182,7 @@
                 [value]="it.effort || ''"
                 min="1"
                 max="5"
-                (change)="updateNumber(it, 'effort', $event)"
+                (input)="inputNumber(it, 'effort', $event)"
                 aria-label="Effort level 1 to 5"
               />
             </label>
@@ -124,7 +192,7 @@
                 type="text"
                 class="input"
                 [value]="it.contextNote || ''"
-                (change)="updateField(it, 'contextNote', $any($event.target).value)"
+                (input)="inputField(it, 'contextNote', $event)"
                 placeholder="Reason or background"
                 aria-label="Context or why"
               />
@@ -135,11 +203,29 @@
                 type="text"
                 class="input"
                 placeholder="draft, outline"
-                (change)="updateMicroSteps(it, $event)"
+                (input)="inputMicroSteps(it, $event)"
                 [value]="(it.microSteps || []).join(', ')"
                 aria-label="Micro steps comma separated"
               />
             </label>
+            @if (it.microSteps?.length) {
+              <div class="micro-steps">
+                <div class="micro-head">Checklist</div>
+                <ul>
+                  @for (step of it.microSteps; track $index) {
+                    <li>
+                      <button type="button" class="micro-step-btn" (click)="toggleStep(it, $index)" [attr.aria-pressed]="it.microStepsState?.[$index] ? 'true' : 'false'">
+                        <span class="box" aria-hidden="true">{{ it.microStepsState?.[$index] ? '✔' : '○' }}</span>
+                        <span class="label">{{ step }}</span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+                <div class="micro-progress" aria-label="Micro steps progress">
+                  {{ countCompletedSteps(it) }} / {{ it.microSteps?.length || 0 }} done
+                </div>
+              </div>
+            }
             <label>
               Routine Link
               <input
@@ -147,7 +233,7 @@
                 class="input"
                 placeholder="routine id"
                 [value]="it.routineId || ''"
-                (change)="updateField(it, 'routineId', ($any($event.target).value || '').trim())"
+                (input)="inputField(it, 'routineId', $event)"
                 aria-label="Routine identifier"
               />
             </label>
@@ -156,11 +242,14 @@
                 Close
               </button>
             </div>
+            </div>
           </div>
-        </div>
-      </li>
-    </ul>
-  </div>
-  <p *ngIf="!order().length" class="empty">No items yet.</p>
+        }
+          </li>
+        }
+      </ul>
+    </div>
+  }
+  @if (!order().length) {<p class="empty">No items yet.</p>}
   <div class="sr-only" aria-live="polite">{{ liveMsg() }}</div>
 </section>

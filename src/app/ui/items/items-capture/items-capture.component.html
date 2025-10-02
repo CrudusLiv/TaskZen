@@ -10,7 +10,7 @@
     </button>
   </div>
   @if (!bulkMode()) {
-  <form (submit)="capture($event)" class="capture-row">
+  <form (submit)="capture($event)" class="capture-row" (keydown)="onKey($event)">
     <div class="field-with-meta">
       <input
         #titleInput
@@ -23,6 +23,11 @@
         required
         aria-describedby="quick-meta-desc"
       />
+      <div class="quick-energy" aria-label="Quick energy presets">
+        @for (e of [1,2,3,4,5]; track e) {
+          <button type="button" class="pill" (click)="setEnergyPreset(e)" [attr.aria-label]="'Set energy '+e">⚡{{ e }}</button>
+        }
+      </div>
       <div
         id="quick-meta-desc"
         class="inline-tokens"

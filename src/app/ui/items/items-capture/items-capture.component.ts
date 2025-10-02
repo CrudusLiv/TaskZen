@@ -40,6 +40,26 @@ export class ItemsCaptureComponent implements AfterViewInit {
     const v = (ev.target as HTMLInputElement).value;
     this.title.set(v);
   }
+  onKey(ev: KeyboardEvent) {
+    if (ev.altKey) {
+      const num = Number(ev.key);
+      if (num >= 1 && num <= 5) {
+        ev.preventDefault();
+        this.setEnergyPreset(num as 1 | 2 | 3 | 4 | 5);
+      }
+    }
+  }
+  setEnergyPreset(lv: number) {
+    if (lv < 1 || lv > 5) return;
+    const raw = this.title();
+    const tokens = raw.split(/\s+/).filter((t) => !!t && !/^![1-5]$/.test(t));
+    tokens.push('!' + lv);
+    const next = tokens.join(' ') + ' ';
+    this.title.set(next);
+    // re-focus input for continuity
+    queueMicrotask(() => this.titleInput?.nativeElement.focus());
+    this.liveMsg.set(`Energy level set to ${lv}`);
+  }
   // Exposed for template preview parsing
   parseQuickMeta(raw: string) {
     const tokens = raw.split(/\s+/);

@@ -66,7 +66,10 @@ export const itemsReducer = createReducer(
   }),
   on(
     ItemsActions.addItem,
-    (s, { title, description, estimateMinutes, energyLevel, effort, due, focusBoost, tags }) => {
+    (
+      s,
+      { title, description, estimateMinutes, energyLevel, effort, due, focusBoost, tags, microSteps, pinned }
+    ) => {
       const id = 'i' + Date.now();
       const now = new Date().toISOString();
       const entity: ItemEntity = {
@@ -80,6 +83,10 @@ export const itemsReducer = createReducer(
         focusBoost,
         tags: tags && tags.length ? [...new Set(tags.map((t) => t.toLowerCase()))] : undefined,
         actualMinutes: 0,
+        microSteps: microSteps && microSteps.length ? microSteps : undefined,
+        microStepsState:
+          microSteps && microSteps.length ? new Array(microSteps.length).fill(false) : undefined,
+        pinned: pinned || false,
         status: 'inbox',
         createdAt: now,
         updatedAt: now,
@@ -105,6 +112,12 @@ export const itemsReducer = createReducer(
         focusBoost: it.focusBoost,
         tags: it.tags && it.tags.length ? [...new Set(it.tags.map((t) => t.toLowerCase()))] : undefined,
         actualMinutes: 0,
+        microSteps: it.microSteps && it.microSteps.length ? it.microSteps : undefined,
+        microStepsState:
+          it.microSteps && it.microSteps.length
+            ? new Array(it.microSteps.length).fill(false)
+            : undefined,
+        pinned: it.pinned || false,
         status: 'inbox',
         createdAt: nowIso,
         updatedAt: nowIso,
@@ -116,13 +129,75 @@ export const itemsReducer = createReducer(
   on(ItemsActions.updateItem, (s, { id, changes }) => {
     const current = s.entities[id];
     if (!current) return s;
-    const updated: ItemEntity = { ...current, ...changes, updatedAt: new Date().toISOString() };
+    let updated: ItemEntity = { ...current, ...changes };
+    if (changes.microSteps) {
+      const steps = changes.microSteps;
+      updated.microStepsState = steps
+        ? steps.map((_, i) => current.microStepsState?.[i] || false)
+        : undefined;
+    }
+    updated.updatedAt = new Date().toISOString();
     return { ...s, entities: { ...s.entities, [id]: updated } };
+  }),
+  on(ItemsActions.patchItem, (s, { id, changes }) => {
+    const current = s.entities[id];
+    if (!current) return s;
+    let updated: ItemEntity = { ...current, ...changes };
+    if (changes.microSteps) {
+      const steps = changes.microSteps;
+      updated.microStepsState = steps
+        ? steps.map((_, i) => current.microStepsState?.[i] || false)
+        : undefined;
+    }
+    updated.updatedAt = new Date().toISOString();
+    return { ...s, entities: { ...s.entities, [id]: updated } };
+  }),
+  on(ItemsActions.patchMany, (s, { updates }) => {
+    if (!updates.length) return s;
+    const entities = { ...s.entities } as Record<string, ItemEntity>;
+    const now = new Date().toISOString();
+    updates.forEach(({ id, changes }) => {
+      const current = entities[id];
+      if (!current) return;
+      let updated: ItemEntity = { ...current, ...changes };
+      if (changes.microSteps) {
+        const steps = changes.microSteps;
+        updated.microStepsState = steps
+          ? steps.map((_, i) => current.microStepsState?.[i] || false)
+          : undefined;
+      }
+      updated.updatedAt = now;
+      entities[id] = updated;
+    });
+    return { ...s, entities };
   }),
   on(ItemsActions.moveStatus, (s, { id, status }) => {
     const current = s.entities[id];
     if (!current || current.status === status) return s;
     const updated: ItemEntity = { ...current, status, updatedAt: new Date().toISOString() };
+    return { ...s, entities: { ...s.entities, [id]: updated } };
+  }),
+  on(ItemsActions.toggleMicroStep, (s, { id, index }) => {
+    const current = s.entities[id];
+    if (!current || !current.microSteps || !current.microStepsState) return s;
+    if (index < 0 || index >= current.microStepsState.length) return s;
+    const nextState = [...current.microStepsState];
+    nextState[index] = !nextState[index];
+    const updated: ItemEntity = {
+      ...current,
+      microStepsState: nextState,
+      updatedAt: new Date().toISOString(),
+    };
+    return { ...s, entities: { ...s.entities, [id]: updated } };
+  }),
+  on(ItemsActions.togglePin, (s, { id }) => {
+    const current = s.entities[id];
+    if (!current) return s;
+    const updated: ItemEntity = {
+      ...current,
+      pinned: !current.pinned,
+      updatedAt: new Date().toISOString(),
+    };
     return { ...s, entities: { ...s.entities, [id]: updated } };
   }),
   on(ItemsActions.deleteItem, (s, { id }) => {
