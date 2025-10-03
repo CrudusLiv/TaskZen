@@ -64,6 +64,7 @@
         @for (it of byStatus(status); track it.id) {
           <li
         [class.done]="it.status === 'done'"
+        [class.enrich-open]="enrichingId()===it.id"
         tabindex="0"
         (keydown)="onKey($event, it)"
       >
@@ -139,112 +140,9 @@
         >
           ⚙
         </button>
-        <button class="del" (click)="remove(it.id)" aria-label="Delete item">
+        <button class="del" (click)="remove(it.id)" aria-label="Delete item" [class.hidden]="enrichingId()===it.id">
           ×<span class="sr-only"> Delete {{ it.title }}</span>
         </button>
-        @if (enrichingId() === it.id) {
-          <div
-            class="enrich-drawer panel-glass"
-            role="dialog"
-            aria-label="Enrich item"
-            appClickOutside
-            (appClickOutside)="closeEnrich()"
-          >
-            <div class="enrich-content">
-            <h3 id="enrich-head-{{ it.id }}">Enrich</h3>
-            <label>
-              Estimate (m)
-              <input
-                type="number"
-                class="input"
-                [value]="it.estimateMinutes || ''"
-                (input)="inputNumber(it, 'estimateMinutes', $event)"
-                aria-label="Estimate in minutes"
-              />
-            </label>
-            <label>
-              Energy (1-5)
-              <input
-                type="number"
-                class="input"
-                [value]="it.energyLevel || ''"
-                min="1"
-                max="5"
-                (input)="inputNumber(it, 'energyLevel', $event)"
-                aria-label="Energy level 1 to 5"
-              />
-            </label>
-            <label>
-              Effort (1-5)
-              <input
-                type="number"
-                class="input"
-                [value]="it.effort || ''"
-                min="1"
-                max="5"
-                (input)="inputNumber(it, 'effort', $event)"
-                aria-label="Effort level 1 to 5"
-              />
-            </label>
-            <label>
-              Context / Why
-              <input
-                type="text"
-                class="input"
-                [value]="it.contextNote || ''"
-                (input)="inputField(it, 'contextNote', $event)"
-                placeholder="Reason or background"
-                aria-label="Context or why"
-              />
-            </label>
-            <label>
-              Micro-steps (comma)
-              <input
-                type="text"
-                class="input"
-                placeholder="draft, outline"
-                (input)="inputMicroSteps(it, $event)"
-                [value]="(it.microSteps || []).join(', ')"
-                aria-label="Micro steps comma separated"
-              />
-            </label>
-            @if (it.microSteps?.length) {
-              <div class="micro-steps">
-                <div class="micro-head">Checklist</div>
-                <ul>
-                  @for (step of it.microSteps; track $index) {
-                    <li>
-                      <button type="button" class="micro-step-btn" (click)="toggleStep(it, $index)" [attr.aria-pressed]="it.microStepsState?.[$index] ? 'true' : 'false'">
-                        <span class="box" aria-hidden="true">{{ it.microStepsState?.[$index] ? '✔' : '○' }}</span>
-                        <span class="label">{{ step }}</span>
-                      </button>
-                    </li>
-                  }
-                </ul>
-                <div class="micro-progress" aria-label="Micro steps progress">
-                  {{ countCompletedSteps(it) }} / {{ it.microSteps?.length || 0 }} done
-                </div>
-              </div>
-            }
-            <label>
-              Routine Link
-              <input
-                type="text"
-                class="input"
-                placeholder="routine id"
-                [value]="it.routineId || ''"
-                (input)="inputField(it, 'routineId', $event)"
-                aria-label="Routine identifier"
-              />
-            </label>
-            <div class="actions">
-              <button type="button" class="btn-base btn-ghost" (click)="closeEnrich()">
-                Close
-              </button>
-            </div>
-            </div>
-          </div>
-        }
           </li>
         }
       </ul>
@@ -252,4 +150,61 @@
   }
   @if (!order().length) {<p class="empty">No items yet.</p>}
   <div class="sr-only" aria-live="polite">{{ liveMsg() }}</div>
+  @if (enrichingItem(); as it) {
+    <div class="enrich-overlay" role="dialog" aria-modal="true" aria-label="Enrich item">
+      <div class="enrich-shell" appClickOutside (appClickOutside)="closeEnrich()">
+        <div class="enrich-content">
+          <h3>Enrich</h3>
+          <div class="inline-actions-top">
+            <button type="button" class="close-x" (click)="closeEnrich()" aria-label="Close enrich">×</button>
+          </div>
+          <!-- Selected item bound as 'it' -->
+          <label>
+            Estimate (m)
+            <input type="number" class="input" [value]="it.estimateMinutes || ''" (input)="inputNumber(it,'estimateMinutes',$event)" aria-label="Estimate in minutes" />
+          </label>
+          <label>
+            Energy (1-5)
+            <input type="number" class="input" min="1" max="5" [value]="it.energyLevel || ''" (input)="inputNumber(it,'energyLevel',$event)" aria-label="Energy level 1 to 5" />
+          </label>
+          <label>
+            Effort (1-5)
+            <input type="number" class="input" min="1" max="5" [value]="it.effort || ''" (input)="inputNumber(it,'effort',$event)" aria-label="Effort level 1 to 5" />
+          </label>
+          <label>
+            Context / Why
+            <input type="text" class="input" [value]="it.contextNote || ''" (input)="inputField(it,'contextNote',$event)" placeholder="Reason or background" aria-label="Context or why" />
+          </label>
+          <label>
+            Micro-steps (comma)
+            <input type="text" class="input" placeholder="draft, outline" [value]="(it.microSteps || []).join(', ')" (input)="inputMicroSteps(it,$event)" aria-label="Micro steps comma separated" />
+          </label>
+          @if (it.microSteps?.length) {
+            <div class="micro-steps">
+              <div class="micro-head">Checklist</div>
+              <ul>
+                @for (step of it.microSteps; track $index) {
+                  <li>
+                    <button type="button" class="micro-step-btn" (click)="toggleStep(it,$index)" [attr.aria-pressed]="it.microStepsState?.[$index] ? 'true':'false'">
+                      <span class="box" aria-hidden="true">{{ it.microStepsState?.[$index] ? '✔' : '○' }}</span>
+                      <span class="label">{{ step }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+              <div class="micro-progress" aria-label="Micro steps progress">{{ countCompletedSteps(it) }} / {{ it.microSteps?.length || 0 }} done</div>
+            </div>
+          }
+          <label>
+            Routine Link
+            <input type="text" class="input" placeholder="routine id" [value]="it.routineId || ''" (input)="inputField(it,'routineId',$event)" aria-label="Routine identifier" />
+          </label>
+          <div class="actions">
+            <button type="button" class="btn-base danger" (click)="remove(it.id)" aria-label="Delete item permanently">Delete</button>
+            <button type="button" class="btn-base btn-ghost" (click)="closeEnrich()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </section>

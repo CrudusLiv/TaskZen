@@ -22,6 +22,11 @@ export class ItemsListComponent {
   statuses: ItemEntity['status'][] = ['inbox', 'next', 'progress', 'done'];
   liveMsg = signal('');
   enrichingId = signal<string | null>(null);
+  enrichingItem = computed(() => {
+    const id = this.enrichingId();
+    if (!id) return null;
+    return this.state().entities[id] || null;
+  });
   editingId = signal<string | null>(null);
   editDraft = signal('');
   focusedIndex = signal<number>(0); // index in flattened filtered list

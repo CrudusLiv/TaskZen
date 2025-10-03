@@ -258,38 +258,21 @@ li {
 .enrich:hover {
   background: rgba(255, 255, 255, 0.08);
 }
-.enrich-drawer {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 360px;
-  max-width: 90vw;
-  padding: 1rem 1.05rem 1.05rem;
-  margin-top: 8px;
-  border-radius: 1rem;
-  background: linear-gradient(145deg, rgba(20, 26, 32, 0.9), rgba(30, 38, 46, 0.9));
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.55), 0 12px 34px -6px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  animation: drawerIn 0.34s cubic-bezier(0.22, 0.61, 0.36, 1);
-  z-index: 20;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-}
 .enrich-content {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 0.75rem 0.9rem;
   font-size: 0.62rem;
+  min-height: 220px; /* ensure space reserved so nothing appears clipped */
+  position: relative;
 }
 .enrich-content h3 {
   grid-column: 1 / -1;
   margin: 0 0 0.25rem;
   font-size: 0.66rem;
   letter-spacing: 0.14em;
-  opacity: 0.8;
+  opacity: 0.92;
+  color: #f1f5f9;
   text-transform: uppercase;
   display: flex;
   align-items: center;
@@ -335,14 +318,47 @@ li {
 .enrich-content .actions {
   grid-column: 1 / -1;
   display: flex;
-  justify-content: flex-end;
-  margin-top: 0.2rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.4rem;
+  gap: 0.75rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #394550;
 }
+.enrich-content .actions .btn-base.btn-ghost {
+  background: linear-gradient(135deg, #2a3744, #314050);
+  border: 1px solid #3f505f;
+  color: #e2e8f0;
+  padding: 0.4rem 0.7rem 0.45rem;
+  font-size: 0.58rem;
+  border-radius: 0.55rem;
+  transition: background 0.25s, border-color 0.25s;
+}
+.enrich-content .actions .btn-base.btn-ghost:hover {
+  background: linear-gradient(135deg, #33414f, #3d4f60);
+  border-color: #4b6278;
+  color: #f8fafc;
+}
+.enrich-content .actions .btn-base.btn-ghost:active {
+  transform: translateY(1px);
+}
+.enrich-content .actions .btn-base.danger {
+  background: #b94848;
+  border: 1px solid #c55d5d;
+  color: #ffffff;
+  padding: 0.4rem 0.7rem 0.45rem;
+  font-size: 0.58rem;
+  border-radius: 0.55rem;
+  transition: background 0.25s, border-color 0.25s;
+}
+.enrich-content .actions .btn-base.danger:hover { background: #c65959; }
+.enrich-content .actions .btn-base.danger:active { background: #a94343; }
+
+button.del.hidden { visibility: hidden; }
+button.del { position: relative; z-index: 10; }
+.inline-actions-top { position: absolute; top: 6px; right: 8px; display: flex; gap: 6px; }
 .enrich-drawer:focus-within {
   outline-color: #2563eb;
-}
-.shell.calm .enrich-drawer {
-  background: linear-gradient(145deg, rgba(18, 23, 28, 0.88), rgba(24, 30, 36, 0.88));
 }
 @keyframes drawerIn {
   from {
@@ -354,6 +370,40 @@ li {
     transform: translateY(0) scale(1);
   }
 }
-.shell.calm .enrich-drawer {
-  background: rgba(18, 23, 28, 0.82);
+/* Legacy calm variant fallback removed in favor of unified higher-contrast variant */
+
+/* Global overlay version */
+.enrich-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,11,15,0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 120;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6vh 1.2rem 3rem;
 }
+.enrich-shell {
+  position: relative;
+  width: clamp(320px, 70vw, 720px);
+  max-height: 80vh;
+  background: #1f2730;
+  border: 1px solid #46525f;
+  border-radius: 18px;
+  padding: 1.2rem 1.25rem 1.35rem;
+  box-shadow: 0 10px 34px -4px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.05) inset;
+  overflow: hidden;
+  display: flex;
+}
+.enrich-shell .enrich-content {
+  width: 100%;
+  overflow-y: auto;
+  max-height: calc(80vh - 2.6rem);
+  padding-right: 0.25rem;
+}
+.enrich-shell .enrich-content::-webkit-scrollbar { width: 8px; }
+.enrich-shell .enrich-content::-webkit-scrollbar-track { background: transparent; }
+.enrich-shell .enrich-content::-webkit-scrollbar-thumb { background: #2f3a45; border-radius: 4px; }
+.enrich-shell .enrich-content::-webkit-scrollbar-thumb:hover { background: #3a4753; }
