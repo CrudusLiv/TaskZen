@@ -4,7 +4,12 @@
     <p class="intro">Sprint-based deep work helper. UI shell refined.</p>
   </header>
   <ng-container *ngIf="current$ | async as current; else pick">
-    <div class="session panel-glass panel-section" [class.paused]="current.status === 'paused'">
+    <div
+      class="session panel-glass panel-section"
+      [class.paused]="current.status === 'paused'"
+      [class.on-break]="current.status === 'break'"
+    >
+      <div class="break-badge" *ngIf="current.status === 'break'">On Break</div>
       <div class="ring">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="46" class="bg" />
@@ -18,16 +23,42 @@
         </svg>
         <div class="time">{{ current.tickSeconds / 60 | number : '1.0-0' }}m</div>
       </div>
+
+      <!-- Session expiry nudge — shown when time is up and not dismissed -->
+      <div
+        class="expiry-nudge"
+        *ngIf="(sessionExpired$ | async) && !nudgeDismissed() && current.status !== 'break'"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="nudge-icon">🌿</span>
+        <span class="nudge-text">Time's up! Ready to take a break or mark this complete?</span>
+        <button class="nudge-dismiss" (click)="dismissNudge()" aria-label="Dismiss nudge">✕</button>
+      </div>
+
       <div class="controls">
-        <button class="btn-primary" *ngIf="current.status === 'running'" (click)="pause()">
-          Pause
-        </button>
-        <button class="btn-primary" *ngIf="current.status === 'paused'" (click)="resume()">
-          Resume
-        </button>
-        <button class="btn-success" (click)="complete()">Mark Complete</button>
-        <button class="btn-secondary" (click)="stop()">Stop</button>
-        <button class="btn-ghost btn-base" (click)="abort()">Abort</button>
+        <!-- Active session controls -->
+        <ng-container *ngIf="current.status !== 'break'">
+          <button class="btn-primary" *ngIf="current.status === 'running'" (click)="pause()">
+            Pause
+          </button>
+          <button class="btn-primary" *ngIf="current.status === 'paused'" (click)="resume()">
+            Resume
+          </button>
+          <button class="btn-break" *ngIf="current.status === 'running'" (click)="startBreak()">
+            Take a Break
+          </button>
+          <button class="btn-success" (click)="complete()">Mark Complete</button>
+          <button class="btn-secondary" (click)="stop()">Stop</button>
+          <button class="btn-ghost btn-base" (click)="abort()">Abort</button>
+        </ng-container>
+
+        <!-- Break controls -->
+        <ng-container *ngIf="current.status === 'break'">
+          <button class="btn-primary btn-end-break" (click)="endBreak()">End Break</button>
+          <button class="btn-success" (click)="complete()">Mark Complete</button>
+          <button class="btn-ghost btn-base" (click)="abort()">Abort</button>
+        </ng-container>
       </div>
     </div>
   </ng-container>

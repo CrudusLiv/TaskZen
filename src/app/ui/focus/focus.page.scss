@@ -75,9 +75,88 @@
 .session.paused .ring circle.fg {
   stroke: var(--status-warn, #f7b500);
 }
+.session.on-break .ring circle.fg {
+  stroke: var(--color-brand-secondary, #4ade80);
+}
 .shell.calm .ring circle.fg {
   stroke: #64748b;
 }
 .shell.calm .controls button {
   background: #1b252d;
+}
+
+.break-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brand-secondary, #4ade80);
+  padding: 0.2rem 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  opacity: 0.85;
+}
+
+.btn-break {
+  font-size: 0.65rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.75rem;
+  background: rgba(74, 222, 128, 0.12);
+  color: var(--color-brand-secondary, #4ade80);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: rgba(74, 222, 128, 0.22);
+  }
+}
+
+.btn-end-break {
+  background: rgba(74, 222, 128, 0.18);
+  color: var(--color-brand-secondary, #4ade80);
+  border: 1px solid rgba(74, 222, 128, 0.45);
+  &:hover {
+    background: rgba(74, 222, 128, 0.28);
+  }
+}
+
+.expiry-nudge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.78rem;
+  color: var(--color-text);
+  max-width: 22rem;
+  width: 100%;
+
+  .nudge-icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  .nudge-text {
+    flex: 1;
+    line-height: 1.4;
+    opacity: 0.9;
+  }
+
+  .nudge-dismiss {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: inherit;
+    opacity: 0.55;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.25rem;
+    line-height: 1;
+    &:hover {
+      opacity: 0.9;
+    }
+  }
 }

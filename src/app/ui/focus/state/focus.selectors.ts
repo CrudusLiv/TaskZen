@@ -22,3 +22,8 @@ export const selectFocusMinutesToday = createSelector(selectFocusFeature, (f) =>
 });
 
 export const selectOnBreak = createSelector(selectCurrentFocus, (cur) => cur?.status === 'break');
+
+export const selectSessionExpired = createSelector(selectCurrentFocus, (cur) => {
+  if (!cur || cur.status === 'break') return false;
+  return cur.tickSeconds >= cur.plannedMinutes * 60;
+});
