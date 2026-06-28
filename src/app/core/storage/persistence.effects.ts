@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { debounceTime, filter, map, switchMap, withLatestFrom } from 'rxjs/operators';
+import { debounceTime, filter, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { ItemsActions } from '../../ui/items/state/items.actions';
 import { EnergyActions } from '../../ui/energy/state/energy.actions';
 import { RoutinesActions } from '../../ui/routines/state/routines.actions';
@@ -62,7 +62,15 @@ export class PersistenceEffects {
 
   hydrate$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(ItemsActions.init),
+      ofType(
+        ItemsActions.init,
+        FocusActions.init,
+        EnergyActions.init,
+        RoutinesActions.init,
+        CoachActions.init,
+        PreferencesActions.init
+      ),
+      take(1),
       switchMap(() => this.storage.load()),
       filter((snap): snap is any => !!snap),
       switchMap((snap) => {

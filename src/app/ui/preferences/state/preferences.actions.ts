@@ -1,4 +1,4 @@
-import { createActionGroup, props } from '@ngrx/store';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
 export interface PreferencesState {
   calmMode: boolean;
@@ -14,6 +14,7 @@ export const preferencesFeatureKey = 'preferences';
 export const PreferencesActions = createActionGroup({
   source: 'Preferences',
   events: {
+    Init: emptyProps(),
     'Toggle Calm Mode': () => ({ toggling: true as true }),
     'Set Calm Mode': props<{ value: boolean }>(),
     'Set Theme Mode': props<{ mode: PreferencesState['themeMode'] }>(),
