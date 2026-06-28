@@ -521,6 +521,12 @@ $brand-950: #2e1065;
   .btn-secondary:hover {
     --btn-color: var(--color-text);
   }
+  /* Success (green) variant for positive completion actions */
+  .btn-success {
+    @extend .btn-base;
+    --btn-bg: linear-gradient(135deg, #15803d, #22c55e);
+    --btn-border: #22c55e;
+  }
   /* Backwards compat for existing .btn usage */
   .btn {
     @extend .btn-base;

@@ -64,6 +64,17 @@ export class FocusPage implements OnDestroy {
     this.stopTick();
     this.choosing.set(true);
   }
+  async complete() {
+    this.store.dispatch(FocusActions.complete());
+    this.stopTick();
+    this.choosing.set(true);
+    try {
+      const confetti = (await import('canvas-confetti')).default;
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    } catch {
+      // confetti is non-critical; swallow errors silently
+    }
+  }
   private stopTick() {
     if (this.timer) {
       clearInterval(this.timer);

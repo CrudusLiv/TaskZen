@@ -25,6 +25,7 @@
         <button class="btn-primary" *ngIf="current.status === 'paused'" (click)="resume()">
           Resume
         </button>
+        <button class="btn-success" (click)="complete()">Mark Complete</button>
         <button class="btn-secondary" (click)="stop()">Stop</button>
         <button class="btn-ghost btn-base" (click)="abort()">Abort</button>
       </div>
