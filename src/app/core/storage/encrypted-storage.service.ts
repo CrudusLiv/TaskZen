@@ -14,8 +14,9 @@ interface PersistSnapshot {
 
 // Encryption formats:
 // v1 (legacy): base64([IV(12)|CIPHERTEXT]) key = SHA-256(seed)
-// v2 (current): base64([0x02|SALT(16)|IV(12)|CIPHERTEXT]) key = PBKDF2(passphrase,salt,iterations)->AES-GCM
-// On load: if first byte == 0x02 treat as v2 else attempt legacy v1.
+// v2 (legacy): base64([0x02|SALT(16)|IV(12)|CIPHERTEXT]) key = PBKDF2(passphrase,salt,iterations)->AES-GCM
+// v3 (current): base64([0x03|IV(12)|CIPHERTEXT]) key = per-device AES-GCM key from SubtleCrypto
+// On load: check first byte — 0x03=v3, 0x02=v2, else v1.
 const DEFAULT_DB_NAME = 'taskzen_store';
 const DB_VERSION = 1;
 const STORE = 'kv';
@@ -30,10 +31,18 @@ export class EncryptedStorageService {
   private passphrase = 'taskzen-default-passphrase';
   private kdfIterations = 120000; // lowered a bit for responsiveness
   private static readonly VERSION_V2 = 0x02;
+  private static readonly VERSION_V3 = 0x03;
+
+  private keyDbPromise: Promise<IDBPDatabase> | null = null;
+  private deviceKeyCache: CryptoKey | null = null;
+  private static readonly DEVICE_KEY_ID = 'device';
+
   // Test hook: allow overriding DB name before first use
   setDbName(name: string) {
     if (this.dbPromise) throw new Error('DB already opened');
     this.dbName = name;
+    this.keyDbPromise = null;
+    this.deviceKeyCache = null;
   }
 
   private get db() {
@@ -45,6 +54,36 @@ export class EncryptedStorageService {
       });
     }
     return this.dbPromise;
+  }
+
+  private get keyDb() {
+    if (!this.keyDbPromise) {
+      this.keyDbPromise = openDB(`${this.dbName}_keys`, 1, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains('keys')) db.createObjectStore('keys');
+        },
+      });
+    }
+    return this.keyDbPromise;
+  }
+
+  private async getOrCreateDeviceKey(): Promise<CryptoKey> {
+    if (this.deviceKeyCache) return this.deviceKeyCache;
+    const db = await this.keyDb;
+    const raw = await db.get('keys', EncryptedStorageService.DEVICE_KEY_ID);
+    if (raw) {
+      this.deviceKeyCache = await crypto.subtle.importKey(
+        'raw', raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+      );
+    } else {
+      const key = await crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']
+      );
+      const exported = await crypto.subtle.exportKey('raw', key);
+      await db.put('keys', exported, EncryptedStorageService.DEVICE_KEY_ID);
+      this.deviceKeyCache = key;
+    }
+    return this.deviceKeyCache;
   }
 
   setPassphrase(pass: string) {
@@ -91,13 +130,12 @@ export class EncryptedStorageService {
   async save(snapshot: Omit<PersistSnapshot, 'savedAt'>) {
     const payload: PersistSnapshot = { ...snapshot, savedAt: new Date().toISOString() };
     const plaintext = new TextEncoder().encode(JSON.stringify(payload));
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const key = await this.deriveV2Key(salt);
+    const key = await this.getOrCreateDeviceKey();
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const cipher = new Uint8Array(
       await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext)
     );
-    const packed = this.packV2(salt, iv, cipher);
+    const packed = this.packV3(iv, cipher);
     await (await this.db).put(STORE, packed, KEY_ID);
   }
 
@@ -106,7 +144,12 @@ export class EncryptedStorageService {
       const packed = await (await this.db).get(STORE, KEY_ID);
       if (!packed) return null;
       const bytes = this.b64ToBytes(packed);
-      if (bytes[0] === EncryptedStorageService.VERSION_V2) {
+      if (bytes[0] === EncryptedStorageService.VERSION_V3) {
+        const { iv, cipher } = this.unpackV3(bytes);
+        const key = await this.getOrCreateDeviceKey();
+        const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
+        return JSON.parse(new TextDecoder().decode(plainBuf));
+      } else if (bytes[0] === EncryptedStorageService.VERSION_V2) {
         const { salt, iv, cipher } = this.unpackV2(bytes);
         const key = await this.deriveV2Key(salt);
         const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
@@ -145,6 +188,16 @@ export class EncryptedStorageService {
     }
   }
 
+  private packV3(iv: Uint8Array, cipher: Uint8Array): string {
+    const merged = new Uint8Array(1 + iv.length + cipher.length);
+    merged[0] = EncryptedStorageService.VERSION_V3;
+    merged.set(iv, 1);
+    merged.set(cipher, 1 + iv.length);
+    return this.bytesToB64(merged);
+  }
+  private unpackV3(bytes: Uint8Array) {
+    return { iv: bytes.slice(1, 13), cipher: bytes.slice(13) };
+  }
   private packV2(salt: Uint8Array, iv: Uint8Array, cipher: Uint8Array): string {
     const merged = new Uint8Array(1 + salt.length + iv.length + cipher.length);
     merged[0] = EncryptedStorageService.VERSION_V2;

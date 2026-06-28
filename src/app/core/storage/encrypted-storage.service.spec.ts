@@ -27,10 +27,9 @@ describe('EncryptedStorageService', () => {
 
   beforeEach(async () => {
     svc = new EncryptedStorageService();
-    // Assign unique DB per test for isolation
+    // Assign unique DB per test for isolation; key store uses ${dbName}_keys automatically
     svc.setDbName('taskzen_store_test_' + crypto.getRandomValues(new Uint32Array(1))[0]);
-    svc.setPassphrase('test-pass');
-    svc.setKdfIterations(5000); // speed up tests
+    svc.setKdfIterations(5000); // speed up tests (only applies to v2 migration reads)
   });
 
   it('round-trips save -> load', async () => {
