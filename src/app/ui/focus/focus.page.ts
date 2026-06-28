@@ -2,7 +2,7 @@ import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { NgIf, NgFor, AsyncPipe, DecimalPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { FocusActions } from './state/focus.actions';
-import { selectCurrentFocus, selectOnBreak, selectSessionExpired } from './state/focus.selectors';
+import { selectCurrentFocus, selectOnBreak, selectSessionExpired, selectHyperfocusWarning } from './state/focus.selectors';
 import { selectItemsArray } from '../items/state/items.selectors';
 import { PreferencesState } from '../preferences/state/preferences.reducer';
 import { focusFeatureKey } from './state/focus.reducer';
@@ -21,9 +21,11 @@ export class FocusPage implements OnDestroy {
   pickedDuration = signal<number>(25);
   pickedItemId = signal<string | undefined>(undefined);
   nudgeDismissed = signal(false);
+  hyperfocusDismissed = signal(false);
   current$ = this.store.select(selectCurrentFocus);
   onBreak$ = this.store.select(selectOnBreak);
   sessionExpired$ = this.store.select(selectSessionExpired);
+  hyperfocusWarning$ = this.store.select(selectHyperfocusWarning);
   items$ = this.store.select(selectItemsArray);
   private timer?: number;
 
@@ -37,12 +39,14 @@ export class FocusPage implements OnDestroy {
     );
     this.choosing.set(false);
     this.nudgeDismissed.set(false);
+    this.hyperfocusDismissed.set(false);
     this.startTick();
   }
   startBreak() {
     this.store.dispatch(FocusActions.startBreak());
     this.stopTick();
     this.nudgeDismissed.set(false);
+    this.hyperfocusDismissed.set(false);
   }
   endBreak() {
     this.store.dispatch(FocusActions.endBreak());
@@ -51,6 +55,7 @@ export class FocusPage implements OnDestroy {
   dismissNudge() {
     this.nudgeDismissed.set(true);
   }
+  dismissHyperfocus() { this.hyperfocusDismissed.set(true); }
   onDurationChange(v: string) {
     const num = Number(v);
     if (!isNaN(num)) this.pickedDuration.set(num);
@@ -75,18 +80,21 @@ export class FocusPage implements OnDestroy {
     this.stopTick();
     this.choosing.set(true);
     this.nudgeDismissed.set(false);
+    this.hyperfocusDismissed.set(false);
   }
   abort() {
     this.store.dispatch(FocusActions.abort());
     this.stopTick();
     this.choosing.set(true);
     this.nudgeDismissed.set(false);
+    this.hyperfocusDismissed.set(false);
   }
   async complete() {
     this.store.dispatch(FocusActions.complete());
     this.stopTick();
     this.choosing.set(true);
     this.nudgeDismissed.set(false);
+    this.hyperfocusDismissed.set(false);
     try {
       const confetti = (await import('canvas-confetti')).default;
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });

@@ -27,3 +27,8 @@ export const selectSessionExpired = createSelector(selectCurrentFocus, (cur) => 
   if (!cur || cur.status === 'break') return false;
   return cur.tickSeconds >= cur.plannedMinutes * 60;
 });
+
+export const selectHyperfocusWarning = createSelector(selectCurrentFocus, (cur) => {
+  if (!cur || cur.status === 'break') return false;
+  return cur.tickSeconds >= (cur.plannedMinutes + 15) * 60;
+});

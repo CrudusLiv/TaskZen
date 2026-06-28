@@ -36,6 +36,18 @@
         <button class="nudge-dismiss" (click)="dismissNudge()" aria-label="Dismiss nudge">✕</button>
       </div>
 
+      @if ((hyperfocusWarning$ | async) && !hyperfocusDismissed()) {
+        <div class="hyperfocus-warning" role="alert" aria-live="assertive">
+          <span>⚡ Hyperfocus alert: 15+ min past your plan. Your brain needs a break.</span>
+          <button type="button" (click)="dismissHyperfocus()" aria-label="Dismiss hyperfocus warning">
+            Keep going
+          </button>
+          <button type="button" class="break-now" (click)="startBreak()">
+            Take a break
+          </button>
+        </div>
+      }
+
       <div class="controls">
         <!-- Active session controls -->
         <ng-container *ngIf="current.status !== 'break'">
