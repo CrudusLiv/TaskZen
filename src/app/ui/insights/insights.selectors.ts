@@ -50,3 +50,39 @@ export const selectPriorityDistribution = createSelector(selectItemsArray, (item
   });
   return buckets;
 });
+
+// Energy dip window: hour-of-day string for typical low-energy window, or null if insufficient data
+export const selectEnergyDipWindow = createSelector(selectEnergyLogs, (logs) => {
+  if (logs.length < 5) return null;
+  const hourBuckets: Record<number, number[]> = {};
+  logs.forEach((l) => {
+    const h = new Date(l.createdAt).getHours();
+    (hourBuckets[h] = hourBuckets[h] || []).push(l.level);
+  });
+  const averages = Object.entries(hourBuckets)
+    .filter(([, lvls]) => lvls.length >= 2)
+    .map(([h, lvls]) => ({ hour: Number(h), avg: lvls.reduce((a, b) => a + b, 0) / lvls.length }));
+  if (!averages.length) return null;
+  const dip = averages.reduce((min, cur) => (cur.avg < min.avg ? cur : min));
+  const end = (dip.hour + 1) % 24;
+  return `${dip.hour}:00–${end}:00`;
+});
+
+// Completion streak: consecutive calendar days (ending today or yesterday) with >=1 completed item
+export const selectCompletionStreak = createSelector(selectItemsArray, (items) => {
+  const doneDates = new Set(
+    items
+      .filter((i) => i.status === 'done')
+      .map((i) => new Date(i.updatedAt).toDateString())
+  );
+  const today = new Date();
+  const startOffset = doneDates.has(today.toDateString()) ? 0 : 1;
+  let streak = 0;
+  for (let d = startOffset; d < 365; d++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - d);
+    if (doneDates.has(date.toDateString())) streak++;
+    else break;
+  }
+  return streak;
+});

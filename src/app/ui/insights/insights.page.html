@@ -1,7 +1,7 @@
 <section class="page-insights panel-stack">
   <header class="heading panel-glass panel-section">
     <h1>Insights</h1>
-    <p class="intro">High-level patterns. Early live metrics; more depth coming.</p>
+    <p class="intro">Your ADHD patterns at a glance.</p>
   </header>
   <div class="dash-grid">
     <div class="panel-glass panel-section tile focus-summary">
@@ -80,14 +80,26 @@
       } @else {
       <div class="bars skeleton" aria-hidden="true"></div>
       }
-      <p class="hint">% routines with steps (placeholder).</p>
+      <p class="hint">% of your routines that have steps configured.</p>
     </div>
     <div class="panel-glass panel-section tile suggestions">
-      <h2>Suggestions</h2>
+      <h2>Patterns</h2>
       <ul class="suggest-list">
-        <li>Energy dip window detection coming</li>
-        <li>Adaptive micro-focus prompts soon</li>
-        <li>Routine adherence streak logic pending</li>
+        <li>
+          @if (energyDipWindow$ | async; as dip) {
+            Low-energy window: <strong>{{ dip }}</strong>
+          } @else {
+            Log 5+ energy check-ins to reveal your low-energy window.
+          }
+        </li>
+        <li>
+          @if ((completionStreak$ | async) ?? 0; as streak) {
+            Completion streak: <strong>{{ streak }} day{{ streak === 1 ? '' : 's' }}</strong>
+          } @else {
+            Complete a task today to start your streak.
+          }
+        </li>
+        <li>Routine session logging will unlock adherence trends.</li>
       </ul>
     </div>
   </div>
