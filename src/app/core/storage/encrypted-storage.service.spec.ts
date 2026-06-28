@@ -55,7 +55,7 @@ describe('EncryptedStorageService', () => {
     expect(loaded?.items).toEqual({ a: 1 });
   });
 
-  it('tampered ciphertext causes load to return null', async () => {
+  it('tampered ciphertext causes load to throw', async () => {
     const snap = baseSnap();
     await svc.save(snap);
     // Directly get packed string via export(local) path: load then mimic DB corruption.
@@ -69,9 +69,8 @@ describe('EncryptedStorageService', () => {
     const tamperedChar = origChar === 'A' ? 'B' : 'A';
     const tampered = packed.slice(0, mid) + tamperedChar + packed.slice(mid + 1);
     await dbAny.put('kv', tampered, 'main');
-    const loaded = await svc.load();
-    // Should swallow error and return null
-    expect(loaded).toBeNull();
+    // Should now throw instead of silently returning null
+    await expectAsync(svc.load()).toBeRejected();
   });
 
   it('invalid import rejects', async () => {

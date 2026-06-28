@@ -120,8 +120,8 @@ export class EncryptedStorageService {
         return JSON.parse(json);
       }
     } catch (e) {
-      console.warn('[storage] load failed', e);
-      return null;
+      console.error('[storage] load failed — data could not be decrypted or read', e);
+      throw e;
     }
   }
 

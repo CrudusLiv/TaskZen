@@ -1,13 +1,14 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { debounceTime, filter, switchMap, take, withLatestFrom } from 'rxjs/operators';
+import { debounceTime, catchError, filter, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { ItemsActions } from '../../ui/items/state/items.actions';
 import { EnergyActions } from '../../ui/energy/state/energy.actions';
 import { RoutinesActions } from '../../ui/routines/state/routines.actions';
 import { FocusActions } from '../../ui/focus/state/focus.actions';
 import { EncryptedStorageService } from './encrypted-storage.service';
-import { of, merge } from 'rxjs';
+import { StorageErrorService } from './storage-error.service';
+import { of, merge, EMPTY } from 'rxjs';
 import { selectItemsArray } from '../../ui/items/state/items.selectors';
 import { selectRoutinesArray } from '../../ui/routines/state/routines.selectors';
 import { selectEnergyLogs } from '../../ui/energy/state/energy.selectors';
@@ -59,6 +60,7 @@ export class PersistenceEffects {
   private actions$ = inject(Actions);
   private store = inject(Store);
   private storage = inject(EncryptedStorageService);
+  private storageError = inject(StorageErrorService);
 
   hydrate$ = createEffect(() =>
     this.actions$.pipe(
@@ -87,6 +89,11 @@ export class PersistenceEffects {
           CoachActions.hydrate({ cards: snap.coach?.cards || [] }),
           PreferencesActions.hydrate({ state: snap.preferences || {} })
         );
+      }),
+      catchError((err) => {
+        console.error('[persistence] hydration failed — showing user error banner', err);
+        this.storageError.showLoadError();
+        return EMPTY;
       })
     )
   );
