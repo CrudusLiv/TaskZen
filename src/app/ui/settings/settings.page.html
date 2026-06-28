@@ -59,5 +59,21 @@
         </select>
       </label>
     </fieldset>
+    <fieldset class="group">
+      <legend>Data</legend>
+      <div class="data-actions">
+        <button type="button" class="btn-base btn-ghost" (click)="exportData()">
+          Export my data
+        </button>
+        <label class="btn-base btn-ghost" style="cursor:pointer">
+          Import data
+          <input type="file" accept=".txt" style="display:none" (change)="importData($event)" />
+        </label>
+      </div>
+      @if (exportStatus()) {
+        <p class="export-status" role="status" aria-live="polite">{{ exportStatus() }}</p>
+      }
+      <p class="hint">Export saves a backup to your device. Import restores from a backup made on this device.</p>
+    </fieldset>
   </form>
 </section>

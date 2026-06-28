@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { PreferencesActions } from '../preferences/state/preferences.actions';
@@ -9,6 +9,7 @@ import {
   selectDensity,
   selectHighContrast,
 } from '../preferences/state/preferences.selectors';
+import { EncryptedStorageService } from '../../core/storage/encrypted-storage.service';
 @Component({
   standalone: true,
   selector: 'app-settings-page',
@@ -18,6 +19,9 @@ import {
 })
 export class SettingsPage {
   private store = inject(Store);
+  private storage = inject(EncryptedStorageService);
+
+  exportStatus = signal<string | null>(null);
 
   calm = this.store.selectSignal(selectCalmMode);
   themeMode = this.store.selectSignal(selectThemeMode);
@@ -50,5 +54,40 @@ export class SettingsPage {
   }
   setHighContrast(value: boolean) {
     this.store.dispatch(PreferencesActions.setHighContrast({ value }));
+  }
+
+  async exportData(): Promise<void> {
+    try {
+      const data = await this.storage.export();
+      const blob = new Blob([data], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `taskzen-backup-${new Date().toISOString().slice(0, 10)}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      this.exportStatus.set('Exported successfully!');
+      setTimeout(() => this.exportStatus.set(null), 3000);
+    } catch {
+      this.exportStatus.set('Export failed — try again.');
+      setTimeout(() => this.exportStatus.set(null), 4000);
+    }
+  }
+
+  async importData(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      await this.storage.import(text.trim());
+      this.exportStatus.set('Import successful! Refresh to see your data.');
+      setTimeout(() => this.exportStatus.set(null), 5000);
+    } catch {
+      this.exportStatus.set('Import failed — file may be invalid or from a different device.');
+      setTimeout(() => this.exportStatus.set(null), 5000);
+    } finally {
+      input.value = '';
+    }
   }
 }
