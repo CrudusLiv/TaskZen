@@ -23,9 +23,19 @@
     <div class="current-step" *ngIf="currentStep() as step">
       <p class="step-counter">Step {{ currentIndex() + 1 }} of {{ r.steps.length }}</p>
       <h2>{{ step.title }}</h2>
-      <div class="timer" *ngIf="step.minutes">
-        <span class="timer-display">{{ timerDisplay() }}</span>
-        <span class="timer-label">remaining</span>
+      <div class="ring" *ngIf="step.minutes" aria-label="Step timer">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" class="bg" />
+          <circle
+            cx="50"
+            cy="50"
+            r="46"
+            class="fg"
+            pathLength="100"
+            [attr.stroke-dasharray]="timerRingPct() + ' 100'"
+          />
+        </svg>
+        <div class="time">{{ timerDisplay() }}</div>
       </div>
       <p class="no-timer" *ngIf="!step.minutes">No timer set for this step</p>
     </div>

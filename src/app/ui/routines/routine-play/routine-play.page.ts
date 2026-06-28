@@ -59,6 +59,13 @@ export class RoutinePlayPage implements OnDestroy {
     return `${mm}:${ss}`;
   });
 
+  timerRingPct = computed(() => {
+    const total = this.stepDurationSeconds();
+    if (!total || !this.started()) return 0;
+    const elapsed = total - this.secondsLeft();
+    return Math.min(100, Math.max(0, (elapsed / total) * 100));
+  });
+
   isLastStep = computed(() => {
     const r = this.activeRoutine();
     if (!r) return false;
