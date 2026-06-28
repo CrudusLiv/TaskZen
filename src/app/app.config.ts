@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   ErrorHandler,
+  isDevMode,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -10,6 +11,7 @@ import { routes } from './app.routes';
 // Hydration removed (SSR disabled)
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideAppStore } from './app.store.module';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,5 +22,9 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     ...provideAppStore(),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };
