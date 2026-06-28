@@ -13,10 +13,13 @@
       <button
         *ngFor="let l of [1, 2, 3, 4, 5]"
         type="button"
+        role="radio"
         (click)="setLevel(l)"
-        [attr.aria-pressed]="level() === l"
+        [attr.aria-checked]="level() === l"
+        [attr.tabindex]="level() === l ? 0 : -1"
         [class.active]="level() === l"
         [class]="levelClass(l)"
+        [attr.aria-label]="'Energy level ' + l"
       >
         {{ l }}
       </button>

@@ -67,6 +67,7 @@
         [class.enrich-open]="enrichingId()===it.id"
         tabindex="0"
         (keydown)="onKey($event, it)"
+        [attr.aria-label]="it.title + ', status: ' + it.status"
       >
         <button
           class="status"
@@ -88,7 +89,15 @@
             aria-label="Edit title"
             autofocus
           />
-        } @else {<span class="title" (dblclick)="startEdit(it)" (click)="startEdit(it)" role="button" tabindex="0" aria-label="Edit title">{{ it.title }}</span>}
+        } @else {<span class="title"
+  (dblclick)="startEdit(it)"
+  (click)="startEdit(it)"
+  (keydown.enter)="startEdit(it)"
+  (keydown.space)="startEdit(it); $event.preventDefault()"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="'Edit title: ' + it.title"
+>{{ it.title }}</span>}
         @if (it.tags?.length || it.energyLevel || it.estimateMinutes || it.effort || it.pinned) {
           <div class="meta-chips" aria-label="Item metadata">
             @if (it.tags?.length) {
