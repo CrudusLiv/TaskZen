@@ -152,7 +152,8 @@
   <div class="sr-only" aria-live="polite">{{ liveMsg() }}</div>
   @if (enrichingItem(); as it) {
     <div class="enrich-overlay" role="dialog" aria-modal="true" aria-label="Enrich item">
-      <div class="enrich-shell" appClickOutside (appClickOutside)="closeEnrich()">
+      <div class="enrich-shell" appClickOutside (appClickOutside)="closeEnrich()"
+           cdkTrapFocus cdkTrapFocusAutoCapture="true">
         <div class="enrich-content">
           <h3>Enrich</h3>
           <div class="inline-actions-top">

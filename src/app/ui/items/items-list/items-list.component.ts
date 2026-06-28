@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal, effect, OnDestroy } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 import { ClickOutsideDirective } from '../../../shared/directives/click-outside.directive';
 import { Store } from '@ngrx/store';
 import { ItemsActions, ItemEntity } from '../state/items.actions';
@@ -8,7 +9,7 @@ import { selectItemsFeature, selectAllTags } from '../state/items.selectors';
 @Component({
   standalone: true,
   selector: 'app-items-list',
-  imports: [NgClass, ClickOutsideDirective],
+  imports: [NgClass, ClickOutsideDirective, A11yModule],
   templateUrl: './items-list.component.html',
   styleUrls: ['./items-list.component.scss'],
 })
@@ -22,6 +23,7 @@ export class ItemsListComponent implements OnDestroy {
   statuses: ItemEntity['status'][] = ['inbox', 'next', 'progress', 'done'];
   liveMsg = signal('');
   enrichingId = signal<string | null>(null);
+  private enrichTrigger: HTMLElement | null = null;
   enrichingItem = computed(() => {
     const id = this.enrichingId();
     if (!id) return null;
@@ -140,14 +142,12 @@ export class ItemsListComponent implements OnDestroy {
     clearTimeout(this.deleteArmTimer);
   }
   toggleEnrich(it: ItemEntity) {
-    this.enrichingId.update((v) => (v === it.id ? null : it.id));
-    queueMicrotask(() => {
-      if (this.enrichingId() === it.id) {
-        const panel = document.querySelector('.enrich-drawer');
-        const first = panel?.querySelector<HTMLInputElement>('input');
-        first?.focus();
-      }
-    });
+    if (this.enrichingId() !== it.id) {
+      this.enrichTrigger = document.activeElement as HTMLElement;
+      this.enrichingId.set(it.id);
+    } else {
+      this.closeEnrich();
+    }
   }
   startEdit(it: ItemEntity) {
     this.editingId.set(it.id);
@@ -166,7 +166,10 @@ export class ItemsListComponent implements OnDestroy {
     }
     this.cancelEdit();
   }
-  closeEnrich() { this.enrichingId.set(null); }
+  closeEnrich() {
+    this.enrichingId.set(null);
+    queueMicrotask(() => this.enrichTrigger?.focus());
+  }
   updateField(it: ItemEntity, field: keyof ItemEntity, value: any) {
     const parsed = value === '' ? undefined : value;
     this.store.dispatch(
