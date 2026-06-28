@@ -10,3 +10,5 @@ export const selectRoutinesArray = createSelector(
   selectRoutineOrder,
   (entities, order) => order.map((id) => entities[id]).filter(Boolean)
 );
+export const selectRoutineById = (id: string) =>
+  createSelector(selectRoutineEntities, (entities) => entities[id] ?? null);

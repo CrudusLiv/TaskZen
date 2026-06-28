@@ -33,7 +33,7 @@ export const routes: Routes = [
           import('./ui/routines/routines/routines.page').then((m) => m.RoutinesPage),
       },
       {
-        path: 'routines/play',
+        path: 'routines/play/:id',
         loadComponent: () =>
           import('./ui/routines/routine-play/routine-play.page').then((m) => m.RoutinePlayPage),
       },

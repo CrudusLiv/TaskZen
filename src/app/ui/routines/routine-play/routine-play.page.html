@@ -1,41 +1,65 @@
 <section class="routine-play page panel-stack" *ngIf="activeRoutine() as r; else empty">
   <header class="panel-glass panel-section heading">
-    <h1>Play Routine</h1>
-    <p class="intro">Lightweight guided mode. Static timers; logic later.</p>
+    <button class="btn-ghost btn-base back-btn" (click)="backToRoutines()">← Back</button>
+    <h1>{{ r.name }}</h1>
   </header>
-  <div class="panel-glass panel-section stage" *ngIf="started(); else pre">
+
+  <!-- Completed state -->
+  <div class="panel-glass panel-section complete" *ngIf="completed()">
+    <h2 class="complete-title">Routine Complete! 🎉</h2>
+    <p class="hint">Well done — you finished all {{ r.steps.length }} steps.</p>
+    <div class="controls">
+      <button class="btn-primary" (click)="start()">Restart</button>
+      <button class="btn-ghost btn-base" (click)="backToRoutines()">Back to Routines</button>
+    </div>
+  </div>
+
+  <!-- Active play state -->
+  <div class="panel-glass panel-section stage" *ngIf="started() && !completed()">
     <div class="progress-bar">
       <div class="bar" [style.width.%]="progressPct()"></div>
     </div>
-    <div class="current-step" *ngIf="r.steps.length">
-      <h2>{{ r.steps[currentIndex()].title }}</h2>
-      <p class="meta" *ngIf="r.steps[currentIndex()].minutes">
-        ~{{ r.steps[currentIndex()].minutes }} min
-      </p>
+
+    <div class="current-step" *ngIf="currentStep() as step">
+      <p class="step-counter">Step {{ currentIndex() + 1 }} of {{ r.steps.length }}</p>
+      <h2>{{ step.title }}</h2>
+      <div class="timer" *ngIf="step.minutes">
+        <span class="timer-display">{{ timerDisplay() }}</span>
+        <span class="timer-label">remaining</span>
+      </div>
+      <p class="no-timer" *ngIf="!step.minutes">No timer set for this step</p>
     </div>
+
     <div class="controls">
-      <button class="btn-secondary" (click)="prev()" [disabled]="currentIndex() === 0">Prev</button>
-      <button class="btn-primary" (click)="togglePause()">{{ paused() ? 'Resume' : 'Pause' }}</button>
-      <button class="btn-secondary" (click)="next()" [disabled]="currentIndex() >= r.steps.length - 1">Next</button>
+      <button class="btn-primary" (click)="next()">
+        {{ isLastStep() ? 'Complete ✓' : 'Next Step →' }}
+      </button>
       <button class="btn-ghost btn-base" (click)="stop()">Stop</button>
     </div>
+
     <ul class="steps-mini">
-      <li *ngFor="let s of r.steps; let i = index" [class.active]="i === currentIndex()">{{ i+1 }}</li>
+      <li *ngFor="let s of r.steps; let i = index" [class.active]="i === currentIndex()" [class.done]="i < currentIndex()">{{ i + 1 }}</li>
     </ul>
   </div>
-  <ng-template #pre>
+
+  <!-- Pre-start state -->
+  <ng-container *ngIf="!started() && !completed()">
     <div class="panel-glass panel-section pre">
-      <h2>{{ r.name }}</h2>
-      <p class="hint">{{ r.steps.length }} steps • Energy target: {{ r.energyTarget || '—' }}</p>
+      <p class="hint">{{ r.steps.length }} steps<ng-container *ngIf="r.energyTarget"> · Energy target: {{ r.energyTarget }}</ng-container><ng-container *ngIf="r.cue"> · Cue: {{ r.cue }}</ng-container></p>
       <ol class="preview">
-        <li *ngFor="let s of r.steps">{{ s.title }} <span *ngIf="s.minutes" class="dur">({{ s.minutes }}m)</span></li>
+        <li *ngFor="let s of r.steps">
+          {{ s.title }}<span *ngIf="s.minutes" class="dur"> ({{ s.minutes }}m)</span>
+        </li>
       </ol>
       <button class="btn-primary" (click)="start()" [disabled]="!r.steps.length">Start Routine</button>
+      <p *ngIf="!r.steps.length" class="hint">Add steps to this routine before playing.</p>
     </div>
-  </ng-template>
+  </ng-container>
 </section>
+
 <ng-template #empty>
   <div class="panel-glass panel-section placeholder">
-    <p>No routines available. Create one first.</p>
+    <p>Routine not found.</p>
+    <button class="btn-ghost btn-base" (click)="backToRoutines()">← Back to Routines</button>
   </div>
 </ng-template>

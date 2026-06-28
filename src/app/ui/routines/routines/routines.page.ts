@@ -84,8 +84,7 @@ export class RoutinesPage {
     );
   }
   play(r: RoutineEntity) {
-    // Future: pass id via query or param; for now just navigate to play shell
-    this.router.navigate(['/routines/play']);
+    this.router.navigate(['/routines/play', r.id]);
   }
   isEditing(r: RoutineEntity) {
     return this.editingId() === r.id;
