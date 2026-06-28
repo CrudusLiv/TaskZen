@@ -89,14 +89,14 @@
           @if (energyDipWindow$ | async; as dip) {
             Low-energy window: <strong>{{ dip }}</strong>
           } @else {
-            Log 5+ energy check-ins to reveal your low-energy window.
+            <app-skeleton-loader [lines]="1" />
           }
         </li>
         <li>
           @if ((completionStreak$ | async) ?? 0; as streak) {
             Completion streak: <strong>{{ streak }} day{{ streak === 1 ? '' : 's' }}</strong>
           } @else {
-            Complete a task today to start your streak.
+            <app-skeleton-loader [lines]="1" />
           }
         </li>
         <li>Routine session logging will unlock adherence trends.</li>

@@ -16,6 +16,11 @@
     </div>
   </header>
   <div class="feed-grid">
+    @if (!(cards$ | async)?.length) {
+      <div class="panel-glass panel-section">
+        <app-skeleton-loader [lines]="3" type="card" />
+      </div>
+    }
     @if (cards$ | async; as cards) { @for (c of cards; track c.id; let i = $index) {
     <article class="card coach-card" [style.--i]="i">
       <div class="badge-row">
@@ -36,8 +41,6 @@
     </article>
     } @if (!cards.length) {
     <div class="empty subtle">No suggestions yet. Refresh to evaluate.</div>
-    } } @else {
-    <div class="empty subtle" aria-busy="true">Loading coach suggestions…</div>
-    }
+    } }
   </div>
 </section>

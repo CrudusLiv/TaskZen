@@ -12,10 +12,12 @@ import {
   selectEnergyDipWindow,
   selectCompletionStreak,
 } from './insights.selectors';
+import { SkeletonLoaderComponent } from '../../shared/skeleton-loader/skeleton-loader.component';
+
 @Component({
   standalone: true,
   selector: 'app-insights-page',
-  imports: [CommonModule],
+  imports: [CommonModule, SkeletonLoaderComponent],
   templateUrl: './insights.page.html',
   styleUrls: ['./insights.page.scss'],
 })
