@@ -41,6 +41,18 @@ const SAVE_ACTIONS = [
   FocusActions.complete,
   FocusActions.stop,
   FocusActions.abort,
+  ItemsActions.togglePin,
+  ItemsActions.toggleMicroStep,
+  CoachActions.dismissCard,
+  CoachActions.pinCard,
+  CoachActions.pruneOld,
+  PreferencesActions.toggleCalmMode,
+  PreferencesActions.setCalmMode,
+  PreferencesActions.setThemeMode,
+  PreferencesActions.setAccent,
+  PreferencesActions.setDensity,
+  PreferencesActions.setHighContrast,
+  PreferencesActions.setPassphraseFlag,
 ];
 
 export class PersistenceEffects {
