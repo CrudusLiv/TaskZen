@@ -5,6 +5,25 @@
       Early heuristic mix of status, recency, energy tagging, effort & focus boost.
     </p>
   </header>
+  @if (stuckTasks().length) {
+    <div class="stuck-section panel-glass panel-section" role="region" aria-label="Stuck tasks">
+      <h2 class="stuck-heading">Needs attention</h2>
+      <p class="stuck-hint">
+        {{ stuckTasks().length === 1 ? 'This task has' : 'These tasks have' }}
+        been in progress for 3+ days without activity.
+      </p>
+      <ul class="stuck-list" role="list">
+        @for (it of stuckTasks(); track it.id) {
+          <li class="stuck-item">
+            <span class="stuck-title">{{ it.title }}</span>
+            <span class="stuck-age" aria-label="Days since last activity">
+              {{ daysAgo(it.updatedAt) }}d ago
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
   <div class="top3">
     <div class="card" *ngFor="let it of top3(); let i = index" [style.--i]="i">
       <div class="rank">{{ i + 1 }}</div>

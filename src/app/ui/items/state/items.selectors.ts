@@ -94,3 +94,10 @@ export const selectItemsWithPriority = createSelector(selectItemsArray, (items) 
 export const selectTopThreeItems = createSelector(selectItemsWithPriority, (items) =>
   items.slice(0, 3)
 );
+
+export const selectStuckTasks = createSelector(selectItemsArray, (items) => {
+  const cutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
+  return items.filter(
+    (i) => i.status === 'progress' && Date.parse(i.updatedAt) < cutoff
+  );
+});
