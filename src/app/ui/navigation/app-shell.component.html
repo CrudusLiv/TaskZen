@@ -4,6 +4,7 @@
   [class.calm]="calmMode()"
   [class.nav-collapsed]="collapsed()"
 >
+  <app-error-notification-banner />
   <aside class="nav" role="navigation" aria-label="Primary" [attr.aria-expanded]="!collapsed()">
     <div class="brand" aria-label="App brand">TaskZen</div>
     <button

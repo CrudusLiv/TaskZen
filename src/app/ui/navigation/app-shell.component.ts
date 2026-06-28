@@ -5,6 +5,7 @@ import { NgFor } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectCalmMode } from '../preferences/state/preferences.selectors';
 import { PreferencesActions } from '../preferences/state/preferences.actions';
+import { ErrorNotificationBannerComponent } from '../../core/error/error-notification-banner.component';
 
 interface NavLink {
   label: string;
@@ -15,7 +16,7 @@ interface NavLink {
 @Component({
   standalone: true,
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, NgFor],
+  imports: [RouterOutlet, RouterLink, NgFor, ErrorNotificationBannerComponent],
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
 })
