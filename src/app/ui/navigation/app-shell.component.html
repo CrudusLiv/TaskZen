@@ -26,6 +26,8 @@
           *ngFor="let l of nav; let i = index"
           [routerLink]="l.path"
           routerLinkActive="active"
+          #rla="routerLinkActive"
+          [attr.aria-current]="rla.isActive ? 'page' : null"
           (click)="toggle()"
           [attr.data-index]="i"
         >

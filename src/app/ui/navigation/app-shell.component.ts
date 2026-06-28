@@ -1,6 +1,6 @@
 import { Component, signal, inject, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectCalmMode } from '../preferences/state/preferences.selectors';
@@ -16,7 +16,7 @@ interface NavLink {
 @Component({
   standalone: true,
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, NgFor, ErrorNotificationBannerComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgFor, ErrorNotificationBannerComponent],
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
 })

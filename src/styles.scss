@@ -401,6 +401,11 @@ $brand-950: #2e1065;
     outline: none;
     box-shadow: var(--focus-ring);
   }
+  a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: 0.25rem;
+  }
   .btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
