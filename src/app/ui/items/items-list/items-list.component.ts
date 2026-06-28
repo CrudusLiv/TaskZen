@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, effect } from '@angular/core';
+import { Component, computed, inject, signal, effect, OnDestroy } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { ClickOutsideDirective } from '../../../shared/directives/click-outside.directive';
 import { Store } from '@ngrx/store';
@@ -12,7 +12,7 @@ import { selectItemsFeature, selectAllTags } from '../state/items.selectors';
   templateUrl: './items-list.component.html',
   styleUrls: ['./items-list.component.scss'],
 })
-export class ItemsListComponent {
+export class ItemsListComponent implements OnDestroy {
   private store = inject(
     Store<{ items: { entities: Record<string, ItemEntity>; order: string[] } }>
   );
@@ -119,18 +119,25 @@ export class ItemsListComponent {
       save();
     });
     // global keyboard listeners (focus capture, close enrich)
-    window.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'k') {
-        const capture = document.querySelector<HTMLInputElement>('app-items-capture input[aria-describedby]');
-        if (capture) {
-          e.preventDefault();
-          capture.focus();
-        }
+    window.addEventListener('keydown', this.onGlobalKeydown);
+  }
+
+  private onGlobalKeydown = (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'k') {
+      const capture = document.querySelector<HTMLInputElement>('app-items-capture input[aria-describedby]');
+      if (capture) {
+        e.preventDefault();
+        capture.focus();
       }
-      if (e.key === 'Escape' && this.enrichingId()) {
-        this.closeEnrich();
-      }
-    });
+    }
+    if (e.key === 'Escape' && this.enrichingId()) {
+      this.closeEnrich();
+    }
+  };
+
+  ngOnDestroy() {
+    window.removeEventListener('keydown', this.onGlobalKeydown);
+    clearTimeout(this.deleteArmTimer);
   }
   toggleEnrich(it: ItemEntity) {
     this.enrichingId.update((v) => (v === it.id ? null : it.id));

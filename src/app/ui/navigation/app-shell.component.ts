@@ -1,4 +1,5 @@
 import { Component, signal, inject, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -54,7 +55,7 @@ export class AppShellComponent {
   gap = 6;
   topOffset = 0; // used in template for indicator positioning
   constructor() {
-    this.router.events.subscribe(() => this.currentUrl.set(this.router.url));
+    this.router.events.pipe(takeUntilDestroyed()).subscribe(() => this.currentUrl.set(this.router.url));
   }
   toggle() {
     this.sidebarOpen.update((v) => !v);
