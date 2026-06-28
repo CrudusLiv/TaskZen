@@ -1,7 +1,6 @@
 import { Component, computed, signal, inject, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { selectRoutineById } from '../state/routines.selectors';
 
@@ -137,10 +136,6 @@ export class RoutinePlayPage implements OnDestroy {
   backToRoutines(): void {
     this.stop();
     this.router.navigate(['/routines']);
-  }
-
-  progressPctValue(): number {
-    return this.progressPct();
   }
 
   ngOnDestroy(): void {
