@@ -1,5 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { focusFeatureKey, FocusSessionState } from './focus.reducer';
+import { selectItemsArray } from '../../items/state/items.selectors';
 
 export const selectFocusFeature = createFeatureSelector<FocusSessionState>(focusFeatureKey);
 
@@ -32,3 +33,19 @@ export const selectHyperfocusWarning = createSelector(selectCurrentFocus, (cur) 
   if (!cur || cur.status === 'break') return false;
   return cur.tickSeconds >= (cur.plannedMinutes + 15) * 60;
 });
+
+export const selectWhereWasI = createSelector(
+  selectCurrentFocus,
+  selectItemsArray,
+  (cur, items) => {
+    if (!cur?.itemId) return null;
+    const item = items.find((i) => i.id === cur.itemId);
+    if (!item) return null;
+    const lastDoneIdx = item.microStepsState
+      ? [...item.microStepsState].lastIndexOf(true)
+      : -1;
+    const lastStep =
+      lastDoneIdx >= 0 && item.microSteps ? item.microSteps[lastDoneIdx] : null;
+    return { itemTitle: item.title, lastStep };
+  }
+);

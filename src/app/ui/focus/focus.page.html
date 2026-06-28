@@ -67,6 +67,15 @@
 
         <!-- Break controls -->
         <ng-container *ngIf="current.status === 'break'">
+          @if (whereWasI$ | async; as ctx) {
+            <div class="where-was-i" role="note">
+              <p class="where-label">Last working on:</p>
+              <p class="where-title">{{ ctx.itemTitle }}</p>
+              @if (ctx.lastStep) {
+                <p class="where-step">Last completed step: <em>{{ ctx.lastStep }}</em></p>
+              }
+            </div>
+          }
           <button class="btn-primary btn-end-break" (click)="endBreak()">End Break</button>
           <button class="btn-success" (click)="complete()">Mark Complete</button>
           <button class="btn-ghost btn-base" (click)="abort()">Abort</button>

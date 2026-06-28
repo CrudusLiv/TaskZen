@@ -2,7 +2,7 @@ import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { NgIf, NgFor, AsyncPipe, DecimalPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { FocusActions } from './state/focus.actions';
-import { selectCurrentFocus, selectOnBreak, selectSessionExpired, selectHyperfocusWarning } from './state/focus.selectors';
+import { selectCurrentFocus, selectOnBreak, selectSessionExpired, selectHyperfocusWarning, selectWhereWasI } from './state/focus.selectors';
 import { selectItemsArray } from '../items/state/items.selectors';
 import { PreferencesState } from '../preferences/state/preferences.reducer';
 import { focusFeatureKey } from './state/focus.reducer';
@@ -27,6 +27,7 @@ export class FocusPage implements OnDestroy {
   sessionExpired$ = this.store.select(selectSessionExpired);
   hyperfocusWarning$ = this.store.select(selectHyperfocusWarning);
   items$ = this.store.select(selectItemsArray);
+  whereWasI$ = this.store.select(selectWhereWasI);
   private timer?: number;
 
   startSession() {

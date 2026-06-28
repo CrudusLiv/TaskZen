@@ -161,6 +161,33 @@
   }
 }
 
+.where-was-i {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+
+  .where-label {
+    color: var(--text-muted, rgba(255,255,255,0.5));
+    font-size: 0.75rem;
+    margin: 0 0 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .where-title {
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: var(--text-primary, #fff);
+  }
+  .where-step {
+    margin: 0;
+    color: var(--text-muted, rgba(255,255,255,0.6));
+    font-size: 0.8rem;
+  }
+}
+
 .hyperfocus-warning {
   background: linear-gradient(135deg, #92400e, #b45309);
   color: #fef3c7;
