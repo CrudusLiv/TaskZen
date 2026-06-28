@@ -43,15 +43,19 @@
     <div class="panel-glass panel-section tile energy-trend">
       <h2>Energy Trend</h2>
       @if (energyTrend$ | async; as trend) {
-      <div class="chart" style="display: flex; gap: 4px; align-items: flex-end; height: 90px">
-        @for (p of trend; track p.createdAt) {
-        <div
-          [title]="p.createdAt"
-          [style.height.%]="p.level * 20"
-          style="flex: 1; background: var(--brand-glow); opacity: 0.6; border-radius: 4px"
-        ></div>
-        }
-      </div>
+      @if (trend.length) {
+        <div class="chart" style="display: flex; gap: 4px; align-items: flex-end; height: 90px">
+          @for (p of trend; track p.createdAt) {
+          <div
+            [title]="p.createdAt"
+            [style.height.%]="p.level * 20"
+            style="flex: 1; background: var(--brand-glow); opacity: 0.6; border-radius: 4px"
+          ></div>
+          }
+        </div>
+      } @else {
+        <p class="empty-hint">Log your first energy level on the Energy page to see your trend here.</p>
+      }
       } @else {
       <div class="chart skeleton" aria-hidden="true"></div>
       }

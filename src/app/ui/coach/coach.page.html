@@ -40,7 +40,11 @@
       </footer>
     </article>
     } @if (!cards.length) {
-    <div class="empty subtle">No suggestions yet. Refresh to evaluate.</div>
+    <div class="empty-state panel-glass panel-section">
+      <p class="empty-title">No suggestions yet</p>
+      <p class="empty-hint">The coach evaluates your energy logs and recent activity. Log an energy level, complete a task, or click Evaluate now to generate personalized nudges.</p>
+      <button class="btn-base btn-ghost" type="button" (click)="refresh()">Evaluate now</button>
+    </div>
     } }
   </div>
 </section>

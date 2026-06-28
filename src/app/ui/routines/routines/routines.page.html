@@ -22,7 +22,10 @@
           <button class="del" (click)="deleteRoutine(r.id)" aria-label="Delete routine">×</button>
         </li>
       </ul>
-      <p *ngIf="!routinesSig().length" class="empty">No routines yet.</p>
+      <div *ngIf="!routinesSig().length" class="empty-state">
+        <p class="empty-title">No routines yet</p>
+        <p class="empty-hint">Type a name above and click Add to create your first routine — morning, wind-down, or any sequence that helps you stay on track.</p>
+      </div>
     </aside>
     <div
       class="editor panel-glass panel-section"
