@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { StorageErrorService } from './storage-error.service';
 
 @Component({
@@ -61,8 +62,9 @@ import { StorageErrorService } from './storage-error.service';
 })
 export class StorageErrorBannerComponent {
   readonly svc = inject(StorageErrorService);
+  private readonly doc = inject(DOCUMENT);
 
   refresh(): void {
-    location.reload();
+    this.doc.location.reload();
   }
 }
