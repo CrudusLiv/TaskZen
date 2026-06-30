@@ -93,13 +93,26 @@ app.use((req, res, next) => {
  */
 if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4000;
-  app.listen(port, (error) => {
-    if (error) {
-      throw error;
-    }
-
+  const server = app.listen(port, (error?: Error) => {
+    if (error) throw error;
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
+
+  const shutdown = (signal: string) => {
+    console.log(`[server] ${signal} received — shutting down gracefully`);
+    server.close(() => {
+      console.log('[server] All connections closed. Exiting.');
+      process.exit(0);
+    });
+    // Force exit if connections hang
+    setTimeout(() => {
+      console.error('[server] Forced shutdown after 10s timeout');
+      process.exit(1);
+    }, 10_000).unref();
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 /**
