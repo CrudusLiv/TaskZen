@@ -1,222 +1,135 @@
 # TaskZen
 
-Modern, signal‑driven productivity & kanban workspace built with Angular 20, Firebase, and NgRx.
+An ADHD productivity tool built with Angular 20, NgRx, and Firebase — helping you capture tasks, track energy, build routines, and stay focused.
 
-## Firestore Composite Index (Cards Ordering)
+## Features
 
-To enable ordered card streaming (by column + position) a composite index is defined in `firestore.indexes.json`:
+- **Item capture** — quick inbox for thoughts; move items through Inbox / In Progress / Done
+- **Prioritize** — reorder and triage items by urgency and importance
+- **Focus timer** — Pomodoro-style SVG ring timer with break tracking and calm mode
+- **Energy logging** — log your energy level throughout the day; spot patterns over time
+- **Routine builder** — build step-by-step routines and play through them with a guided flow
+- **AI Coach** — rule-based nudges and suggestions based on your task and energy state
+- **Insights dashboard** — energy trend chart, priority distribution, and streak tracking
+- **PWA** — installable, works offline; Angular service worker caches assets and state
 
-- collectionGroup: `cards`
-- fields: `boardId` ASC, `columnId` ASC, `position` ASC
+## Tech Stack
 
-Deploy with Firebase CLI (or let GitHub Actions deploy, if configured). Without it the app may fallback to unsorted listeners depending on your effects configuration.
+| Layer | Technology |
+| --- | --- |
+| Framework | Angular 20.3.x — standalone components, signals, zoneless change detection |
+| State | NgRx Store + Effects (feature slices for every domain) |
+| Persistence | In-memory (default) + Firebase Firestore (opt-in) |
+| Auth | Firebase Authentication (opt-in) |
+| SSR server | Express 5 + `@angular/ssr` (`src/server.ts`) |
+| PWA | Angular service worker + `manifest.webmanifest` |
+| Linting | `@angular-eslint` + ESLint flat config |
+| Error tracking | Sentry (optional, configured via `SENTRY_DSN`) |
+| Testing | Karma/Jasmine (unit) + Playwright (E2E) |
 
-## ✨ Features
-
-- Kanban board with boards / columns / cards (lazy loaded routes)
-- Focus mode & task list
-- Analytics dashboard (Chart.js via ngx-chartjs)
-- Real‑time persistence (Firestore) with offline IndexedDB cache
-- Authentication (email/password + placeholder for Google provider)
-- Notifications & activity feed
-- Toast & dialog UI services
-- Theming (accent color, dark mode baseline)
-- Server entry prepared for SSR / Express integration
-- Strict Angular 20 + Standalone Components + Signals + Zoneless change detection
-- NgRx Store + Effects + Entity (scoped feature reducers & effects)
-
-## 🧱 Tech Stack
-
-| Layer | Tech |
-|-------|------|
-| Framework | Angular 20 (standalone, signals, zoneless) |
-| State | NgRx Store / Effects / Entity + Signals in components |
-| Backend (Realtime & Auth) | Firebase (Auth, Firestore) |
-| Charts | Chart.js 4 + ngx-chartjs |
-| Server Harness | Express 5 + `@angular/ssr` (server entry `src/server.ts`) |
-
-## 📁 Key Structure
-
-```
-src/
-	app/
-		auth/              # Auth UI + NgRx auth feature
-		boards/            # Boards dashboard + effects
-		kanban/            # Board / column / card domain + firestore sync effects
-		tasks/             # Task feature state & UI
-		focus/             # Focus mode feature
-		analytics/         # Analytics dashboard (Chart.js)
-		notifications/     # Activity feed & bell
-		navigation/        # Side navigation component
-		ui/                # Reusable UI primitives (toast, dialog)
-		theme/             # Theme service (accent management)
-		store/             # Root app state wiring
-		app.routes.ts      # Lazy feature route definitions
-		app.config.ts      # Global providers (router, firebase, zoneless, store)
-		app.ts             # Root component (signals, breadcrumbs)
-server.ts              # Express + Angular SSR request handler
-main.ts                # Browser bootstrap
-main.server.ts         # Exports server bootstrap (SSR build)
-```
-
-## 🔧 Prerequisites
+## Prerequisites
 
 - Node.js 20+
-- A Firebase project (Firestore + Authentication enabled)
+- A Firebase project with Firestore and Authentication enabled (optional — the app runs fully offline without it)
 
-## 🔐 Firebase Configuration
-
-Local dev reads from `src/app/firebase.config.local.ts` (gitignored but currently present as an example). Replace values with your own Web App config from Firebase Console:
-
-```ts
-export const firebaseEnv = {
-  apiKey: '...',
-  authDomain: '...',
-  projectId: '...',
-  storageBucket: '...',
-  messagingSenderId: '...',
-  appId: '...',
-  measurementId: '...',
-} as const;
-```
-
-If you need different configs per environment, you can inject an alternate token or perform a build‑time replacement.
-
-## ▶️ Development
-
-Install deps:
+## Setup
 
 ```bash
+git clone https://github.com/<your-org>/taskzen.git
+cd taskzen
 npm install
+cp .env.example .env   # then edit .env with your values
 ```
 
-Run the dev server (browser only, hydration currently disabled):
+## Firebase Configuration
+
+Firebase is opt-in. To enable it, create `src/app/firebase.config.local.ts` (this file is gitignored) with your Firebase Web App credentials:
+
+```ts
+import { FirebaseEnvConfig } from './firebase.config';
+
+export const firebaseEnv: FirebaseEnvConfig = {
+  apiKey: 'your-api-key',
+  authDomain: 'your-project.firebaseapp.com',
+  projectId: 'your-project-id',
+  appId: 'your-app-id',
+  storageBucket: 'your-project.appspot.com',    // optional
+  messagingSenderId: '123456789',               // optional
+  measurementId: 'G-XXXXXXXXXX',               // optional
+};
+```
+
+If the file is absent (e.g., in CI), the app falls back to in-memory storage with no Firebase dependency.
+
+## Development
 
 ```bash
 npm start
 ```
 
-Visit http://localhost:4200
+Opens at <http://localhost:4200> with live reload.
 
-The Express SSR entry (`server.ts`) exists; to experiment with a local SSR build:
+To run the Express SSR server locally:
 
 ```bash
-npm run build         # Produces dist/TaskZen
+npm run build
 node dist/TaskZen/server/server.mjs
 ```
 
-Then open http://localhost:4000
+Opens at <http://localhost:4000>.
 
-## 🧪 Testing
+## Testing
 
-Run unit tests (Karma + Jasmine):
+Run unit tests with coverage (Karma + Jasmine):
 
 ```bash
 npm test
 ```
 
-(No e2e framework configured yet; Cypress or Playwright can be added.)
+The CI pipeline enforces a 60% coverage gate. The project currently ships 136 unit tests.
 
-## 🏗️ Building
+Run Playwright E2E tests (3 journeys):
 
-Production build (optimization, budgets, etc.):
+```bash
+npm run e2e
+```
+
+## Linting
+
+```bash
+npm run lint
+```
+
+Uses `@angular-eslint` with an ESLint flat config (`eslint.config.mjs`).
+
+## Building
+
+Production build:
 
 ```bash
 npm run build
 ```
 
-Artifacts output to `dist/TaskZen`.
+Artifacts are output to `dist/TaskZen`. Initial bundle budget: warning at 800 kB, error at 1.5 MB.
 
-Build budgets
-- Initial bundle warning: 800kB; error: 1.5MB (configured in `angular.json`).
-- Component style warning: 4kB; error: 8kB.
-  We will optimize bundles (code-split and trim dependencies) in a follow-up.
+## Environment Variables
 
-## 🧬 State Management Notes
+These variables are read by the Express SSR server (`src/server.ts`). Copy `.env.example` to `.env` and set values before running the server.
 
-- Root store composed in `app.store.module.ts`
-- Feature slices (e.g., boards, tasks, auth) define actions, reducer, selectors under their folder
-- Effects handle async (Firestore sync, auth flows)
-- Components primarily bind to selectors or local signals (avoid heavy store logic in templates)
+| Variable | Default | Description |
+| --- | --- | --- |
+| `PORT` | `4000` | Port the Express SSR server listens on |
+| `ALLOWED_ORIGIN` | `http://localhost:4200` | CORS allowed origin (restrict to your domain in production) |
+| `NODE_ENV` | `development` | Runtime environment: `development`, `production`, or `test` |
+| `SENTRY_DSN` | _(empty)_ | Sentry DSN for error tracking; omit or leave blank to disable |
 
-## 🧠 Signals Usage
+## CI/CD
 
-- Local UI state (sidebar, breadcrumbs, theme accent) via `signal()` & `computed()`
-- Derived breadcrumb list built reactively in root component
-- Avoid `mutate`; use `set` / `update`
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push and pull request:
 
-## 🌐 SSR / Server Notes
-
-- `server.ts` sets up Express static hosting + universal request handling
-- Currently hydration is disabled in `app.config.ts` (can be re‑enabled if SSR hydration is desired)
-- `serve:ssr:TaskZen` script runs the built server bundle
-
-## 🔔 Notifications & Toasts
-
-- Activity feed & bell components backed by `notifications` feature slice
-- Toast UI rendered via `ToastContainerComponent` with imperative service triggers
-
-## 🎨 Theming
-
-- Dark baseline; accent color stored via `ThemeService`
-- Sidebar collapsed state persisted in `localStorage`
-
-## 🚀 Roadmap Ideas
-
-- Enable hydration & deploy SSR (e.g., Firebase Hosting + Functions)
-- OAuth provider integrations (Google, GitHub) in `AuthEffects`
-- Drag & drop enhancements / keyboard accessibility for kanban
-- Offline queue & conflict resolution strategies
-- E2E test suite (Playwright)
-
-## 🤝 Contributing
-
-1. Fork & clone
-2. Create a feature branch
-3. Commit using conventional messages if possible
-4. Open a PR
-
-## 📄 License
-
-Currently unpublished license (assume All Rights Reserved unless a LICENSE file is added). Add a LICENSE to clarify reuse.
-
-## 📚 Additional Angular CLI Help
-
-List available schematics:
-
-```bash
-npx ng generate --help
-```
-
-## 🙋 Support
-
-File an issue or start a discussion if you have questions or suggestions.
-
-## 📅 Calendar & Planner
-
-- Calendar (`/calendar`) shows:
-  - Card-based events: cards that have a `dueDate` (ISO `YYYY-MM-DD`), styled by priority, with quick clear/open actions.
-  - Standalone events: personal events stored in Firestore (`calendarEvents`) per user. Click the + button on a day to add; click ✕ to delete.
-- Unscheduled panel lists cards without a due date, sorted by priority then title; quick buttons schedule into the next 7 days.
-- Planner focus highlights focused cards in the calendar and in the unscheduled list.
-
-Data model
-
-- Calendar events in store include a `source` field: `'card' | 'event'`. Card events mirror the card and are not persisted separately. Standalone events are persisted.
-
-Firestore collections
-
-- `cards`: board-scoped; `dueDate` must be ISO `YYYY-MM-DD` or `null`.
-- `plannerFocus/{uid}`: `{ ids: string[], updatedAt: number }` limited to 25 IDs per user.
-- `calendarEvents/{eventId}`: `{ ownerId, title, date, createdAt, updatedAt }` owned by the creating user.
-
-Security rules highlights (see `firestore.rules`)
-
-- Auth required everywhere. Board access gated by membership.
-- `cards.dueDate` validated as ISO date; comments/subtasks size capped.
-- `plannerFocus` limited to 25 IDs and only readable/writable by its user.
-- `calendarEvents` only readable/writable by their `ownerId`; `title` length capped; `date` validated.
-
----
-
-Built with ❤️ using Angular signals & Firebase.
+1. **Lint** — `npm run lint`
+2. **Audit** — `npm audit --audit-level=high`
+3. **Unit tests** — `npm test` with 60% coverage gate
+4. **Build** — `npm run build`
+5. **E2E** — Playwright tests against the production build
+6. **Firebase preview** — deploys a preview channel on pull requests (requires `FIREBASE_TOKEN` secret)
