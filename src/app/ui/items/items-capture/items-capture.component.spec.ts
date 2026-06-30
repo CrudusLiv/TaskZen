@@ -11,7 +11,7 @@ function parseQuickMeta(raw: string) {
       continue;
     }
     if (/^![1-5]$/.test(t)) {
-      energyLevel = Number(t.substring(1)) as any;
+      energyLevel = Number(t.substring(1)) as 1 | 2 | 3 | 4 | 5;
       continue;
     }
     if (/^~\d+$/.test(t)) {

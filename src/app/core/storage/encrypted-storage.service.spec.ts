@@ -1,13 +1,14 @@
 import { EncryptedStorageService } from './encrypted-storage.service';
 
 interface FakeSnapshot {
+  [key: string]: unknown;
   version: number;
-  items: any;
-  energy: any;
-  routines: any;
-  focus: any;
-  coach?: any;
-  preferences?: any;
+  items: Record<string, number>;
+  energy: Record<string, never>;
+  routines: unknown[];
+  focus: Record<string, never>;
+  coach?: { tips: unknown[] };
+  preferences?: { theme: string };
 }
 
 function baseSnap(): FakeSnapshot {
@@ -37,10 +38,10 @@ describe('EncryptedStorageService', () => {
     await svc.save(snap);
     const loaded = await svc.load();
     expect(loaded).toBeTruthy();
-    expect(loaded?.version).toBe(1);
-    expect(loaded?.items).toEqual({ a: 1 });
-    expect(loaded?.preferences?.theme).toBe('dark');
-    expect(loaded?.savedAt).toBeTruthy();
+    expect((loaded as FakeSnapshot | null)?.version).toBe(1);
+    expect((loaded as FakeSnapshot | null)?.items).toEqual({ a: 1 });
+    expect((loaded as FakeSnapshot | null)?.preferences?.theme).toBe('dark');
+    expect((loaded as { savedAt?: string } | null)?.savedAt).toBeTruthy();
   });
 
   it('export then import persists data', async () => {
@@ -51,23 +52,28 @@ describe('EncryptedStorageService', () => {
     await svc.save({ ...snap, items: { a: 2 } });
     await svc.import(exported);
     const loaded = await svc.load();
-    expect(loaded?.items).toEqual({ a: 1 });
+    expect((loaded as FakeSnapshot | null)?.items).toEqual({ a: 1 });
   });
 
   it('tampered ciphertext causes load to throw', async () => {
     const snap = baseSnap();
     await svc.save(snap);
     // Directly get packed string via export(local) path: load then mimic DB corruption.
-    const dbAny: any = (svc as any).dbPromise
-      ? await (svc as any).dbPromise
-      : await (svc as any).db;
-    const packed: string = await dbAny.get('kv', 'main');
+    const svcAsRecord = svc as unknown as Record<string, unknown>;
+    const dbAny = svcAsRecord['dbPromise']
+      ? await (svcAsRecord['dbPromise'] as Promise<unknown>)
+      : await (svcAsRecord['db'] as Promise<unknown>);
+    const dbWithGet = dbAny as {
+      get(store: string, key: string): Promise<string>;
+      put(store: string, value: string, key: string): Promise<void>;
+    };
+    const packed: string = await dbWithGet.get('kv', 'main');
     // Tamper a byte: flip middle char for higher chance of auth tag failure
     const mid = Math.floor(packed.length / 2);
     const origChar = packed[mid];
     const tamperedChar = origChar === 'A' ? 'B' : 'A';
     const tampered = packed.slice(0, mid) + tamperedChar + packed.slice(mid + 1);
-    await dbAny.put('kv', tampered, 'main');
+    await dbWithGet.put('kv', tampered, 'main');
     // Should now throw instead of silently returning null
     await expectAsync(svc.load()).toBeRejected();
   });
@@ -78,5 +84,4 @@ describe('EncryptedStorageService', () => {
 });
 
 // Increase timeout for slower crypto/IndexedDB in CI
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(jasmine as any).DEFAULT_TIMEOUT_INTERVAL = 15000;
+(jasmine as unknown as { DEFAULT_TIMEOUT_INTERVAL: number }).DEFAULT_TIMEOUT_INTERVAL = 15000;

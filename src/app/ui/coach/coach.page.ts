@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { selectCoachCards } from './state/coach.selectors';
-import { CoachActions } from './state/coach.actions';
+import { CoachActions, CoachCard } from './state/coach.actions';
 import { SkeletonLoaderComponent } from '../../shared/skeleton-loader/skeleton-loader.component';
 
 @Component({
@@ -14,9 +14,10 @@ import { SkeletonLoaderComponent } from '../../shared/skeleton-loader/skeleton-l
   styleUrls: ['./coach.page.scss'],
 })
 export class CoachPage {
-  cards$!: Observable<any[]>;
+  private store = inject(Store);
+  cards$: Observable<CoachCard[]>;
 
-  constructor(private store: Store) {
+  constructor() {
     this.cards$ = this.store.select(selectCoachCards);
   }
 

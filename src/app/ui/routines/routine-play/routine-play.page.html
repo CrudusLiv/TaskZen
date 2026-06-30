@@ -1,75 +1,92 @@
-<section class="routine-play page panel-stack" *ngIf="activeRoutine() as r; else empty">
-  <header class="panel-glass panel-section heading">
-    <button class="btn-ghost btn-base back-btn" (click)="backToRoutines()">← Back</button>
-    <h1>{{ r.name }}</h1>
-  </header>
+@if (activeRoutine(); as r) {
+  <section class="routine-play page panel-stack">
+    <header class="panel-glass panel-section heading">
+      <button class="btn-ghost btn-base back-btn" (click)="backToRoutines()">← Back</button>
+      <h1>{{ r.name }}</h1>
+    </header>
 
-  <!-- Completed state -->
-  <div class="panel-glass panel-section complete" *ngIf="completed()">
-    <h2 class="complete-title">Routine Complete! 🎉</h2>
-    <p class="hint">Well done — you finished all {{ r.steps.length }} steps.</p>
-    <div class="controls">
-      <button class="btn-primary" (click)="start()">Restart</button>
-      <button class="btn-ghost btn-base" (click)="backToRoutines()">Back to Routines</button>
-    </div>
-  </div>
-
-  <!-- Active play state -->
-  <div class="panel-glass panel-section stage" *ngIf="started() && !completed()">
-    <div class="progress-bar">
-      <div class="bar" [style.width.%]="progressPct()"></div>
-    </div>
-
-    <div class="current-step" *ngIf="currentStep() as step">
-      <p class="step-counter">Step {{ currentIndex() + 1 }} of {{ r.steps.length }}</p>
-      <h2>{{ step.title }}</h2>
-      <div class="ring" *ngIf="step.minutes" aria-label="Step timer">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="46" class="bg" />
-          <circle
-            cx="50"
-            cy="50"
-            r="46"
-            class="fg"
-            pathLength="100"
-            [attr.stroke-dasharray]="timerRingPct() + ' 100'"
-          />
-        </svg>
-        <div class="time">{{ timerDisplay() }}</div>
+    <!-- Completed state -->
+    @if (completed()) {
+      <div class="panel-glass panel-section complete">
+        <h2 class="complete-title">Routine Complete! 🎉</h2>
+        <p class="hint">Well done — you finished all {{ r.steps.length }} steps.</p>
+        <div class="controls">
+          <button class="btn-primary" (click)="start()">Restart</button>
+          <button class="btn-ghost btn-base" (click)="backToRoutines()">Back to Routines</button>
+        </div>
       </div>
-      <p class="no-timer" *ngIf="!step.minutes">No timer set for this step</p>
-    </div>
+    }
 
-    <div class="controls">
-      <button class="btn-primary" (click)="next()">
-        {{ isLastStep() ? 'Complete ✓' : 'Next Step →' }}
-      </button>
-      <button class="btn-ghost btn-base" (click)="stop()">Stop</button>
-    </div>
+    <!-- Active play state -->
+    @if (started() && !completed()) {
+      <div class="panel-glass panel-section stage">
+        <div class="progress-bar">
+          <div class="bar" [style.width.%]="progressPct()"></div>
+        </div>
 
-    <ul class="steps-mini">
-      <li *ngFor="let s of r.steps; let i = index" [class.active]="i === currentIndex()" [class.done]="i < currentIndex()">{{ i + 1 }}</li>
-    </ul>
-  </div>
+        @if (currentStep(); as step) {
+          <div class="current-step">
+            <p class="step-counter">Step {{ currentIndex() + 1 }} of {{ r.steps.length }}</p>
+            <h2>{{ step.title }}</h2>
+            @if (step.minutes) {
+              <div class="ring" aria-label="Step timer">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle cx="50" cy="50" r="46" class="bg" />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="46"
+                    class="fg"
+                    pathLength="100"
+                    [attr.stroke-dasharray]="timerRingPct() + ' 100'"
+                  />
+                </svg>
+                <div class="time">{{ timerDisplay() }}</div>
+              </div>
+            }
+            @if (!step.minutes) {
+              <p class="no-timer">No timer set for this step</p>
+            }
+          </div>
+        }
 
-  <!-- Pre-start state -->
-  <ng-container *ngIf="!started() && !completed()">
-    <div class="panel-glass panel-section pre">
-      <p class="hint">{{ r.steps.length }} steps<ng-container *ngIf="r.energyTarget"> · Energy target: {{ r.energyTarget }}</ng-container><ng-container *ngIf="r.cue"> · Cue: {{ r.cue }}</ng-container></p>
-      <ol class="preview">
-        <li *ngFor="let s of r.steps">
-          {{ s.title }}<span *ngIf="s.minutes" class="dur"> ({{ s.minutes }}m)</span>
-        </li>
-      </ol>
-      <button class="btn-primary" (click)="start()" [disabled]="!r.steps.length">Start Routine</button>
-      <p *ngIf="!r.steps.length" class="hint">Add steps to this routine before playing.</p>
-    </div>
-  </ng-container>
-</section>
+        <div class="controls">
+          <button class="btn-primary" (click)="next()">
+            {{ isLastStep() ? 'Complete ✓' : 'Next Step →' }}
+          </button>
+          <button class="btn-ghost btn-base" (click)="stop()">Stop</button>
+        </div>
 
-<ng-template #empty>
+        <ul class="steps-mini">
+          @for (s of r.steps; track s.id; let i = $index) {
+            <li [class.active]="i === currentIndex()" [class.done]="i < currentIndex()">{{ i + 1 }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Pre-start state -->
+    @if (!started() && !completed()) {
+      <div class="panel-glass panel-section pre">
+        <p class="hint">{{ r.steps.length }} steps
+          @if (r.energyTarget) { · Energy target: {{ r.energyTarget }} }
+          @if (r.cue) { · Cue: {{ r.cue }} }
+        </p>
+        <ol class="preview">
+          @for (s of r.steps; track s.id) {
+            <li>{{ s.title }}@if (s.minutes) {<span class="dur"> ({{ s.minutes }}m)</span>}</li>
+          }
+        </ol>
+        <button class="btn-primary" (click)="start()" [disabled]="!r.steps.length">Start Routine</button>
+        @if (!r.steps.length) {
+          <p class="hint">Add steps to this routine before playing.</p>
+        }
+      </div>
+    }
+  </section>
+} @else {
   <div class="panel-glass panel-section placeholder">
     <p>Routine not found.</p>
     <button class="btn-ghost btn-base" (click)="backToRoutines()">← Back to Routines</button>
   </div>
-</ng-template>
+}

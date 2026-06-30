@@ -8,7 +8,7 @@ import { Injectable, signal } from '@angular/core';
 export class UpdateNotifierService {
   private initialTag: string | null = null;
   private lastCheckTag: string | null = null;
-  private timer: any;
+  private timer: ReturnType<typeof setInterval> | undefined;
   readonly updateAvailable = signal(false);
 
   start(intervalMs = 60000) {
@@ -18,7 +18,7 @@ export class UpdateNotifierService {
   }
   stop() {
     if (this.timer) clearInterval(this.timer);
-    this.timer = null;
+    this.timer = undefined;
   }
   private async check() {
     try {
@@ -40,7 +40,7 @@ export class UpdateNotifierService {
       if (tag !== this.initialTag) {
         this.updateAvailable.set(true);
       }
-    } catch (e) {
+    } catch {
       // swallow network errors silently
     }
   }

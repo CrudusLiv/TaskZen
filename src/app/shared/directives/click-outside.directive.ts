@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Output, inject } from '@angular/core';
 
 @Directive({
   selector: '[appClickOutside]',
@@ -6,8 +6,8 @@ import { Directive, ElementRef, EventEmitter, HostListener, Output } from '@angu
 })
 export class ClickOutsideDirective {
   @Output() appClickOutside = new EventEmitter<Event>();
+  private el = inject(ElementRef<HTMLElement>);
   private lastInside = 0;
-  constructor(private el: ElementRef<HTMLElement>) {}
   @HostListener('mousedown', ['$event']) onDown(e: Event) {
     if (this.el.nativeElement.contains(e.target as Node)) this.lastInside = Date.now();
   }

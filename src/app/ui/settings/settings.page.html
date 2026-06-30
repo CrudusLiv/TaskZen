@@ -12,20 +12,21 @@
       <label>
         <span>Theme Mode</span>
         <div class="accent-swatches" role="radiogroup" aria-label="Accent color choices">
-          <button
-            type="button"
-            *ngFor="let a of accentPalette"
-            class="swatch"
-            [class.active]="accent() === a"
-            [style.--swatch-color]="a"
-            role="radio"
-            [attr.aria-checked]="accent() === a"
-            (click)="setAccent(a)"
-            (keydown.enter)="setAccent(a)"
-            (keydown.space)="setAccent(a)"
-          >
-            <span class="sr-only">{{ a }}</span>
-          </button>
+          @for (a of accentPalette; track a) {
+            <button
+              type="button"
+              class="swatch"
+              [class.active]="accent() === a"
+              [style.--swatch-color]="a"
+              role="radio"
+              [attr.aria-checked]="accent() === a"
+              (click)="setAccent(a)"
+              (keydown.enter)="setAccent(a)"
+              (keydown.space)="setAccent(a)"
+            >
+              <span class="sr-only">{{ a }}</span>
+            </button>
+          }
         </div>
         <select [value]="themeMode()" (change)="setThemeMode($any($event.target).value)">
           <option value="dark">Dark</option>

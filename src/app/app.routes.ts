@@ -11,7 +11,7 @@ export const routes: Routes = [
         pathMatch: 'full',
         loadComponent: () =>
           import('./ui/items/items-capture/items-capture.component').then(
-            (m) => m.ItemsCaptureComponent
+            (m) => m.ItemsCaptureComponent,
           ),
       },
       {

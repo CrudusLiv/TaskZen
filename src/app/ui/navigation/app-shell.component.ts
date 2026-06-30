@@ -1,7 +1,6 @@
 import { Component, signal, inject, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { NgFor } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectCalmMode } from '../preferences/state/preferences.selectors';
 import { PreferencesActions } from '../preferences/state/preferences.actions';
@@ -16,7 +15,7 @@ interface NavLink {
 @Component({
   standalone: true,
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NgFor, ErrorNotificationBannerComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ErrorNotificationBannerComponent],
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
 })
@@ -48,7 +47,7 @@ export class AppShellComponent {
     const seg = clean.split('?')[0].split('#')[0];
     const first = seg.split('/')[0];
     const match = this.nav.findIndex(
-      (l) => (l.path === '' && (first === '' || first === '')) || l.path === first
+      (l) => (l.path === '' && (first === '' || first === '')) || l.path === first,
     );
     return match < 0 ? 0 : match;
   });
@@ -56,7 +55,9 @@ export class AppShellComponent {
   gap = 6;
   topOffset = 0; // used in template for indicator positioning
   constructor() {
-    this.router.events.pipe(takeUntilDestroyed()).subscribe(() => this.currentUrl.set(this.router.url));
+    this.router.events
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.currentUrl.set(this.router.url));
   }
   toggle() {
     this.sidebarOpen.update((v) => !v);

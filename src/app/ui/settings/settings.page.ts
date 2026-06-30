@@ -43,13 +43,13 @@ export class SettingsPage {
   toggleCalm() {
     this.store.dispatch(PreferencesActions.toggleCalmMode());
   }
-  setThemeMode(mode: any) {
+  setThemeMode(mode: 'dark' | 'light' | 'system') {
     this.store.dispatch(PreferencesActions.setThemeMode({ mode }));
   }
   setAccent(accent: string) {
     this.store.dispatch(PreferencesActions.setAccent({ accent }));
   }
-  setDensity(density: any) {
+  setDensity(density: 'comfortable' | 'compact') {
     this.store.dispatch(PreferencesActions.setDensity({ density }));
   }
   setHighContrast(value: boolean) {

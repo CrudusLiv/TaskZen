@@ -14,12 +14,14 @@ export const FIREBASE_CONFIG_TOKEN = new InjectionToken<FirebaseEnvConfig>('FIRE
 
 // Attempt to load a local development config. If missing (e.g. CI), fall back to undefined.
 // Avoids build break when `firebase.config.local.ts` is intentionally excluded or replaced in pipeline.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-explicit-any
-let localConfig: any = undefined;
+let localConfig: FirebaseEnvConfig | undefined;
 try {
-  // Using require inside try so TS still emits dynamic resolution; if bundler tree-shakes, ensure file exists locally.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  localConfig = (require('./firebase.config.local') as { firebaseEnv: FirebaseEnvConfig }).firebaseEnv;
+  // Dynamic import via Function constructor bypasses bundler static analysis;
+  // used only for optional local-only config that must not break CI when absent.
+  const mod = new Function('require', "return require('./firebase.config.local')")(
+    typeof require !== 'undefined' ? require : undefined,
+  ) as { firebaseEnv: FirebaseEnvConfig } | undefined;
+  localConfig = mod?.firebaseEnv;
 } catch {
   localConfig = undefined;
 }

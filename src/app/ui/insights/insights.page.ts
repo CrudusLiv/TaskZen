@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -22,16 +22,18 @@ import { SkeletonLoaderComponent } from '../../shared/skeleton-loader/skeleton-l
   styleUrls: ['./insights.page.scss'],
 })
 export class InsightsPage {
-  capturedToday$!: Observable<number>;
-  completedToday$!: Observable<number>;
-  focusMinutesToday$!: Observable<number>;
-  energyTrend$!: Observable<any>;
-  routineAdherence$!: Observable<any>;
-  priorityDistribution$!: Observable<any>;
-  energyDipWindow$!: Observable<string | null>;
-  completionStreak$!: Observable<number>;
+  private store = inject(Store);
 
-  constructor(private store: Store) {
+  capturedToday$: Observable<number>;
+  completedToday$: Observable<number>;
+  focusMinutesToday$: Observable<number>;
+  energyTrend$: Observable<{ level: number; createdAt: string }[]>;
+  routineAdherence$: Observable<{ ratio: number; percent: number }>;
+  priorityDistribution$: Observable<{ high: number; medium: number; low: number }>;
+  energyDipWindow$: Observable<string | null>;
+  completionStreak$: Observable<number>;
+
+  constructor() {
     this.capturedToday$ = this.store.select(selectItemsCapturedToday);
     this.completedToday$ = this.store.select(selectItemsCompletedToday);
     this.focusMinutesToday$ = this.store.select(selectFocusActiveMinutesToday);

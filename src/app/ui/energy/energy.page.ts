@@ -1,5 +1,4 @@
-import { Component, computed, signal, inject } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { Component, signal, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { EnergyActions, EnergyLog } from './state/energy.actions';
 import {
@@ -11,7 +10,7 @@ import {
 @Component({
   standalone: true,
   selector: 'app-energy-page',
-  imports: [NgFor, NgIf],
+  imports: [],
   templateUrl: './energy.page.html',
   styleUrls: ['./energy.page.scss'],
 })
@@ -27,7 +26,7 @@ export class EnergyPage {
   moodPalette = ['focused', 'calm', 'stressed', 'distracted', 'sleepy', 'energized', 'foggy'];
 
   setLevel(l: number) {
-    this.level.set(l as any);
+    if (l >= 1 && l <= 5) this.level.set(l as 1 | 2 | 3 | 4 | 5);
   }
   toggleMood(m: string) {
     this.moods.update((arr) => (arr.includes(m) ? arr.filter((x) => x !== m) : [...arr, m]));
@@ -35,10 +34,10 @@ export class EnergyPage {
   add() {
     this.store.dispatch(
       EnergyActions.addLog({
-        level: this.level() as any,
+        level: this.level(),
         moods: this.moods(),
         note: this.note().trim() || undefined,
-      })
+      }),
     );
     this.moods.set([]);
     this.note.set('');

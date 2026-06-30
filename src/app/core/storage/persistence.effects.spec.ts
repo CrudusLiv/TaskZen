@@ -102,10 +102,12 @@ describe('PersistenceEffects', () => {
       actions$.next(ItemsActions.init());
 
       // Wait two microtask turns for the Promise and operators to resolve
-      Promise.resolve().then(() => Promise.resolve()).then(() => {
-        expect(dispatched.length).toBe(0);
-        done();
-      });
+      Promise.resolve()
+        .then(() => Promise.resolve())
+        .then(() => {
+          expect(dispatched.length).toBe(0);
+          done();
+        });
     });
 
     it('calls storageError.showLoadError() and does not error the stream when load throws', (done) => {

@@ -68,7 +68,18 @@ export const itemsReducer = createReducer(
     ItemsActions.addItem,
     (
       s,
-      { title, description, estimateMinutes, energyLevel, effort, due, focusBoost, tags, microSteps, pinned }
+      {
+        title,
+        description,
+        estimateMinutes,
+        energyLevel,
+        effort,
+        due,
+        focusBoost,
+        tags,
+        microSteps,
+        pinned,
+      },
     ) => {
       const id = 'i' + Date.now();
       const now = new Date().toISOString();
@@ -92,7 +103,7 @@ export const itemsReducer = createReducer(
         updatedAt: now,
       };
       return { entities: { ...s.entities, [id]: entity }, order: [id, ...s.order] };
-    }
+    },
   ),
   on(ItemsActions.addMany, (s, { items }) => {
     if (!items.length) return s;
@@ -110,7 +121,8 @@ export const itemsReducer = createReducer(
         effort: it.effort,
         due: it.due,
         focusBoost: it.focusBoost,
-        tags: it.tags && it.tags.length ? [...new Set(it.tags.map((t) => t.toLowerCase()))] : undefined,
+        tags:
+          it.tags && it.tags.length ? [...new Set(it.tags.map((t) => t.toLowerCase()))] : undefined,
         actualMinutes: 0,
         microSteps: it.microSteps && it.microSteps.length ? it.microSteps : undefined,
         microStepsState:
@@ -129,27 +141,29 @@ export const itemsReducer = createReducer(
   on(ItemsActions.updateItem, (s, { id, changes }) => {
     const current = s.entities[id];
     if (!current) return s;
-    let updated: ItemEntity = { ...current, ...changes };
-    if (changes.microSteps) {
-      const steps = changes.microSteps;
-      updated.microStepsState = steps
-        ? steps.map((_, i) => current.microStepsState?.[i] || false)
-        : undefined;
-    }
-    updated.updatedAt = new Date().toISOString();
+    const microStepsState = changes.microSteps
+      ? changes.microSteps.map((_, i) => current.microStepsState?.[i] || false)
+      : current.microStepsState;
+    const updated: ItemEntity = {
+      ...current,
+      ...changes,
+      microStepsState,
+      updatedAt: new Date().toISOString(),
+    };
     return { ...s, entities: { ...s.entities, [id]: updated } };
   }),
   on(ItemsActions.patchItem, (s, { id, changes }) => {
     const current = s.entities[id];
     if (!current) return s;
-    let updated: ItemEntity = { ...current, ...changes };
-    if (changes.microSteps) {
-      const steps = changes.microSteps;
-      updated.microStepsState = steps
-        ? steps.map((_, i) => current.microStepsState?.[i] || false)
-        : undefined;
-    }
-    updated.updatedAt = new Date().toISOString();
+    const microStepsState = changes.microSteps
+      ? changes.microSteps.map((_, i) => current.microStepsState?.[i] || false)
+      : current.microStepsState;
+    const updated: ItemEntity = {
+      ...current,
+      ...changes,
+      microStepsState,
+      updatedAt: new Date().toISOString(),
+    };
     return { ...s, entities: { ...s.entities, [id]: updated } };
   }),
   on(ItemsActions.patchMany, (s, { updates }) => {
@@ -159,15 +173,10 @@ export const itemsReducer = createReducer(
     updates.forEach(({ id, changes }) => {
       const current = entities[id];
       if (!current) return;
-      let updated: ItemEntity = { ...current, ...changes };
-      if (changes.microSteps) {
-        const steps = changes.microSteps;
-        updated.microStepsState = steps
-          ? steps.map((_, i) => current.microStepsState?.[i] || false)
-          : undefined;
-      }
-      updated.updatedAt = now;
-      entities[id] = updated;
+      const microStepsState = changes.microSteps
+        ? changes.microSteps.map((_, i) => current.microStepsState?.[i] || false)
+        : current.microStepsState;
+      entities[id] = { ...current, ...changes, microStepsState, updatedAt: now };
     });
     return { ...s, entities };
   }),
@@ -202,9 +211,11 @@ export const itemsReducer = createReducer(
   }),
   on(ItemsActions.deleteItem, (s, { id }) => {
     if (!s.entities[id]) return s;
-    const { [id]: _, ...rest } = s.entities;
-    return { entities: rest, order: s.order.filter((o) => o !== id) };
-  })
+    const entities = Object.fromEntries(
+      Object.entries(s.entities).filter(([k]) => k !== id),
+    ) as Record<string, ItemEntity>;
+    return { entities, order: s.order.filter((o) => o !== id) };
+  }),
 );
 
 export { itemsFeatureKey };

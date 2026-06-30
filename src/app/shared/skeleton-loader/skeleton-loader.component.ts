@@ -1,18 +1,18 @@
 import { Component, Input } from '@angular/core';
-import { NgFor } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-skeleton-loader',
-  imports: [NgFor],
+  imports: [],
   template: `
     <div class="skeleton-wrap" aria-hidden="true">
-      <div
-        *ngFor="let i of lineArray"
-        class="skeleton-line"
-        [class.skeleton-card]="type === 'card'"
-        [class.skeleton-short]="i === lineArray.length - 1 && type === 'text'"
-      ></div>
+      @for (i of lineArray; track i) {
+        <div
+          class="skeleton-line"
+          [class.skeleton-card]="type === 'card'"
+          [class.skeleton-short]="i === lineArray.length - 1 && type === 'text'"
+        ></div>
+      }
     </div>
   `,
   styleUrls: ['./skeleton-loader.component.scss'],

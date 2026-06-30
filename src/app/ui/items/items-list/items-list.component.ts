@@ -15,7 +15,7 @@ import { selectItemsFeature, selectAllTags } from '../state/items.selectors';
 })
 export class ItemsListComponent implements OnDestroy {
   private store = inject(
-    Store<{ items: { entities: Record<string, ItemEntity>; order: string[] } }>
+    Store<{ items: { entities: Record<string, ItemEntity>; order: string[] } }>,
   );
   // feature slice as a signal via proper selector (string key broke after refactors)
   state = this.store.selectSignal(selectItemsFeature);
@@ -33,7 +33,7 @@ export class ItemsListComponent implements OnDestroy {
   editDraft = signal('');
   focusedIndex = signal<number>(0); // index in flattened filtered list
   private deleteArm = signal<string | null>(null); // id awaiting second confirm
-  private deleteArmTimer: any;
+  private deleteArmTimer: ReturnType<typeof setTimeout> | undefined;
   // Tag filter state
   allTags = this.store.selectSignal(selectAllTags);
   selectedTags = signal<Set<string>>(new Set());
@@ -95,9 +95,11 @@ export class ItemsListComponent implements OnDestroy {
           this.search.set(parsed.search.slice(0, 120));
         }
       }
-    } catch {}
+    } catch {
+      /* localStorage unavailable */
+    }
     // persist on changes (debounced via microtask batching using effect + timeout)
-    let t: any;
+    let t: ReturnType<typeof setTimeout> | undefined;
     const save = () => {
       clearTimeout(t);
       t = setTimeout(() => {
@@ -107,12 +109,11 @@ export class ItemsListComponent implements OnDestroy {
             search: this.search(),
           };
           localStorage.setItem(this.storageKey, JSON.stringify(payload));
-        } catch {}
+        } catch {
+          /* localStorage unavailable */
+        }
       }, 120);
     };
-    // effect watchers
-    (window as any).queueMicrotask?.(() => {}); // noop to ensure microtask polyfill presence if needed
-    const that = this;
     // minimal custom watch since Angular signals effect is tree-shakable; use dynamic import guard if SSR later
     effect(() => {
       // dependencies
@@ -126,7 +127,9 @@ export class ItemsListComponent implements OnDestroy {
 
   private onGlobalKeydown = (e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'k') {
-      const capture = document.querySelector<HTMLInputElement>('app-items-capture input[aria-describedby]');
+      const capture = document.querySelector<HTMLInputElement>(
+        'app-items-capture input[aria-describedby]',
+      );
       if (capture) {
         e.preventDefault();
         capture.focus();
@@ -170,10 +173,13 @@ export class ItemsListComponent implements OnDestroy {
     this.enrichingId.set(null);
     queueMicrotask(() => this.enrichTrigger?.focus());
   }
-  updateField(it: ItemEntity, field: keyof ItemEntity, value: any) {
+  updateField(it: ItemEntity, field: keyof ItemEntity, value: unknown) {
     const parsed = value === '' ? undefined : value;
     this.store.dispatch(
-      ItemsActions.updateItem({ id: it.id, changes: { [field]: parsed } as any })
+      ItemsActions.updateItem({
+        id: it.id,
+        changes: { [field]: parsed } as Partial<Omit<ItemEntity, 'id' | 'createdAt'>>,
+      }),
     );
   }
   updateNumber(it: ItemEntity, field: keyof ItemEntity, ev: Event) {
@@ -197,7 +203,7 @@ export class ItemsListComponent implements OnDestroy {
     return it.microStepsState.reduce((a, b) => a + (b ? 1 : 0), 0);
   }
   // --- Autosave debounced handlers ---
-  private debounceTimers = new Map<string, any>();
+  private debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private schedule(key: string, fn: () => void, delay = 420) {
     clearTimeout(this.debounceTimers.get(key));
     const t = setTimeout(fn, delay);
@@ -211,23 +217,31 @@ export class ItemsListComponent implements OnDestroy {
   }
   inputNumber(it: ItemEntity, field: keyof ItemEntity, ev: Event) {
     const raw = (ev.target as HTMLInputElement).value.trim();
-    this.schedule(it.id + ':' + field, () => {
-      if (raw === '') this.updateField(it, field, undefined);
-      else {
-        const n = Number(raw);
-        this.updateField(it, field, isNaN(n) ? undefined : n);
-      }
-    }, 360);
+    this.schedule(
+      it.id + ':' + field,
+      () => {
+        if (raw === '') this.updateField(it, field, undefined);
+        else {
+          const n = Number(raw);
+          this.updateField(it, field, isNaN(n) ? undefined : n);
+        }
+      },
+      360,
+    );
   }
   inputMicroSteps(it: ItemEntity, ev: Event) {
     const raw = (ev.target as HTMLInputElement).value;
-    this.schedule(it.id + ':microSteps', () => {
-      const parts = raw
-        .split(',')
-        .map((p) => p.trim())
-        .filter((p) => p.length);
-      this.updateField(it, 'microSteps', parts.length ? parts : undefined);
-    }, 520);
+    this.schedule(
+      it.id + ':microSteps',
+      () => {
+        const parts = raw
+          .split(',')
+          .map((p) => p.trim())
+          .filter((p) => p.length);
+        this.updateField(it, 'microSteps', parts.length ? parts : undefined);
+      },
+      520,
+    );
   }
   // (outside click now handled via ClickOutsideDirective in template)
   byStatus(status: ItemEntity['status']) {
@@ -323,7 +337,9 @@ export class ItemsListComponent implements OnDestroy {
         const focusables = listRoot.querySelectorAll<HTMLLIElement>('li');
         const el = focusables[next];
         el?.focus();
-      } catch {}
+      } catch {
+        /* DOM not ready */
+      }
     });
   }
 }

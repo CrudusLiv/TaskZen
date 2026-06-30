@@ -1,16 +1,20 @@
 import { Component, signal, inject, OnDestroy } from '@angular/core';
-import { NgIf, NgFor, AsyncPipe, DecimalPipe } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { FocusActions } from './state/focus.actions';
-import { selectCurrentFocus, selectOnBreak, selectSessionExpired, selectHyperfocusWarning, selectWhereWasI } from './state/focus.selectors';
+import {
+  selectCurrentFocus,
+  selectOnBreak,
+  selectSessionExpired,
+  selectHyperfocusWarning,
+  selectWhereWasI,
+} from './state/focus.selectors';
 import { selectItemsArray } from '../items/state/items.selectors';
-import { PreferencesState } from '../preferences/state/preferences.reducer';
-import { focusFeatureKey } from './state/focus.reducer';
 
 @Component({
   standalone: true,
   selector: 'app-focus-page',
-  imports: [NgIf, NgFor, AsyncPipe, DecimalPipe],
+  imports: [AsyncPipe, DecimalPipe],
   templateUrl: './focus.page.html',
   styleUrls: ['./focus.page.scss'],
 })
@@ -36,7 +40,7 @@ export class FocusPage implements OnDestroy {
         itemId: this.pickedItemId(),
         plannedMinutes: this.pickedDuration(),
         calmSnapshot: false,
-      })
+      }),
     );
     this.choosing.set(false);
     this.nudgeDismissed.set(false);
@@ -56,7 +60,9 @@ export class FocusPage implements OnDestroy {
   dismissNudge() {
     this.nudgeDismissed.set(true);
   }
-  dismissHyperfocus() { this.hyperfocusDismissed.set(true); }
+  dismissHyperfocus() {
+    this.hyperfocusDismissed.set(true);
+  }
   onDurationChange(v: string) {
     const num = Number(v);
     if (!isNaN(num)) this.pickedDuration.set(num);

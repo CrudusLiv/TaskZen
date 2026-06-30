@@ -25,7 +25,9 @@ export class ThemeService {
     try {
       const acc = localStorage.getItem('tz.accent');
       if (acc) this.setAccent(acc);
-    } catch {}
+    } catch {
+      /* localStorage unavailable (e.g. private browsing) */
+    }
 
     // Always enforce (initial) dark theme dataset until store hydration overrides
     document.documentElement.dataset['theme'] = 'dark';
@@ -37,7 +39,9 @@ export class ThemeService {
         this.accent.set(accent);
         try {
           localStorage.setItem('tz.accent', accent);
-        } catch {}
+        } catch {
+          /* localStorage unavailable */
+        }
       }
       this.applyVar('--board-accent', this.accent());
     });
@@ -74,12 +78,13 @@ export class ThemeService {
     }
   }
   // setMode / toggleMode are deprecated; no-ops retained for backward compatibility
-  setMode(_m: 'dark' | 'light' | 'dark') {
-    /* dark only */ this.mode.set('dark');
+  setMode() {
+    /* dark only — mode parameter removed; dark is the only supported mode */
+    this.mode.set('dark');
     document.documentElement.dataset['theme'] = 'dark';
   }
   toggleMode() {
-    /* dark only */ this.setMode('dark');
+    /* dark only */ this.setMode();
   }
   setDensity(d: 'comfortable' | 'compact') {
     this.density.set(d);

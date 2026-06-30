@@ -37,7 +37,10 @@ export const routinesReducer = createReducer(
   on(RoutinesActions.hydrate, (s, { routines }) => {
     const entities: Record<string, RoutineEntity> = {};
     const order: string[] = [];
-    routines.forEach((r) => { entities[r.id] = r; order.unshift(r.id); });
+    routines.forEach((r) => {
+      entities[r.id] = r;
+      order.unshift(r.id);
+    });
     return { entities, order };
   }),
   on(RoutinesActions.addRoutine, (s, { name, energyTarget, cue }) => {
@@ -62,8 +65,10 @@ export const routinesReducer = createReducer(
   }),
   on(RoutinesActions.deleteRoutine, (s, { id }) => {
     if (!s.entities[id]) return s;
-    const { [id]: _, ...rest } = s.entities;
-    return { entities: rest, order: s.order.filter((o) => o !== id) };
+    const entities = Object.fromEntries(
+      Object.entries(s.entities).filter(([k]) => k !== id),
+    ) as Record<string, RoutineEntity>;
+    return { entities, order: s.order.filter((o) => o !== id) };
   }),
   on(RoutinesActions.addStep, (s, { routineId, title, minutes }) => {
     const cur = s.entities[routineId];
@@ -84,7 +89,7 @@ export const routinesReducer = createReducer(
     const cur = s.entities[routineId];
     if (!cur) return s;
     const steps = cur.steps.map((st) =>
-      st.id === stepId ? { ...st, title: title ?? st.title, minutes: minutes ?? st.minutes } : st
+      st.id === stepId ? { ...st, title: title ?? st.title, minutes: minutes ?? st.minutes } : st,
     );
     const updated: RoutineEntity = { ...cur, steps, updatedAt: new Date().toISOString() };
     return { ...s, entities: { ...s.entities, [routineId]: updated } };
@@ -108,7 +113,7 @@ export const routinesReducer = createReducer(
     steps.splice(target, 0, moved);
     const updated: RoutineEntity = { ...cur, steps, updatedAt: new Date().toISOString() };
     return { ...s, entities: { ...s.entities, [routineId]: updated } };
-  })
+  }),
 );
 
 export { routinesFeatureKey };

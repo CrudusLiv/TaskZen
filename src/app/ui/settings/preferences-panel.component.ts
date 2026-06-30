@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { PreferencesActions } from '../preferences/state/preferences.actions';
@@ -119,13 +119,13 @@ export class PreferencesPanelComponent {
   toggleCalm() {
     this.store.dispatch(PreferencesActions.toggleCalmMode());
   }
-  setThemeMode(mode: any) {
+  setThemeMode(mode: 'dark' | 'light' | 'system') {
     this.store.dispatch(PreferencesActions.setThemeMode({ mode }));
   }
   setAccent(accent: string) {
     this.store.dispatch(PreferencesActions.setAccent({ accent }));
   }
-  setDensity(density: any) {
+  setDensity(density: 'comfortable' | 'compact') {
     this.store.dispatch(PreferencesActions.setDensity({ density }));
   }
   setHighContrast(value: boolean) {

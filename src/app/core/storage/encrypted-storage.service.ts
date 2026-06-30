@@ -1,14 +1,11 @@
 import { Injectable } from '@angular/core';
 import { openDB, IDBPDatabase } from 'idb';
 
-interface PersistSnapshot {
+// PersistSnapshot uses an index signature so the storage layer remains
+// format-agnostic across schema versions. Callers cast slices to concrete types.
+export interface PersistSnapshot {
+  [key: string]: unknown;
   version: number;
-  items: any;
-  energy: any;
-  routines: any;
-  focus: any;
-  coach?: any;
-  preferences?: any;
   savedAt: string;
 }
 
@@ -73,12 +70,17 @@ export class EncryptedStorageService {
     const raw = await db.get('keys', EncryptedStorageService.DEVICE_KEY_ID);
     if (raw) {
       this.deviceKeyCache = await crypto.subtle.importKey(
-        'raw', raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+        'raw',
+        raw,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt'],
       );
     } else {
-      const key = await crypto.subtle.generateKey(
-        { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']
-      );
+      const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, [
+        'encrypt',
+        'decrypt',
+      ]);
       const exported = await crypto.subtle.exportKey('raw', key);
       await db.put('keys', exported, EncryptedStorageService.DEVICE_KEY_ID);
       this.deviceKeyCache = key;
@@ -111,7 +113,7 @@ export class EncryptedStorageService {
       enc.encode(this.passphrase),
       'PBKDF2',
       false,
-      ['deriveKey']
+      ['deriveKey'],
     );
     return await crypto.subtle.deriveKey(
       {
@@ -123,17 +125,17 @@ export class EncryptedStorageService {
       baseKey,
       { name: 'AES-GCM', length: 256 },
       false,
-      ['encrypt', 'decrypt']
+      ['encrypt', 'decrypt'],
     );
   }
 
   async save(snapshot: Omit<PersistSnapshot, 'savedAt'>) {
-    const payload: PersistSnapshot = { ...snapshot, savedAt: new Date().toISOString() };
+    const payload = { ...snapshot, savedAt: new Date().toISOString() } as PersistSnapshot;
     const plaintext = new TextEncoder().encode(JSON.stringify(payload));
     const key = await this.getOrCreateDeviceKey();
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const cipher = new Uint8Array(
-      await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext)
+      await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext),
     );
     const packed = this.packV3(iv, cipher);
     await (await this.db).put(STORE, packed, KEY_ID);
@@ -148,19 +150,19 @@ export class EncryptedStorageService {
         const { iv, cipher } = this.unpackV3(bytes);
         const key = await this.getOrCreateDeviceKey();
         const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
-        return JSON.parse(new TextDecoder().decode(plainBuf));
+        return JSON.parse(new TextDecoder().decode(plainBuf)) as PersistSnapshot;
       } else if (bytes[0] === EncryptedStorageService.VERSION_V2) {
         const { salt, iv, cipher } = this.unpackV2(bytes);
         const key = await this.deriveV2Key(salt);
         const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
         const json = new TextDecoder().decode(plainBuf);
-        return JSON.parse(json);
+        return JSON.parse(json) as PersistSnapshot;
       } else {
         const { iv, cipher } = this.unpackV1(bytes);
         const key = await this.legacyEnsureKey();
         const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
         const json = new TextDecoder().decode(plainBuf);
-        return JSON.parse(json);
+        return JSON.parse(json) as PersistSnapshot;
       }
     } catch (e) {
       console.error('[storage] load failed — data could not be decrypted or read', e);
@@ -176,12 +178,12 @@ export class EncryptedStorageService {
   async import(data: string) {
     try {
       const json = decodeURIComponent(escape(atob(data)));
-      const parsed = JSON.parse(json);
+      const parsed = JSON.parse(json) as Record<string, unknown>;
       // simple validation
       if (!parsed || typeof parsed !== 'object' || !('version' in parsed))
         throw new Error('invalid');
       // re-save to ensure encryption with local key
-      await this.save(parsed);
+      await this.save(parsed as Omit<PersistSnapshot, 'savedAt'>);
     } catch (e) {
       console.error('[storage] import failed', e);
       throw e;
@@ -216,7 +218,7 @@ export class EncryptedStorageService {
     return new Uint8Array(
       atob(b64)
         .split('')
-        .map((c) => c.charCodeAt(0))
+        .map((c) => c.charCodeAt(0)),
     );
   }
   private bytesToB64(bytes: Uint8Array) {

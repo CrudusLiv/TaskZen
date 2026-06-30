@@ -25,32 +25,47 @@
     </div>
   }
   <div class="top3">
-    <div class="card" *ngFor="let it of top3(); let i = index" [style.--i]="i">
-      <div class="rank">{{ i + 1 }}</div>
-      <div class="main">
-        <h2>{{ it.title }}</h2>
-        <div class="meta">
-          <span *ngIf="it.energyLevel" class="pill energy">E{{ it.energyLevel }}</span>
-          <span *ngIf="it.effort" class="pill effort">Effort {{ it.effort }}</span>
-          <span *ngIf="it.estimateMinutes" class="pill est">~{{ it.estimateMinutes }}m</span>
-          <span *ngIf="it.focusBoost" class="pill boost">Boost</span>
+    @for (it of top3(); track it.id; let i = $index) {
+      <div class="card" [style.--i]="i">
+        <div class="rank">{{ i + 1 }}</div>
+        <div class="main">
+          <h2>{{ it.title }}</h2>
+          <div class="meta">
+            @if (it.energyLevel) {
+              <span class="pill energy">E{{ it.energyLevel }}</span>
+            }
+            @if (it.effort) {
+              <span class="pill effort">Effort {{ it.effort }}</span>
+            }
+            @if (it.estimateMinutes) {
+              <span class="pill est">~{{ it.estimateMinutes }}m</span>
+            }
+            @if (it.focusBoost) {
+              <span class="pill boost">Boost</span>
+            }
+          </div>
         </div>
+        <div class="score">{{ it._priorityScore | number : '1.2-2' }}</div>
       </div>
-      <div class="score">{{ it._priorityScore | number : '1.2-2' }}</div>
-    </div>
+    }
   </div>
-  <button
-    type="button"
-    class="btn-ghost more"
-    (click)="toggleExpanded()"
-    *ngIf="(all()?.length || 0) > 3"
-  >
-    {{ expanded() ? 'Hide rest' : 'Show more' }}
-  </button>
-  <div class="rest" *ngIf="expanded()">
-    <div class="row" *ngFor="let it of all().slice(3)">
-      <div class="title">{{ it.title }}</div>
-      <div class="score-small">{{ it._priorityScore | number : '1.2-2' }}</div>
+  @if (all().length > 3) {
+    <button
+      type="button"
+      class="btn-ghost more"
+      (click)="toggleExpanded()"
+    >
+      {{ expanded ? 'Hide rest' : 'Show more' }}
+    </button>
+  }
+  @if (expanded) {
+    <div class="rest">
+      @for (it of all().slice(3); track it.id) {
+        <div class="row">
+          <div class="title">{{ it.title }}</div>
+          <div class="score-small">{{ it._priorityScore | number : '1.2-2' }}</div>
+        </div>
+      }
     </div>
-  </div>
+  }
 </section>

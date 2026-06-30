@@ -3,13 +3,15 @@
     <h1>Focus</h1>
     <p class="intro">Sprint-based deep work helper. UI shell refined.</p>
   </header>
-  <ng-container *ngIf="current$ | async as current; else pick">
+  @if (current$ | async; as current) {
     <div
       class="session panel-glass panel-section"
       [class.paused]="current.status === 'paused'"
       [class.on-break]="current.status === 'break'"
     >
-      <div class="break-badge" *ngIf="current.status === 'break'">On Break</div>
+      @if (current.status === 'break') {
+        <div class="break-badge">On Break</div>
+      }
       <div class="ring">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="46" class="bg" />
@@ -25,16 +27,17 @@
       </div>
 
       <!-- Session expiry nudge — shown when time is up and not dismissed -->
-      <div
-        class="expiry-nudge"
-        *ngIf="(sessionExpired$ | async) && !nudgeDismissed() && current.status !== 'break'"
-        role="status"
-        aria-live="polite"
-      >
-        <span class="nudge-icon">🌿</span>
-        <span class="nudge-text">Time's up! Ready to take a break or mark this complete?</span>
-        <button class="nudge-dismiss" (click)="dismissNudge()" aria-label="Dismiss nudge">✕</button>
-      </div>
+      @if ((sessionExpired$ | async) && !nudgeDismissed() && current.status !== 'break') {
+        <div
+          class="expiry-nudge"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="nudge-icon">🌿</span>
+          <span class="nudge-text">Time's up! Ready to take a break or mark this complete?</span>
+          <button class="nudge-dismiss" (click)="dismissNudge()" aria-label="Dismiss nudge">✕</button>
+        </div>
+      }
 
       @if ((hyperfocusWarning$ | async) && !hyperfocusDismissed()) {
         <div class="hyperfocus-warning" role="alert" aria-live="assertive">
@@ -50,23 +53,23 @@
 
       <div class="controls">
         <!-- Active session controls -->
-        <ng-container *ngIf="current.status !== 'break'">
-          <button class="btn-primary" *ngIf="current.status === 'running'" (click)="pause()">
-            Pause
-          </button>
-          <button class="btn-primary" *ngIf="current.status === 'paused'" (click)="resume()">
-            Resume
-          </button>
-          <button class="btn-break" *ngIf="current.status === 'running'" (click)="startBreak()">
-            Take a Break
-          </button>
+        @if (current.status !== 'break') {
+          @if (current.status === 'running') {
+            <button class="btn-primary" (click)="pause()">Pause</button>
+          }
+          @if (current.status === 'paused') {
+            <button class="btn-primary" (click)="resume()">Resume</button>
+          }
+          @if (current.status === 'running') {
+            <button class="btn-break" (click)="startBreak()">Take a Break</button>
+          }
           <button class="btn-success" (click)="complete()">Mark Complete</button>
           <button class="btn-secondary" (click)="stop()">Stop</button>
           <button class="btn-ghost btn-base" (click)="abort()">Abort</button>
-        </ng-container>
+        }
 
         <!-- Break controls -->
-        <ng-container *ngIf="current.status === 'break'">
+        @if (current.status === 'break') {
           @if (whereWasI$ | async; as ctx) {
             <div class="where-was-i" role="note">
               <p class="where-label">Last working on:</p>
@@ -79,35 +82,28 @@
           <button class="btn-primary btn-end-break" (click)="endBreak()">End Break</button>
           <button class="btn-success" (click)="complete()">Mark Complete</button>
           <button class="btn-ghost btn-base" (click)="abort()">Abort</button>
-        </ng-container>
+        }
       </div>
     </div>
-  </ng-container>
-  <ng-template #pick>
+  } @else {
     <div class="picker panel-glass panel-section">
       <h2>Choose Focus Sprint</h2>
-      <label
-        >Duration:
+      <label>Duration:
         <select #durSel (change)="onDurationChange(durSel.value)">
-          <option *ngFor="let d of durations" [selected]="d === pickedDuration()" [value]="d">
-            {{ d }} min
-          </option>
+          @for (d of durations; track d) {
+            <option [selected]="d === pickedDuration()" [value]="d">{{ d }} min</option>
+          }
         </select>
       </label>
-      <label
-        >Item (optional):
+      <label>Item (optional):
         <select #itemSel (change)="onItemChange(itemSel.value)">
           <option value="" [selected]="!pickedItemId()">-- none --</option>
-          <option
-            *ngFor="let it of items$ | async"
-            [value]="it.id"
-            [selected]="it.id === pickedItemId()"
-          >
-            {{ it.title }}
-          </option>
+          @for (it of items$ | async; track it.id) {
+            <option [value]="it.id" [selected]="it.id === pickedItemId()">{{ it.title }}</option>
+          }
         </select>
       </label>
       <button class="btn-primary" (click)="startSession()">Start</button>
     </div>
-  </ng-template>
+  }
 </section>

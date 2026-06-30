@@ -30,22 +30,22 @@ export interface KeyManager {
 export interface Migration {
   from: number; // previous version
   to: number; // next version
-  run(raw: any): any; // transform root snapshot-like structure
+  run(raw: Record<string, unknown>): Record<string, unknown>; // transform root snapshot-like structure
 }
 
 export interface MigrationRegistry {
-  applyAll(snapshot: any): any; // returns migrated structure
+  applyAll(snapshot: Record<string, unknown>): Record<string, unknown>; // returns migrated structure
 }
 
 // Helper result for partial slice hydration
 export interface HydrationSlices {
-  items?: any;
-  focusSessions?: any;
-  energyLogs?: any;
-  routines?: any;
-  routineRuns?: any;
-  coachPrompts?: any;
-  insights?: any;
+  items?: unknown;
+  focusSessions?: unknown;
+  energyLogs?: unknown;
+  routines?: unknown;
+  routineRuns?: unknown;
+  coachPrompts?: unknown;
+  insights?: unknown;
 }
 
 export interface PersistenceOrchestrator {

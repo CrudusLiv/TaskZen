@@ -41,7 +41,7 @@ export const ItemsActions = createActionGroup({
       pinned?: boolean;
     }>(),
     'Add Many': props<{
-      items: Array<{
+      items: {
         title: string;
         description?: string;
         estimateMinutes?: number;
@@ -52,13 +52,21 @@ export const ItemsActions = createActionGroup({
         tags?: string[];
         microSteps?: string[];
         pinned?: boolean;
-      }>;
+      }[];
     }>(),
     'Update Item': props<{ id: string; changes: Partial<Omit<ItemEntity, 'id' | 'createdAt'>> }>(),
-    'Patch Item': props<{ id: string; changes: Partial<Omit<ItemEntity, 'id' | 'createdAt' | 'updatedAt'>> }>(),
-    'Patch Many': props<{ updates: Array<{ id: string; changes: Partial<Omit<ItemEntity, 'id' | 'createdAt' | 'updatedAt'>> }> }>(),
-  'Toggle Micro Step': props<{ id: string; index: number }>(),
-  'Toggle Pin': props<{ id: string }>(),
+    'Patch Item': props<{
+      id: string;
+      changes: Partial<Omit<ItemEntity, 'id' | 'createdAt' | 'updatedAt'>>;
+    }>(),
+    'Patch Many': props<{
+      updates: {
+        id: string;
+        changes: Partial<Omit<ItemEntity, 'id' | 'createdAt' | 'updatedAt'>>;
+      }[];
+    }>(),
+    'Toggle Micro Step': props<{ id: string; index: number }>(),
+    'Toggle Pin': props<{ id: string }>(),
     'Delete Item': props<{ id: string }>(),
     'Move Status': props<{ id: string; status: ItemEntity['status'] }>(),
     'Replace All': props<{ items: ItemEntity[] }>(),

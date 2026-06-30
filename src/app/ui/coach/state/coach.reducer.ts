@@ -7,10 +7,6 @@ export interface CoachState {
 
 const initial: CoachState = { cards: [] };
 
-function newId() {
-  return 'c' + Date.now() + Math.random().toString(16).slice(2);
-}
-
 export const coachReducer = createReducer(
   initial,
   on(CoachActions.hydrate, (s, { cards }) => ({ cards: [...cards] })),
@@ -24,7 +20,7 @@ export const coachReducer = createReducer(
   on(CoachActions.pruneOld, (s) => {
     const cutoff = Date.now() - 1000 * 60 * 60 * 24 * 7; // 7 days
     return { cards: s.cards.filter((c) => new Date(c.createdAt).getTime() >= cutoff || c.pinned) };
-  })
+  }),
 );
 
 export { coachFeatureKey };

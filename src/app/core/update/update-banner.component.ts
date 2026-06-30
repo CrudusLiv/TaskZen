@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UpdateNotifierService } from './update-notifier.service';
 
 @Component({
@@ -12,7 +12,7 @@ import { UpdateNotifierService } from './update-notifier.service';
         ×
       </button>
     </div>
-    }`,
+  }`,
   styles: [
     `
       .update-banner {

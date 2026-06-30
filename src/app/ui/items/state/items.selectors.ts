@@ -1,5 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { itemsFeatureKey, ItemsState } from './items.reducer';
+import { ItemEntity } from './items.actions';
 
 export const selectItemsFeature = createFeatureSelector<ItemsState>(itemsFeatureKey);
 export const selectItemsEntities = createSelector(selectItemsFeature, (s) => s.entities);
@@ -7,13 +8,13 @@ export const selectItemsOrder = createSelector(selectItemsFeature, (s) => s.orde
 export const selectItemsArray = createSelector(
   selectItemsEntities,
   selectItemsOrder,
-  (entities, order) => order.map((id) => entities[id]).filter(Boolean)
+  (entities, order) => order.map((id) => entities[id]).filter(Boolean),
 );
 
 // All unique tags (lowercased) across items, sorted.
 export const selectAllTags = createSelector(selectItemsArray, (items) => {
   const set = new Set<string>();
-  items.forEach((i: any) => (i.tags || []).forEach((t: string) => set.add(t.toLowerCase())));
+  items.forEach((i) => (i.tags || []).forEach((t: string) => set.add(t.toLowerCase())));
   return Array.from(set).sort();
 });
 
@@ -26,7 +27,7 @@ export const selectAllTags = createSelector(selectItemsArray, (items) => {
 //  - effort activation curve (prefer mid-low for quick wins unless boosted)
 //  - focusBoost flag (explicit manual encouragement)
 //  - due urgency placeholder (not yet implemented)
-function scoreItem(it: any, now: number, latestEnergy?: number): number {
+function scoreItem(it: ItemEntity, now: number, latestEnergy?: number): number {
   const statusWeights: Record<string, number> = { inbox: 0.15, next: 1, progress: 0.95, done: 0 };
   const statusFocus = statusWeights[it.status] ?? 0;
 
@@ -61,12 +62,12 @@ function scoreItem(it: any, now: number, latestEnergy?: number): number {
     ? it.effort === 3
       ? 1
       : it.effort === 2
-      ? 0.95
-      : it.effort === 1
-      ? 0.7
-      : it.effort === 4
-      ? 0.55
-      : 0.45
+        ? 0.95
+        : it.effort === 1
+          ? 0.7
+          : it.effort === 4
+            ? 0.55
+            : 0.45
     : 0.55;
 
   const focusBoost = it.focusBoost ? 1 : 0;
@@ -92,12 +93,10 @@ export const selectItemsWithPriority = createSelector(selectItemsArray, (items) 
 });
 
 export const selectTopThreeItems = createSelector(selectItemsWithPriority, (items) =>
-  items.slice(0, 3)
+  items.slice(0, 3),
 );
 
 export const selectStuckTasks = createSelector(selectItemsArray, (items) => {
   const cutoff = Date.now() - 3 * 24 * 60 * 60 * 1000;
-  return items.filter(
-    (i) => i.status === 'progress' && Date.parse(i.updatedAt) < cutoff
-  );
+  return items.filter((i) => i.status === 'progress' && Date.parse(i.updatedAt) < cutoff);
 });

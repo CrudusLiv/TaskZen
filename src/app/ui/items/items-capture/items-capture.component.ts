@@ -26,7 +26,7 @@ export class ItemsCaptureComponent implements AfterViewInit {
   bulkText = signal('');
   parsedPreview = signal<string[]>([]);
   parsedPreviewMeta = signal<
-    Array<{ title: string; energyLevel?: number; estimateMinutes?: number; tags: string[] }>
+    { title: string; energyLevel?: number; estimateMinutes?: number; tags: string[] }[]
   >([]);
   showDemo = signal(true);
   liveMsg = signal('');
@@ -73,7 +73,7 @@ export class ItemsCaptureComponent implements AfterViewInit {
         continue;
       }
       if (/^![1-5]$/.test(t)) {
-        energyLevel = Number(t.substring(1)) as any;
+        energyLevel = Number(t.substring(1)) as 1 | 2 | 3 | 4 | 5;
         continue;
       }
       if (/^~\d+$/.test(t)) {
@@ -91,7 +91,7 @@ export class ItemsCaptureComponent implements AfterViewInit {
     const { cleanTitle, energyLevel, estimateMinutes, tags } = this.parseQuickMeta(raw);
     if (!cleanTitle) return;
     this.store.dispatch(
-      ItemsActions.addItem({ title: cleanTitle, energyLevel, estimateMinutes, tags })
+      ItemsActions.addItem({ title: cleanTitle, energyLevel, estimateMinutes, tags }),
     );
     this.title.set('');
     this.liveMsg.set(`Item added: ${cleanTitle}`);
@@ -111,12 +111,12 @@ export class ItemsCaptureComponent implements AfterViewInit {
       .filter((l) => !!l);
     this.bulkText.set(v);
     const titles: string[] = [];
-    const meta: Array<{
+    const meta: {
       title: string;
       energyLevel?: number;
       estimateMinutes?: number;
       tags: string[];
-    }> = [];
+    }[] = [];
     lines.forEach((line) => {
       const { cleanTitle, energyLevel, estimateMinutes, tags } = this.parseQuickMeta(line);
       if (cleanTitle) {

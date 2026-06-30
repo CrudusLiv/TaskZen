@@ -174,7 +174,7 @@ describe('CoachEffects', () => {
       store.setState({
         ...INITIAL_STATE,
         energy: { logs: [makeEnergyLog(1)] }, // would trigger low-energy
-        coach: { cards: [existingCard] },       // but card already exists — dedup fires
+        coach: { cards: [existingCard] }, // but card already exists — dedup fires
       });
 
       const dispatched: Action[] = [];

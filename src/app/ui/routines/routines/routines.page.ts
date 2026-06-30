@@ -45,10 +45,10 @@ export class RoutinesPage {
         id,
         changes: {
           name: this.metaName().trim() || 'Untitled',
-          energyTarget: this.metaEnergy() as any,
+          energyTarget: this.metaEnergy() as 1 | 2 | 3 | 4 | 5 | undefined,
           cue: this.metaCue().trim() || undefined,
         },
-      })
+      }),
     );
   }
   deleteRoutine(id: string) {
@@ -61,7 +61,7 @@ export class RoutinesPage {
     const title = this.stepTitle().trim();
     if (!title) return;
     this.store.dispatch(
-      RoutinesActions.addStep({ routineId: id, title, minutes: this.stepMinutes() })
+      RoutinesActions.addStep({ routineId: id, title, minutes: this.stepMinutes() }),
     );
     this.stepTitle.set('');
     this.stepMinutes.set(undefined);
@@ -72,15 +72,15 @@ export class RoutinesPage {
   removeStep(r: RoutineEntity, stepId: string) {
     this.store.dispatch(RoutinesActions.removeStep({ routineId: r.id, stepId }));
   }
-  updateStep(r: RoutineEntity, stepId: string, field: 'title' | 'minutes', value: any) {
+  updateStep(r: RoutineEntity, stepId: string, field: 'title' | 'minutes', value: string) {
     this.store.dispatch(
       RoutinesActions.updateStep({
         routineId: r.id,
         stepId,
         ...(field === 'title'
           ? { title: value }
-          : { minutes: value === '' ? undefined : Number(value) }),
-      })
+          : { minutes: value === '' ? undefined : Number(value as string) }),
+      }),
     );
   }
   play(r: RoutineEntity) {

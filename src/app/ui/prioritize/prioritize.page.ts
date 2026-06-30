@@ -1,7 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { selectTopThreeItems, selectItemsWithPriority, selectStuckTasks } from '../items/state/items.selectors';
+import {
+  selectTopThreeItems,
+  selectItemsWithPriority,
+  selectStuckTasks,
+} from '../items/state/items.selectors';
+import { ItemEntity } from '../items/state/items.actions';
+
+type ScoredItem = ItemEntity & { _priorityScore: number };
 
 @Component({
   standalone: true,
@@ -11,17 +18,16 @@ import { selectTopThreeItems, selectItemsWithPriority, selectStuckTasks } from '
   styleUrls: ['./prioritize.page.scss'],
 })
 export class PrioritizePage {
-  top3 = signal<any[]>([]);
-  all = signal<any[]>([]);
-  expanded = signal(false);
-  stuckTasks = signal<any[]>([]);
-  constructor(private store: Store) {
-    this.top3 = this.store.selectSignal(selectTopThreeItems) as any;
-    this.all = this.store.selectSignal(selectItemsWithPriority) as any;
-    this.stuckTasks = this.store.selectSignal(selectStuckTasks) as any;
-  }
+  private store = inject(Store);
+  top3: Signal<ScoredItem[]> = this.store.selectSignal(selectTopThreeItems) as Signal<ScoredItem[]>;
+  all: Signal<ScoredItem[]> = this.store.selectSignal(selectItemsWithPriority) as Signal<
+    ScoredItem[]
+  >;
+  stuckTasks: Signal<ItemEntity[]> = this.store.selectSignal(selectStuckTasks);
+  expanded = false;
+
   toggleExpanded() {
-    this.expanded.update((v) => !v);
+    this.expanded = !this.expanded;
   }
   daysAgo(updatedAt: string): number {
     return Math.floor((Date.now() - Date.parse(updatedAt)) / 86400000);

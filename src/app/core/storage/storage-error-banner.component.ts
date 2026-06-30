@@ -13,7 +13,7 @@ import { StorageErrorService } from './storage-error.service';
         ×
       </button>
     </div>
-    }`,
+  }`,
   styles: [
     `
       .storage-error-banner {

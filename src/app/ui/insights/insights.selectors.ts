@@ -8,7 +8,6 @@ import { selectCurrentFocus } from '../focus/state/focus.selectors';
 export const selectFocusActiveMinutesToday = createSelector(selectCurrentFocus, (cur) => {
   if (!cur || !cur.startedAt) return 0;
   const start = new Date(cur.startedAt);
-  const now = Date.now();
   const sameDay = start.toDateString() === new Date().toDateString();
   if (!sameDay) return 0;
   return Math.floor((cur.tickSeconds || 0) / 60);
@@ -42,8 +41,8 @@ export const selectRoutineAdherence = createSelector(selectRoutinesArray, (routi
 // Item priority distribution (based on existing _priorityScore ephemeral calculation)
 export const selectPriorityDistribution = createSelector(selectItemsArray, (items) => {
   const buckets = { high: 0, medium: 0, low: 0 };
-  items.forEach((i: any) => {
-    const score = i._priorityScore ?? 0; // if already computed by a parent selection chain
+  items.forEach((i) => {
+    const score = (i as { _priorityScore?: number })._priorityScore ?? 0; // if already computed by a parent selection chain
     if (score >= 0.66) buckets.high++;
     else if (score >= 0.33) buckets.medium++;
     else buckets.low++;
@@ -71,9 +70,7 @@ export const selectEnergyDipWindow = createSelector(selectEnergyLogs, (logs) => 
 // Completion streak: consecutive calendar days (ending today or yesterday) with >=1 completed item
 export const selectCompletionStreak = createSelector(selectItemsArray, (items) => {
   const doneDates = new Set(
-    items
-      .filter((i) => i.status === 'done')
-      .map((i) => new Date(i.updatedAt).toDateString())
+    items.filter((i) => i.status === 'done').map((i) => new Date(i.updatedAt).toDateString()),
   );
   const today = new Date();
   const startOffset = doneDates.has(today.toDateString()) ? 0 : 1;

@@ -20,7 +20,12 @@ function daysAgoIso(days: number): string {
   return new Date(Date.now() - days * 86400000).toISOString();
 }
 
-function makeItem(id: string, status: ItemEntity['status'], createdAt: string, updatedAt: string): ItemEntity {
+function makeItem(
+  id: string,
+  status: ItemEntity['status'],
+  createdAt: string,
+  updatedAt: string,
+): ItemEntity {
   return { id, title: id, status, createdAt, updatedAt };
 }
 
@@ -92,9 +97,9 @@ describe('selectItemsCompletedToday', () => {
 
   it('counts only done items updated today', () => {
     const items = [
-      makeItem('a', 'done', daysAgoIso(2), todayIso()),    // done today
+      makeItem('a', 'done', daysAgoIso(2), todayIso()), // done today
       makeItem('b', 'done', daysAgoIso(2), daysAgoIso(1)), // done yesterday
-      makeItem('c', 'next', todayIso(), todayIso()),         // not done
+      makeItem('c', 'next', todayIso(), todayIso()), // not done
     ];
     expect(selectItemsCompletedToday.projector(items)).toBe(1);
   });
@@ -137,7 +142,10 @@ describe('selectRoutineAdherence', () => {
   it('calculates ratio of routines with steps', () => {
     const now = todayIso();
     const routines = [
-      makeRoutine('r1', [{ id: 's1', title: 'Step A' }, { id: 's2', title: 'Step B' }]),
+      makeRoutine('r1', [
+        { id: 's1', title: 'Step A' },
+        { id: 's2', title: 'Step B' },
+      ]),
       makeRoutine('r2', []),
       makeRoutine('r3', [{ id: 's3', title: 'Step X' }]),
     ];
@@ -150,7 +158,10 @@ describe('selectRoutineAdherence', () => {
   it('returns 100% when all routines have steps', () => {
     const routines = [
       makeRoutine('r1', [{ id: 's1', title: 'A' }]),
-      makeRoutine('r2', [{ id: 's2', title: 'B' }, { id: 's3', title: 'C' }]),
+      makeRoutine('r2', [
+        { id: 's2', title: 'B' },
+        { id: 's3', title: 'C' },
+      ]),
     ];
     const result = selectRoutineAdherence.projector(routines);
     expect(result.ratio).toBe(1);
@@ -173,9 +184,9 @@ describe('selectPriorityDistribution', () => {
 
   it('buckets items by _priorityScore', () => {
     const items = [
-      { ...makeItem('a', 'next', todayIso(), todayIso()), _priorityScore: 0.8 },  // high >= 0.66
-      { ...makeItem('b', 'next', todayIso(), todayIso()), _priorityScore: 0.5 },  // medium >= 0.33
-      { ...makeItem('c', 'next', todayIso(), todayIso()), _priorityScore: 0.1 },  // low < 0.33
+      { ...makeItem('a', 'next', todayIso(), todayIso()), _priorityScore: 0.8 }, // high >= 0.66
+      { ...makeItem('b', 'next', todayIso(), todayIso()), _priorityScore: 0.5 }, // medium >= 0.33
+      { ...makeItem('c', 'next', todayIso(), todayIso()), _priorityScore: 0.1 }, // low < 0.33
       { ...makeItem('d', 'next', todayIso(), todayIso()), _priorityScore: 0.66 }, // high (boundary)
       { ...makeItem('e', 'next', todayIso(), todayIso()), _priorityScore: 0.33 }, // medium (boundary)
     ];

@@ -41,11 +41,8 @@ export const selectWhereWasI = createSelector(
     if (!cur?.itemId) return null;
     const item = items.find((i) => i.id === cur.itemId);
     if (!item) return null;
-    const lastDoneIdx = item.microStepsState
-      ? [...item.microStepsState].lastIndexOf(true)
-      : -1;
-    const lastStep =
-      lastDoneIdx >= 0 && item.microSteps ? item.microSteps[lastDoneIdx] : null;
+    const lastDoneIdx = item.microStepsState ? [...item.microStepsState].lastIndexOf(true) : -1;
+    const lastStep = lastDoneIdx >= 0 && item.microSteps ? item.microSteps[lastDoneIdx] : null;
     return { itemTitle: item.title, lastStep };
-  }
+  },
 );

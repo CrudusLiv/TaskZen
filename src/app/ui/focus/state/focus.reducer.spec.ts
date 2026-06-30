@@ -19,7 +19,10 @@ function makeSession(overrides: Partial<FocusSessionStateEntity> = {}): FocusSes
 describe('focusReducer', () => {
   // ── startSession ────────────────────────────────────────────────────────────
   it('startSession creates a current session', () => {
-    const s1 = focusReducer(initial, FocusActions.startSession({ plannedMinutes: 25, calmSnapshot: false }));
+    const s1 = focusReducer(
+      initial,
+      FocusActions.startSession({ plannedMinutes: 25, calmSnapshot: false }),
+    );
     expect(s1.current).toBeDefined();
     expect(s1.current?.plannedMinutes).toBe(25);
     expect(s1.current?.status).toBe('running');
@@ -27,7 +30,10 @@ describe('focusReducer', () => {
   });
 
   it('startSession with itemId records itemId', () => {
-    const s1 = focusReducer(initial, FocusActions.startSession({ itemId: 'item123', plannedMinutes: 10, calmSnapshot: true }));
+    const s1 = focusReducer(
+      initial,
+      FocusActions.startSession({ itemId: 'item123', plannedMinutes: 10, calmSnapshot: true }),
+    );
     expect(s1.current?.itemId).toBe('item123');
     expect(s1.current?.calmSnapshot).toBe(true);
   });
@@ -122,7 +128,10 @@ describe('focusReducer', () => {
   it('endBreak sets break end time and resumes running', () => {
     const s0 = {
       ...initial,
-      current: makeSession({ status: 'break', breakSegments: [{ start: new Date().toISOString() }] }),
+      current: makeSession({
+        status: 'break',
+        breakSegments: [{ start: new Date().toISOString() }],
+      }),
     };
     const s1 = focusReducer(s0, FocusActions.endBreak());
     expect(s1.current?.status).toBe('running');
@@ -133,7 +142,10 @@ describe('focusReducer', () => {
     const endTime = new Date().toISOString();
     const s0 = {
       ...initial,
-      current: makeSession({ status: 'break', breakSegments: [{ start: new Date().toISOString(), end: endTime }] }),
+      current: makeSession({
+        status: 'break',
+        breakSegments: [{ start: new Date().toISOString(), end: endTime }],
+      }),
     };
     const s1 = focusReducer(s0, FocusActions.endBreak());
     // end is already set; it should not be changed
@@ -239,12 +251,15 @@ describe('focusReducer', () => {
   // ── hydrate ─────────────────────────────────────────────────────────────────
   it('hydrate restores saved state', () => {
     const session = makeSession();
-    const s1 = focusReducer(initial, FocusActions.hydrate({
-      current: session,
-      history: [makeSession({ id: 'h1', status: 'stopped', completed: true })],
-      dayStreak: 7,
-      lastSessionDate: '2026-01-01',
-    }));
+    const s1 = focusReducer(
+      initial,
+      FocusActions.hydrate({
+        current: session,
+        history: [makeSession({ id: 'h1', status: 'stopped', completed: true })],
+        dayStreak: 7,
+        lastSessionDate: '2026-01-01',
+      }),
+    );
     expect(s1.current?.id).toBe('f1');
     expect(s1.history.length).toBe(1);
     expect(s1.dayStreak).toBe(7);

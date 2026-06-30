@@ -5,7 +5,11 @@ function makeState(overrides: Partial<ItemsState> = {}): ItemsState {
   return { entities: {}, order: [], ...overrides };
 }
 
-function addOne(state: ItemsState, title: string, extra: Partial<Parameters<typeof ItemsActions.addItem>[0]> = {}): { state: ItemsState; id: string } {
+function addOne(
+  state: ItemsState,
+  title: string,
+  extra: Partial<Parameters<typeof ItemsActions.addItem>[0]> = {},
+): { state: ItemsState; id: string } {
   const s = itemsReducer(state, ItemsActions.addItem({ title, ...extra }));
   return { state: s, id: s.order[0] };
 }
@@ -103,7 +107,10 @@ describe('itemsReducer', () => {
   });
 
   it('addMany with microSteps creates microStepsState', () => {
-    const s1 = itemsReducer(makeState(), ItemsActions.addMany({ items: [{ title: 'T', microSteps: ['a'] }] }));
+    const s1 = itemsReducer(
+      makeState(),
+      ItemsActions.addMany({ items: [{ title: 'T', microSteps: ['a'] }] }),
+    );
     const e = s1.entities[s1.order[0]];
     expect(e.microStepsState).toEqual([false]);
   });
@@ -117,7 +124,10 @@ describe('itemsReducer', () => {
   it('updateItem applies changes and updates updatedAt', () => {
     const { state: s0, id } = addOne(makeState(), 'Original');
     const before = s0.entities[id].updatedAt;
-    const s1 = itemsReducer(s0, ItemsActions.updateItem({ id, changes: { title: 'Changed', status: 'next' } }));
+    const s1 = itemsReducer(
+      s0,
+      ItemsActions.updateItem({ id, changes: { title: 'Changed', status: 'next' } }),
+    );
     expect(s1.entities[id].title).toBe('Changed');
     expect(s1.entities[id].status).toBe('next');
     expect(s1.entities[id].updatedAt).toBeTruthy();
@@ -137,7 +147,10 @@ describe('itemsReducer', () => {
     // toggle first step
     const s1 = itemsReducer(s0, ItemsActions.toggleMicroStep({ id, index: 0 }));
     // now update with new microSteps (same length)
-    const s2 = itemsReducer(s1, ItemsActions.updateItem({ id, changes: { microSteps: ['x', 'y'] } }));
+    const s2 = itemsReducer(
+      s1,
+      ItemsActions.updateItem({ id, changes: { microSteps: ['x', 'y'] } }),
+    );
     // State at index 0 was true; should be preserved
     expect(s2.entities[id].microStepsState?.[0]).toBe(true);
     expect(s2.entities[id].microStepsState?.[1]).toBe(false);
@@ -151,7 +164,10 @@ describe('itemsReducer', () => {
 
   it('patchItem for unknown id returns same state', () => {
     const s0 = makeState();
-    const s1 = itemsReducer(s0, ItemsActions.patchItem({ id: 'nope', changes: { status: 'done' } }));
+    const s1 = itemsReducer(
+      s0,
+      ItemsActions.patchItem({ id: 'nope', changes: { status: 'done' } }),
+    );
     expect(s1).toBe(s0);
   });
 
@@ -167,13 +183,18 @@ describe('itemsReducer', () => {
     await new Promise((r) => setTimeout(r, 5));
     const { state: s1, id: id2 } = addOne(s0, 'Item 2');
     // Ensure distinct ids; if same (extremely fast machine), skip assertion safely
-    if (id1 === id2) { return; }
-    const s2 = itemsReducer(s1, ItemsActions.patchMany({
-      updates: [
-        { id: id1, changes: { status: 'done' } },
-        { id: id2, changes: { status: 'next' } },
-      ],
-    }));
+    if (id1 === id2) {
+      return;
+    }
+    const s2 = itemsReducer(
+      s1,
+      ItemsActions.patchMany({
+        updates: [
+          { id: id1, changes: { status: 'done' } },
+          { id: id2, changes: { status: 'next' } },
+        ],
+      }),
+    );
     expect(s2.entities[id1].status).toBe('done');
     expect(s2.entities[id2].status).toBe('next');
   });
@@ -186,18 +207,24 @@ describe('itemsReducer', () => {
 
   it('patchMany skips unknown ids', () => {
     const { state: s0, id } = addOne(makeState(), 'Only');
-    const s1 = itemsReducer(s0, ItemsActions.patchMany({
-      updates: [{ id: 'nope', changes: { status: 'done' } }],
-    }));
+    const s1 = itemsReducer(
+      s0,
+      ItemsActions.patchMany({
+        updates: [{ id: 'nope', changes: { status: 'done' } }],
+      }),
+    );
     // entities should be unchanged
     expect(s1.entities[id].status).toBe('inbox');
   });
 
   it('patchMany with microSteps builds microStepsState', () => {
     const { state: s0, id } = addOne(makeState(), 'Patch many steps');
-    const s1 = itemsReducer(s0, ItemsActions.patchMany({
-      updates: [{ id, changes: { microSteps: ['a', 'b'] } }],
-    }));
+    const s1 = itemsReducer(
+      s0,
+      ItemsActions.patchMany({
+        updates: [{ id, changes: { microSteps: ['a', 'b'] } }],
+      }),
+    );
     expect(s1.entities[id].microStepsState).toEqual([false, false]);
   });
 
@@ -206,17 +233,23 @@ describe('itemsReducer', () => {
     // toggle step 0
     const s1 = itemsReducer(s0, ItemsActions.toggleMicroStep({ id, index: 0 }));
     // patch with same microSteps (re-patch preserves state[0]=true)
-    const s2 = itemsReducer(s1, ItemsActions.patchMany({
-      updates: [{ id, changes: { microSteps: ['a', 'b'] } }],
-    }));
+    const s2 = itemsReducer(
+      s1,
+      ItemsActions.patchMany({
+        updates: [{ id, changes: { microSteps: ['a', 'b'] } }],
+      }),
+    );
     expect(s2.entities[id].microStepsState?.[0]).toBe(true);
   });
 
   it('patchMany without microSteps preserves existing microStepsState', () => {
     const { state: s0, id } = addOne(makeState(), 'NoMsChange', { microSteps: ['x'] });
-    const s1 = itemsReducer(s0, ItemsActions.patchMany({
-      updates: [{ id, changes: { status: 'next' } }],
-    }));
+    const s1 = itemsReducer(
+      s0,
+      ItemsActions.patchMany({
+        updates: [{ id, changes: { status: 'next' } }],
+      }),
+    );
     expect(s1.entities[id].microStepsState).toEqual([false]);
   });
 
