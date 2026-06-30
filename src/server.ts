@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -13,10 +14,18 @@ import cors from 'cors';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 
+if (process.env['SENTRY_DSN']) {
+  Sentry.init({
+    dsn: process.env['SENTRY_DSN'],
+    environment: process.env['NODE_ENV'] || 'production',
+    tracesSampleRate: 0.1,
+  });
+}
+
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const { version } = JSON.parse(
-  readFileSync(join(import.meta.dirname, '../../package.json'), 'utf8')
+  readFileSync(join(import.meta.dirname, '../../package.json'), 'utf8'),
 ) as { version: string };
 
 const app = express();
@@ -72,7 +81,7 @@ app.use(
     maxAge: '1y',
     index: false,
     redirect: false,
-  })
+  }),
 );
 
 /**
@@ -82,10 +91,14 @@ app.use((req, res, next) => {
   angularApp
     .handle(req)
     .then((response: Response | null) =>
-      response ? writeResponseToNodeResponse(response, res) : next()
+      response ? writeResponseToNodeResponse(response, res) : next(),
     )
     .catch(next);
 });
+
+if (process.env['SENTRY_DSN']) {
+  Sentry.setupExpressErrorHandler(app);
+}
 
 /**
  * Start the server if this module is the main entry point.

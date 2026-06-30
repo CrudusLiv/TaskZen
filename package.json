@@ -44,6 +44,8 @@
     "@ngrx/router-store": "^20.0.1",
     "@ngrx/store": "^20.0.1",
     "@ngrx/store-devtools": "^20.0.1",
+    "@sentry/angular": "^10.62.0",
+    "@sentry/node": "^10.62.0",
     "canvas-confetti": "^1.9.3",
     "chart.js": "^4.5.0",
     "compression": "^1.8.1",
