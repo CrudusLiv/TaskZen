@@ -37,7 +37,19 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 // 1. Request logging
-app.use(morgan('combined'));
+app.use(
+  morgan((tokens, req, res) => {
+    return JSON.stringify({
+      method: tokens['method'](req, res) ?? null,
+      url: tokens['url'](req, res) ?? null,
+      status: Number(tokens['status'](req, res)),
+      duration: `${tokens['response-time'](req, res) ?? '0'} ms`,
+      contentLength: tokens['res'](req, res, 'content-length') ?? null,
+      userAgent: tokens['user-agent'](req, res) ?? null,
+      ts: new Date().toISOString(),
+    });
+  }),
+);
 
 // 2. Security headers
 app.use(helmet());
