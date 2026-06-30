@@ -9,7 +9,8 @@
     "test": "ng test",
     "serve:ssr:TaskZen": "node dist/TaskZen/server/server.mjs",
     "deploy": "npm run build && firebase deploy --only hosting",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "e2e": "playwright test"
   },
   "prettier": {
     "printWidth": 100,
@@ -60,6 +61,7 @@
     "@angular/build": "~20.3.0",
     "@angular/cli": "~20.3.0",
     "@angular/compiler-cli": "~20.3.0",
+    "@playwright/test": "^1.61.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
