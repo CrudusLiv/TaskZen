@@ -27,7 +27,7 @@ jobs:
         run: npm run lint
 
       - name: Run unit tests
-        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage=false
+        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
         env:
           CI: 'true'
 
