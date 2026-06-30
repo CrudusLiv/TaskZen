@@ -26,6 +26,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Security audit
+        run: npm audit --audit-level=high
+
       - name: Run unit tests
         run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
         env:

@@ -77,7 +77,6 @@ describe('selectItemsWithPriority', () => {
   });
 
   it('sorts by priority score descending', () => {
-    const now = new Date().toISOString();
     // focusBoost=true should push score higher; status=progress ranks higher than inbox
     const items = [
       makeItem({ id: 'low', title: 'Low', status: 'inbox', focusBoost: false }),
@@ -90,7 +89,12 @@ describe('selectItemsWithPriority', () => {
   it('scores items with various effort levels', () => {
     // Cover effort branches: 1, 2, 3, 4, 5 (>=5 -> else branch 0.45)
     const items = [1, 2, 3, 4, 5].map((effort) =>
-      makeItem({ id: `e${effort}`, title: `Effort ${effort}`, status: 'next', effort: effort as 1 | 2 | 3 | 4 | 5 }),
+      makeItem({
+        id: `e${effort}`,
+        title: `Effort ${effort}`,
+        status: 'next',
+        effort: effort as 1 | 2 | 3 | 4 | 5,
+      }),
     );
     const result = selectItemsWithPriority.projector(items);
     expect(result.length).toBe(5);
@@ -107,7 +111,7 @@ describe('selectItemsWithPriority', () => {
     const result = selectItemsWithPriority.projector(items);
     expect(result.length).toBe(2);
     // item with energyLevel should still get a valid score
-    expect(result.find(i => i.id === 'e1')?._priorityScore).toBeGreaterThan(0);
+    expect(result.find((i) => i.id === 'e1')?._priorityScore).toBeGreaterThan(0);
   });
 
   it('applies age decay for old items (created >14 days ago)', () => {
@@ -146,7 +150,9 @@ describe('selectTopThreeItems', () => {
   });
 
   it('returns all items when fewer than 3', () => {
-    const items = [{ ...makeItem({ id: 'a', title: 'Only', status: 'next' }), _priorityScore: 0.5 }];
+    const items = [
+      { ...makeItem({ id: 'a', title: 'Only', status: 'next' }), _priorityScore: 0.5 },
+    ];
     const result = selectTopThreeItems.projector(items);
     expect(result.length).toBe(1);
   });
