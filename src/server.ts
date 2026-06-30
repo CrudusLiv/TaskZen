@@ -6,6 +6,7 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -13,6 +14,10 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+
+const { version } = JSON.parse(
+  readFileSync(join(import.meta.dirname, '../../package.json'), 'utf8')
+) as { version: string };
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -41,6 +46,11 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 // 6. Rate limiting — 100 requests per 15-minute window
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use(limiter);
+
+// 7. Health check — exempt from rate limiting
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), version });
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.
