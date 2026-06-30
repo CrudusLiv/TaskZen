@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { CoachActions } from './coach.actions';
-import { map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { map, mergeMap, take, withLatestFrom } from 'rxjs/operators';
 import { timer } from 'rxjs';
 import { selectEnergyLogs } from '../../energy/state/energy.selectors';
 import { selectItemsArray, selectItemsWithPriority } from '../../items/state/items.selectors';
@@ -24,10 +24,17 @@ export class CoachEffects {
         this.store.select(selectItemsArray),
         this.store.select(selectItemsWithPriority),
         this.store.select(selectRoutineAdherence),
-        this.store.select(selectCurrentFocus)
+        this.store.select(selectCurrentFocus),
       ),
-      mergeMap(([_, energy, items, prioritized, adherence, focus]) => {
-        const cards = [] as any[];
+      mergeMap(([, energy, items, prioritized, adherence, focus]) => {
+        interface CoachCardDraft {
+          category: string;
+          title: string;
+          body: string;
+          suggestion: string;
+          ruleId: string;
+        }
+        const cards: CoachCardDraft[] = [];
         const nowIso = new Date().toISOString();
 
         const h = new Date().getHours();
@@ -42,16 +49,21 @@ export class CoachEffects {
           cards.push({
             category: 'Energy',
             title: 'Energy is low',
-            body: h >= 13 && h < 15
-              ? 'Post-lunch dip is common with ADHD. A 5-min walk helps more than caffeine.'
-              : 'Consider a short recharge: 2–5 min movement or hydration.',
+            body:
+              h >= 13 && h < 15
+                ? 'Post-lunch dip is common with ADHD. A 5-min walk helps more than caffeine.'
+                : 'Consider a short recharge: 2–5 min movement or hydration.',
             suggestion: 'Log a reset after your break',
             ruleId: 'low-energy',
           });
         }
 
         // Rule 2 — energy-trend-drop
-        if (energy.length >= 3 && energy[0].level < energy[1].level && energy[1].level < energy[2].level) {
+        if (
+          energy.length >= 3 &&
+          energy[0].level < energy[1].level &&
+          energy[1].level < energy[2].level
+        ) {
           cards.push({
             category: 'Energy',
             title: 'Energy dipping',
@@ -65,7 +77,7 @@ export class CoachEffects {
         if (isMorning) {
           const today = new Date().toDateString();
           const completedToday = items.filter(
-            (i) => i.status === 'done' && new Date(i.updatedAt).toDateString() === today
+            (i) => i.status === 'done' && new Date(i.updatedAt).toDateString() === today,
           ).length;
           if (completedToday === 0) {
             cards.push({
@@ -124,16 +136,18 @@ export class CoachEffects {
         }
 
         // De-duplicate by ruleId within last hour
+        interface RootWithCoach {
+          coach?: { cards?: { ruleId: string; createdAt: string }[] };
+        }
         return this.store
-          .select((state) => state as any)
+          .select((state) => state as RootWithCoach)
           .pipe(
-            map((root: any) => {
+            take(1),
+            map((root) => {
               const existing = (root.coach?.cards || []).filter(
-                (c: any) => Date.now() - new Date(c.createdAt).getTime() < 3600_000
+                (c) => Date.now() - new Date(c.createdAt).getTime() < 3600_000,
               );
-              const newOnes = cards.filter(
-                (c) => !existing.some((e: any) => e.ruleId === c.ruleId)
-              );
+              const newOnes = cards.filter((c) => !existing.some((e) => e.ruleId === c.ruleId));
               return newOnes.map((c) =>
                 CoachActions.addCard({
                   card: {
@@ -141,12 +155,12 @@ export class CoachEffects {
                     createdAt: nowIso,
                     ...c,
                   },
-                })
+                }),
               );
             }),
-            mergeMap((actions) => actions)
+            mergeMap((actions) => actions),
           );
-      })
-    )
+      }),
+    ),
   );
 }

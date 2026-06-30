@@ -64,14 +64,14 @@ app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// 6. Rate limiting — 100 requests per 15-minute window
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
-app.use(limiter);
-
-// 7. Health check — exempt from rate limiting
+// 6. Health check — registered before rate limiting so load-balancer probes are never throttled
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), version });
 });
+
+// 7. Rate limiting — 100 requests per 15-minute window
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+app.use(limiter);
 
 /**
  * Example Express Rest API endpoints can be defined here.

@@ -1,4 +1,5 @@
 import { ErrorHandler, inject, Injector, Injectable } from '@angular/core';
+import * as Sentry from '@sentry/angular';
 import { ErrorNotificationService } from './error-notification.service';
 
 @Injectable()
@@ -7,6 +8,11 @@ export class GlobalErrorHandler implements ErrorHandler {
 
   handleError(error: unknown): void {
     console.error('[GlobalErrorHandler]', error);
+    try {
+      Sentry.captureException(error);
+    } catch {
+      // Sentry not initialized — ignore
+    }
     try {
       const svc = this.injector.get(ErrorNotificationService);
       const msg = error instanceof Error ? error.message : 'An unexpected error occurred.';
